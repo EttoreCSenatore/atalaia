@@ -35,6 +35,7 @@ Atalaia is a security tool that is also a target: it knows every device on the n
 | Used to scan third-party networks | Scope fixed to the host's own private networks (`internal/scope`), no arbitrary target |
 | Active scan without consent | Opt-in, needs an "this is my network" confirmation, rate-limited, written to an audit log |
 | Compromised agent becomes a foothold | Runs without root, only `CAP_NET_RAW`; minimal image with no extra privileges |
+| A compromised administrator triggering active actions | Observe-only mode (`--no-active-tools`) turns them off entirely; the systemd unit runs unprivileged with a system-call filter |
 | Atalaia used as an attack tool (scanning third-party networks or machines) | Active actions only on inventory devices in the local scope, no free target; confirmation, one at a time, minimum interval and an audit log; the scan only connects, it sends no data |
 | Another device impersonates the router (ARP spoofing) | Passive detection of two signs (gateway MAC changed; one MAC with many IPs) with an alert; a heuristic, with documented limits |
 | An alert channel's secret leaks (Telegram token, e-mail password) | Stored only in the local `0600` database, never returned by the API nor repeated in errors; e-mail refuses to send a password without TLS |

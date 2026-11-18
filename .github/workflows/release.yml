@@ -31,31 +31,35 @@ jobs:
         run: npm ci && npm run build
       - name: Tests
         run: go test ./...
-      - name: Build (linux amd64, arm64, armv7)
+      - name: Build (linux amd64, arm64, armv7), tarballs and .deb/.rpm packages
         env:
           VERSION: ${{ github.ref_name }}
         run: |
-          mkdir dist
-          for t in amd64:amd64 arm64:arm64 arm:armv7; do
-            arch=${t%%:*}; name=${t##*:}
+          mkdir dist bin
+          for t in amd64:amd64:amd64 arm64:arm64:arm64 arm:armv7:arm7; do
+            IFS=: read -r goarch name nfarch <<< "$t"
             out="atalaia_${VERSION}_linux_${name}"
-            mkdir "dist/$out"
-            CGO_ENABLED=0 GOOS=linux GOARCH=$arch GOARM=7 go build -trimpath \
+            mkdir "dist/$out" "bin/$name"
+            CGO_ENABLED=0 GOOS=linux GOARCH=$goarch GOARM=7 go build -trimpath \
               -ldflags "-s -w -X github.com/EttoreCSenatore/atalaia/internal/version.Version=${VERSION}" \
-              -o "dist/$out/atalaia" ./cmd/atalaia
-            cp LICENSE README.md README.en.md "dist/$out/"
+              -o "bin/$name/atalaia" ./cmd/atalaia
+            cp "bin/$name/atalaia" LICENSE README.md README.en.md "dist/$out/"
             tar -C dist -czf "dist/$out.tar.gz" "$out"
             rm -r "dist/$out"
+            for fmt in deb rpm; do
+              VERSION="${VERSION#v}" ARCH="$nfarch" BINARY="bin/$name/atalaia" \
+                go run github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.49.0 package -f deploy/nfpm.yaml -p "$fmt" -t dist/
+            done
           done
-          (cd dist && sha256sum *.tar.gz > SHA256SUMS)
+          (cd dist && sha256sum *.tar.gz *.deb *.rpm > SHA256SUMS)
       - name: GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
-          notes="Atalaia ${TAG}. Linux binaries (amd64, arm64, armv7) with the web app inside; verify with SHA256SUMS. Image: ghcr.io/${GITHUB_REPOSITORY,,}:${TAG#v}. Changes: CHANGELOG.md."
+          notes="Atalaia ${TAG}. Linux binaries (amd64, arm64, armv7) with the web app inside, plus .deb and .rpm packages with a hardened systemd unit; verify with SHA256SUMS. Image: ghcr.io/${GITHUB_REPOSITORY,,}:${TAG#v}. Changes: CHANGELOG.md."
           pre=""; case "$TAG" in *-*) pre="--prerelease";; esac
-          gh release create "$TAG" dist/*.tar.gz dist/SHA256SUMS --title "$TAG" --notes "$notes" --verify-tag $pre
+          gh release create "$TAG" dist/*.tar.gz dist/*.deb dist/*.rpm dist/SHA256SUMS --title "$TAG" --notes "$notes" --verify-tag $pre
 
   image:
     name: Image on GHCR

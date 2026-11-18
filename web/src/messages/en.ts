@@ -62,6 +62,7 @@ export const en = {
     tagsHelp: 'Separate with commas. Up to 8 tags; they are saved in lower case.',
     known: 'Known device',
     knownHelp: 'Mark the devices you recognise. Unknown devices are the ones worth a second look.',
+    observeOnly: 'This server is in observe-only mode: active tools are disabled.',
     tools: 'Active tools',
     wake: 'Wake up (Wake-on-LAN)',
     wakeHelp: 'Sends a magic packet to this device on your local network.',
@@ -158,6 +159,7 @@ export const en = {
   },
   tools: {
     title: 'Network tools',
+    observeOnly: 'This server is in observe-only mode: ping, Wake-on-LAN, port scans and exposure checks are disabled.',
     ping: 'Ping',
     host: 'Address or name',
     run: 'Run',

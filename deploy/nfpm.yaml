@@ -1,0 +1,38 @@
+# Builds the .deb and .rpm packages (see .github/workflows/release.yml).
+# Environment: VERSION (e.g. 0.3.0), ARCH (nfpm arch: amd64, arm64, arm7), BINARY (path of the built binary).
+name: atalaia
+arch: ${ARCH}
+platform: linux
+version: ${VERSION}
+section: net
+priority: optional
+maintainer: Atalaia contributors <noreply@users.noreply.github.com>
+description: |
+  Atalaia: open-source network scanner and monitor with a built-in web app.
+  Discovers the devices on your local network, keeps their history, alerts you
+  about new ones and runs defensive security checks. Self-hosted, no cloud.
+homepage: https://ettorecsenatore.github.io/atalaia/
+license: AGPL-3.0-or-later
+contents:
+  - src: ${BINARY}
+    dst: /usr/bin/atalaia
+    expand: true
+    file_info:
+      mode: 0755
+  - src: deploy/atalaia.service
+    dst: /usr/lib/systemd/system/atalaia.service
+    file_info:
+      mode: 0644
+  - src: deploy/atalaia.default
+    dst: /etc/default/atalaia
+    type: config|noreplace
+    file_info:
+      mode: 0644
+  - src: LICENSE
+    dst: /usr/share/doc/atalaia/copyright
+    file_info:
+      mode: 0644
+  - src: README.en.md
+    dst: /usr/share/doc/atalaia/README.md
+    file_info:
+      mode: 0644

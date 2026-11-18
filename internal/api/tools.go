@@ -31,6 +31,17 @@ func (s *Server) scopeNow() (*scope.Scope, error) {
 	return scope.Local()
 }
 
+// activeOnly refuses the active tools when the server runs in observe-only mode.
+func (s *Server) activeOnly(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if s.NoActiveTools {
+			writeError(w, http.StatusForbidden, "active tools are disabled on this server (observe-only mode)")
+			return
+		}
+		next(w, r)
+	}
+}
+
 // gate admits one active tool at a time.
 func (s *Server) gate(w http.ResponseWriter) bool {
 	if !s.active.TryLock() {

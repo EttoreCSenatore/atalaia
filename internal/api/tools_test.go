@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/netip"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -230,5 +231,47 @@ func TestSecureCookiesFlagForTLSProxies(t *testing.T) {
 	out := f.do("POST", "/api/logout", nil, c)
 	if lc := session(out); lc == nil || !lc.Secure || lc.MaxAge >= 0 {
 		t.Fatalf("logout cookie: %+v", lc)
+	}
+}
+
+func TestObserveOnlyModeBlocksActiveToolsButNotDNSOrReading(t *testing.T) {
+	f := newFixture(t)
+	f.srv.NoActiveTools = true
+	f.h = f.srv.Handler()
+	c := f.setup()
+	f.seedDevice()
+	f.withScope("192.168.1.0/24")
+	f.srv.Dial = func(context.Context, string) (net.Conn, error) {
+		t.Fatal("dialed in observe-only mode")
+		return nil, nil
+	}
+	mac := "b8:27:eb:00:00:01"
+	for name, req := range map[string][2]any{
+		"wake":     {"/api/devices/" + mac + "/wake", nil},
+		"portscan": {"/api/devices/" + mac + "/portscan", map[string]bool{"confirm": true}},
+		"exposure": {"/api/devices/" + mac + "/exposure", map[string]bool{"confirm": true}},
+		"ping":     {"/api/tools/ping", map[string]any{"host": "192.168.1.1"}},
+	} {
+		if w := f.do("POST", req[0].(string), req[1], c); w.Code != 403 {
+			t.Errorf("%s: %d %s", name, w.Code, w.Body)
+		}
+	}
+	if w := f.do("GET", "/api/devices", nil, c); w.Code != 200 {
+		t.Errorf("reading must still work: %d", w.Code)
+	}
+	raw := f.do("GET", "/api/status", nil, c).Body.String()
+	if !strings.Contains(raw, `"active_tools":false`) {
+		t.Fatalf("the web app reads active_tools from the status: %s", raw)
+	}
+	var st statusDTO
+	_ = json.Unmarshal([]byte(raw), &st)
+	if st.ActiveTools {
+		t.Error("status must say active tools are off")
+	}
+	f2 := newFixture(t)
+	var st2 statusDTO
+	_ = json.Unmarshal(f2.do("GET", "/api/status", nil, nil).Body.Bytes(), &st2)
+	if !st2.ActiveTools {
+		t.Error("active tools are on by default")
 	}
 }

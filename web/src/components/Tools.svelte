@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { app } from '../lib/app.svelte';
   import { api, type AuditEntry, type DnsResult, type PingResult } from '../lib/api';
   import { toolError } from '../lib/errors';
   import { dateTime } from '../lib/format';
@@ -59,8 +60,10 @@
 </script>
 
 <h1>{t('tools.title')}</h1>
+{#if app.status.active_tools === false}<p class="muted">{t('tools.observeOnly')}</p>{/if}
 
 <div class="grid">
+  {#if app.status.active_tools !== false}
   <section class="card">
     <h2>{t('tools.ping')}</h2>
     <form onsubmit={runPing}>
@@ -76,6 +79,7 @@
       </ul>
     {/if}
   </section>
+  {/if}
 
   <section class="card">
     <h2>{t('tools.dns')}</h2>

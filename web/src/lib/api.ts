@@ -13,7 +13,7 @@ export type Device = {
 };
 export type DeviceEvent = { at: string; kind: string; detail: string; mac: string; name: string; vendor: string };
 export type ScanStatus = { scanning: boolean; last_scan: string; last_error: string; interval: string };
-export type Status = { version: string; setup_required: boolean; authenticated: boolean; scan?: ScanStatus };
+export type Status = { active_tools?: boolean; version: string; setup_required: boolean; authenticated: boolean; scan?: ScanStatus };
 export type ChannelType = 'ntfy' | 'telegram' | 'webhook' | 'email';
 export type Channel = {
   id: string;

@@ -64,6 +64,7 @@ export const ptBR: Messages = {
     tagsHelp: 'Separe com vírgulas. Até 8 etiquetas; são salvas em minúsculas.',
     known: 'Dispositivo conhecido',
     knownHelp: 'Marque os dispositivos que você reconhece. Os desconhecidos são os que merecem uma segunda olhada.',
+    observeOnly: 'Este servidor está no modo somente observação: as ferramentas ativas estão desativadas.',
     tools: 'Ferramentas ativas',
     wake: 'Acordar (Wake-on-LAN)',
     wakeHelp: 'Envia um pacote mágico para este dispositivo na sua rede local.',
@@ -160,6 +161,7 @@ export const ptBR: Messages = {
   },
   tools: {
     title: 'Ferramentas de rede',
+    observeOnly: 'Este servidor está no modo somente observação: ping, Wake-on-LAN, varredura de portas e verificação de exposição estão desativados.',
     ping: 'Ping',
     host: 'Endereço ou nome',
     run: 'Executar',

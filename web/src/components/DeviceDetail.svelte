@@ -141,6 +141,9 @@
     <button class="primary" disabled={busy}>{t('common.save')}</button>
   </form>
 
+  {#if app.status.active_tools === false}
+    <p class="muted">{t('detail.observeOnly')}</p>
+  {:else}
   <h2>{t('detail.tools')}</h2>
   <div class="card">
     <div class="row">
@@ -169,6 +172,8 @@
       {/if}
     {/if}
   </div>
+
+  {/if}
 
   {#if exposure}
     <h2>{t('detail.exposure')}</h2>

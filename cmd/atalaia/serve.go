@@ -31,12 +31,17 @@ func (l *stringList) Set(v string) error { *l = append(*l, v); return nil }
 // cmdServe runs the background scanner and the web app + API.
 func (a *app) cmdServe(ctx context.Context, args []string) int {
 	fs, db := a.flags("serve")
-	listen := fs.String("listen", "127.0.0.1:8080", "address to listen on (use 0.0.0.0:8080 to serve the whole local network)")
+	listenDefault := os.Getenv("ATALAIA_LISTEN")
+	if listenDefault == "" {
+		listenDefault = "127.0.0.1:8080"
+	}
+	listen := fs.String("listen", listenDefault, "address to listen on (use 0.0.0.0:8080 to serve the whole local network)")
 	interval := fs.Duration("interval", 5*time.Minute, "time between automatic scans (0 = only when asked)")
 	tlsCert := fs.String("tls-cert", os.Getenv("ATALAIA_TLS_CERT"), "serve HTTPS with this certificate file (PEM; needs --tls-key)")
 	tlsKey := fs.String("tls-key", os.Getenv("ATALAIA_TLS_KEY"), "private key file for --tls-cert (PEM)")
 	tlsSelf := fs.Bool("tls-self-signed", os.Getenv("ATALAIA_TLS_SELF_SIGNED") == "1", "serve HTTPS with a self-signed certificate Atalaia makes and renews (browsers will warn once)")
 	secure := fs.Bool("secure-cookies", os.Getenv("ATALAIA_SECURE_COOKIES") == "1", "mark the session cookie Secure even over plain HTTP (use behind a TLS reverse proxy)")
+	noActive := fs.Bool("no-active-tools", os.Getenv("ATALAIA_NO_ACTIVE_TOOLS") == "1", "observe only: disable ping, Wake-on-LAN, port scan and the exposure check")
 	var hosts stringList
 	fs.Var(&hosts, "allow-host", "extra host name the app may be opened with (repeatable)")
 	if err := fs.Parse(args); err != nil {
@@ -64,7 +69,7 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 		OnResult: func(c context.Context, res store.Result, baseline bool) {
 			go svc.Handle(context.WithoutCancel(c), res, baseline)
 		}}
-	srv := &api.Server{SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
+	srv := &api.Server{NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
 
 	var tlsConf *tls.Config
 	if *tlsSelf || *tlsCert != "" {

@@ -56,6 +56,22 @@ atalaia serve --listen 0.0.0.0:8443 --tls-self-signed
 
 O HSTS **não** é enviado com o certificado autoassinado: ele impediria o navegador de deixar você aceitar o aviso. Atrás de um proxy que termina o TLS, o Atalaia enxerga HTTP puro; nesse caso prefira o HTTPS embutido, ou garanta que o proxy fale com ele só pela máquina local.
 
+## Pacotes .deb e .rpm (systemd)
+
+Cada versão publica pacotes `.deb` (Debian, Ubuntu, Raspberry Pi OS) e `.rpm` (Fedora, RHEL e derivados) para `amd64`, `arm64` e `armv7`, listados no `SHA256SUMS`.
+
+```bash
+sudo apt install ./atalaia_0.4.0_amd64.deb        # ou: sudo dnf install ./atalaia-0.4.0-1.x86_64.rpm
+sudo systemctl enable --now atalaia
+journalctl -u atalaia | grep -A1 "Setup code"    # código da primeira configuração
+```
+
+O pacote instala o binário em `/usr/bin/atalaia`, a unidade `atalaia.service` e o arquivo de opções `/etc/default/atalaia` (que um upgrade nunca sobrescreve). **Nada é ligado sem você pedir.** A unidade roda como um **usuário descartável sem privilégios** (`DynamicUser`), sem capabilities, com o sistema de arquivos em modo somente leitura (só `/var/lib/atalaia` é gravável), sem acesso a `/home`, com filtro de chamadas de sistema e só sockets IP. As opções (`ATALAIA_LISTEN`, HTTPS, modo somente observação…) ficam em `/etc/default/atalaia`.
+
+## Modo somente observação
+
+Com `--no-active-tools` (ou `ATALAIA_NO_ACTIVE_TOOLS=1`) o servidor **só observa**: ping, Wake-on-LAN, varredura de portas e verificação de exposição ficam desligados (o servidor responde 403 e o app esconde os botões). A descoberta passiva, o histórico, os alertas e a consulta DNS continuam. É o modo indicado quando o Atalaia roda numa rede onde você não quer que ninguém, nem um administrador comprometido, possa disparar ações ativas.
+
 ## Binário
 
 ```bash
