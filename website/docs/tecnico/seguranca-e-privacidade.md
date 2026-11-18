@@ -40,7 +40,7 @@ O código passou por uma revisão manual das partes críticas (login, sessões, 
 | Campo `password` serializado em JSON (G117) | **Aceito**: é a senha SMTP guardada de propósito no banco local (`0600`) e nunca devolvida pela API |
 | Endereços de ntfy/webhook podem apontar para a rede local | **Aceito**: é o caso de uso (Home Assistant); só o administrador autenticado configura canais |
 | Segredos dos canais (token do Telegram, senha SMTP) ficam em texto no banco | **Aceito e documentado**: o arquivo é `0600`; proteja o backup do banco como protegeria uma senha |
-| Endereços de VPN em CGNAT (por exemplo Tailscale, `100.64.0.0/10`) não contam como "rede local" | **Limite conhecido**: o servidor responde 403; use o IP da rede local ou um proxy na própria máquina |
+| Endereços de VPN em CGNAT (por exemplo Tailscale, `100.64.0.0/10`) não contam como "rede local" | **Resolvido com opção**: o servidor responde 403 por padrão; `--allow-cidr 100.64.0.0/10` aceita a VPN (veja [Implantação](implantacao.md#acesso-por-vpn-tailscale-e-similares)) |
 
 Esta revisão foi feita pelo próprio projeto, **não** substitui um teste de invasão independente.
 

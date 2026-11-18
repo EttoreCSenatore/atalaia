@@ -73,6 +73,7 @@
             <td>
               <span class="icon" title={d.kind ? t(`kinds.${d.kind}`) : t('kinds.unknown')} aria-label={d.kind ? t(`kinds.${d.kind}`) : t('kinds.unknown')}>{kindIcon(d.kind)}</span>
               <a href={`/devices/${d.mac}`} data-link>{d.label || d.name || (d.randomized_mac ? t('common.randomMac') : d.vendor) || d.mac}</a>
+              {#if d.this_machine}<span class="chip">{t('dashboard.thisMachine')}</span>{/if}
               {#if d.known}<span class="chip known" title={t('detail.knownHelp')}>✓ {t('detail.known')}</span>{/if}
               {#each d.tags as tag (tag)}<span class="chip">{tag}</span>{/each}
             </td>

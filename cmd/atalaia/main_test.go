@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"net"
 	"net/http"
 	"net/netip"
 	"os"
@@ -238,5 +239,27 @@ func TestServeTLSFlagValidation(t *testing.T) {
 		if code := a.run(context.Background(), args); code == 0 {
 			t.Errorf("%s: expected a failure", name)
 		}
+	}
+}
+
+func TestServeExplainsAPortInUse(t *testing.T) {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ln.Close()
+	var out, errOut syncBuf
+	a := &app{out: &out, err: &errOut, now: time.Now, scan: func(context.Context, bool) ([]store.Observation, error) { return nil, nil }}
+	code := a.run(context.Background(), []string{"serve", "--listen", ln.Addr().String(), "--db", filepath.Join(t.TempDir(), "a.db")})
+	if code == 0 || !strings.Contains(errOut.String(), "already in use") || !strings.Contains(errOut.String(), "--listen") {
+		t.Fatalf("code %d: %q", code, errOut.String())
+	}
+}
+
+func TestServeRefusesAnOverWideAllowCIDR(t *testing.T) {
+	var out, errOut syncBuf
+	a := &app{out: &out, err: &errOut, now: time.Now, scan: func(context.Context, bool) ([]store.Observation, error) { return nil, nil }}
+	if code := a.run(context.Background(), []string{"serve", "--listen", "127.0.0.1:0", "--allow-cidr", "0.0.0.0/0", "--db", filepath.Join(t.TempDir(), "a.db")}); code == 0 {
+		t.Fatal("0.0.0.0/0 must be refused")
 	}
 }

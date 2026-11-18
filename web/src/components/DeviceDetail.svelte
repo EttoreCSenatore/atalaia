@@ -113,7 +113,7 @@
   <p class="muted">{t('detail.notFound')}</p>
 {:else}
   <div class="title">
-    <h1>{device.label || device.name || device.vendor || device.mac}</h1>
+    <h1>{device.label || device.name || device.vendor || device.mac}{#if device.this_machine} <small class="muted">({t('dashboard.thisMachine')})</small>{/if}</h1>
     <StateBadge online={device.online} />
   </div>
 
@@ -201,7 +201,7 @@
             {#each exposure.web as w (w.port)}
               <tr>
                 <td class="mono">{w.tls ? 'https' : 'http'}://:{w.port}</td>
-                <td>{w.status}{w.auth ? ` · ${t('detail.login')}` : ''}</td>
+                <td>{w.status}{w.auth ? ` · ${t('detail.login')}` : ''}{w.redirect ? ` → ${w.redirect}` : ''}</td>
                 <td>{w.title || '-'}</td>
                 <td class="muted">{w.server}</td>
               </tr>

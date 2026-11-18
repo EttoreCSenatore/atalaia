@@ -73,7 +73,7 @@ func TestWebProbeDoesNotFollowRedirects(t *testing.T) {
 	defer ts.Close()
 	ip, port := hostPort(t, ts.URL)
 	info, ok := WebProbe(context.Background(), ip, port, false, nil)
-	if !ok || info.Status != 302 {
+	if !ok || info.Status != 302 || info.Redirect != "http://169.254.169.254/" {
 		t.Fatalf("%+v", info)
 	}
 }

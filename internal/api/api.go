@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/netip"
 	"net/url"
 	"os"
 	"strings"
@@ -61,6 +62,9 @@ type Server struct {
 	Dial    tools.Dialer
 	Sender  *notify.Sender
 	Version string
+	// AllowedNets are extra client networks treated as local (for example a VPN such as
+	// Tailscale, 100.64.0.0/10), besides loopback, private and link-local addresses.
+	AllowedNets []netip.Prefix
 	// AllowedHosts are extra Host names accepted besides IP addresses,
 	// localhost and the machine's own host name.
 	AllowedHosts []string
@@ -166,12 +170,51 @@ func (s *Server) securityHeaders(next http.Handler) http.Handler {
 // forwarded to the internet shows up here with a public source address.
 func (s *Server) lanOnly(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !isLocalClient(r.RemoteAddr) {
+		if !isLocalClient(r.RemoteAddr) && !s.inAllowedNets(r.RemoteAddr) {
 			writeError(w, http.StatusForbidden, "this server only answers to the local network")
 			return
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (s *Server) inAllowedNets(remote string) bool {
+	host, _, err := net.SplitHostPort(remote)
+	if err != nil {
+		host = remote
+	}
+	ip, err := netip.ParseAddr(strings.SplitN(host, "%", 2)[0])
+	if err != nil {
+		return false
+	}
+	ip = ip.Unmap()
+	for _, p := range s.AllowedNets {
+		if p.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
+// ParseAllowedNets validates --allow-cidr values. A prefix that would let the
+// whole internet in (anything shorter than /8 for IPv4, /32 for IPv6) is refused.
+func ParseAllowedNets(list []string) ([]netip.Prefix, error) {
+	var out []netip.Prefix
+	for _, raw := range list {
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			continue
+		}
+		p, err := netip.ParsePrefix(raw)
+		if err != nil {
+			return nil, fmt.Errorf("invalid network %q (use CIDR notation, e.g. 100.64.0.0/10)", raw)
+		}
+		if p.Addr().Is4() && p.Bits() < 8 || p.Addr().Is6() && p.Bits() < 32 {
+			return nil, fmt.Errorf("network %q is too wide to be a local network", raw)
+		}
+		out = append(out, p.Masked())
+	}
+	return out, nil
 }
 
 func isLocalClient(remote string) bool {
@@ -510,6 +553,7 @@ type deviceDTO struct {
 	Model      string   `json:"model"`
 	Kind       string   `json:"kind"`
 	Services   []string `json:"services"`
+	This       bool     `json:"this_machine"`
 }
 
 func toDTO(d store.Device) deviceDTO {
@@ -521,7 +565,7 @@ func toDTO(d store.Device) deviceDTO {
 		services = []string{}
 	}
 	return deviceDTO{d.MAC, d.IP, d.Name, d.Vendor, d.Randomized, d.Online,
-		d.FirstSeen.Format(time.RFC3339), d.LastSeen.Format(time.RFC3339), d.Label, tags, d.Known, d.Model, d.Kind, services}
+		d.FirstSeen.Format(time.RFC3339), d.LastSeen.Format(time.RFC3339), d.Label, tags, d.Known, d.Model, d.Kind, services, false}
 }
 
 type eventDTO struct {
@@ -539,9 +583,12 @@ func (s *Server) devices(w http.ResponseWriter, r *http.Request) {
 		serverError(w, err)
 		return
 	}
+	mine := localMACs()
 	out := make([]deviceDTO, 0, len(devs))
 	for _, d := range devs {
-		out = append(out, toDTO(d))
+		dto := toDTO(d)
+		dto.This = mine[d.MAC]
+		out = append(out, dto)
 	}
 	writeJSON(w, http.StatusOK, out)
 }
@@ -621,6 +668,8 @@ func (s *Server) stream(w http.ResponseWriter, r *http.Request) {
 type settingsDTO struct {
 	RetentionDays int    `json:"retention_days"`
 	ScanInterval  string `json:"scan_interval"`
+	PortScanHours int    `json:"port_scan_hours"`
+	ActiveTools   bool   `json:"active_tools"`
 }
 
 func (s *Server) getSettings(w http.ResponseWriter, r *http.Request) {
@@ -629,23 +678,49 @@ func (s *Server) getSettings(w http.ResponseWriter, r *http.Request) {
 		serverError(w, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, settingsDTO{RetentionDays: days, ScanInterval: s.Monitor.Status().Interval})
+	hours, _ := s.Store.SettingInt(r.Context(), portScanHoursKey, 0)
+	writeJSON(w, http.StatusOK, settingsDTO{RetentionDays: days, ScanInterval: s.Monitor.Status().Interval, PortScanHours: hours, ActiveTools: !s.NoActiveTools})
 }
 
 func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 	var in struct {
-		RetentionDays int `json:"retention_days"`
+		RetentionDays *int `json:"retention_days"`
+		PortScanHours *int `json:"port_scan_hours"`
 	}
 	if !decode(w, r, &in) {
 		return
 	}
-	if in.RetentionDays < 0 || in.RetentionDays > 3650 {
+	if in.RetentionDays == nil && in.PortScanHours == nil {
+		writeError(w, http.StatusBadRequest, "nothing to change")
+		return
+	}
+	if in.RetentionDays != nil && (*in.RetentionDays < 0 || *in.RetentionDays > 3650) {
 		writeError(w, http.StatusBadRequest, "retention_days must be between 0 (keep forever) and 3650")
 		return
 	}
-	if err := s.Store.SetSetting(r.Context(), monitor.RetentionKey, fmt.Sprint(in.RetentionDays)); err != nil {
-		serverError(w, err)
-		return
+	if in.PortScanHours != nil {
+		h := *in.PortScanHours
+		if h < 0 || h > 720 {
+			writeError(w, http.StatusBadRequest, "port_scan_hours must be between 0 (off) and 720")
+			return
+		}
+		if h > 0 && s.NoActiveTools {
+			writeError(w, http.StatusForbidden, "active tools are disabled on this server (observe-only mode)")
+			return
+		}
+	}
+	if in.RetentionDays != nil {
+		if err := s.Store.SetSetting(r.Context(), monitor.RetentionKey, fmt.Sprint(*in.RetentionDays)); err != nil {
+			serverError(w, err)
+			return
+		}
+	}
+	if in.PortScanHours != nil {
+		if err := s.Store.SetSetting(r.Context(), portScanHoursKey, fmt.Sprint(*in.PortScanHours)); err != nil {
+			serverError(w, err)
+			return
+		}
+		s.audited(r, "portscan-schedule", "", fmt.Sprintf("every %d h", *in.PortScanHours))
 	}
 	s.getSettings(w, r)
 }
@@ -794,4 +869,20 @@ func (s *Server) testAlert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeError(w, http.StatusNotFound, "unknown channel")
+}
+
+// localMACs returns the hardware addresses of this machine's interfaces, so the
+// device list can mark "this machine".
+func localMACs() map[string]bool {
+	out := map[string]bool{}
+	ifs, err := net.Interfaces()
+	if err != nil {
+		return out
+	}
+	for _, i := range ifs {
+		if len(i.HardwareAddr) == 6 {
+			out[i.HardwareAddr.String()] = true
+		}
+	}
+	return out
 }

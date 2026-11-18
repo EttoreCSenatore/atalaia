@@ -44,6 +44,12 @@ The certificate is not verified (home equipment uses self-signed ones); the repo
 - The port scan only completes the TCP handshake and closes: it **sends no data**. The exposure check sends **one HTTP request and one TLS handshake** per applicable open port, and nothing that tries to exploit or guess passwords.
 - **Every action goes to the audit log** (time, action, target and result), visible on the page itself, and it is deleted along with the history, following the retention setting.
 
+## Scheduled port scans (optional)
+
+In **Settings → Scheduled port scans** you can ask Atalaia to scan by itself, every 6 h, 12 h, 24 h or 7 days, the ports of the devices you marked as **known**, that are **online** and on your local network (up to 10 per round, one at a time, and only when no other active tool is running). A port that **opens** raises the new-port alert. It is an active action, so it **starts off**: turning it on is your confirmation, every scan shows in the audit log (`portscan-scheduled`) and [observe-only mode](../tecnico/implantacao.md) disables it.
+
+When a web interface answers with a redirect, the exposure report shows where it points (without following it).
+
 ## Observe-only mode
 
 To turn off every active action (ping, Wake-on-LAN, port scan, exposure check) use `--no-active-tools`. See [Deployment](../tecnico/implantacao.md).

@@ -44,6 +44,12 @@ O certificado não é verificado (equipamentos domésticos usam autoassinados); 
 - A varredura de portas só completa o *handshake* TCP e fecha: **não envia dados**. A verificação de exposição envia **uma requisição HTTP e um handshake TLS** por porta aberta aplicável, e nada que tente explorar ou adivinhar senhas.
 - **Toda ação fica no registro de auditoria** (data, ação, alvo e resultado), visível na própria página, e é apagado junto com o histórico, conforme a retenção.
 
+## Varreduras de portas agendadas (opcional)
+
+Em **Configurações → Varreduras de portas agendadas** dá para pedir que o Atalaia varra sozinho, a cada 6 h, 12 h, 24 h ou 7 dias, as portas dos dispositivos que você marcou como **conhecidos**, que estão **online** e na sua rede local (até 10 por rodada, um de cada vez, e só quando nenhuma outra ferramenta ativa estiver rodando). Uma porta que **abre** gera o alerta de portas novas. É uma ação ativa, então **começa desligada**: ligar é a sua confirmação, cada varredura aparece no registro de auditoria (`portscan-scheduled`) e o [modo somente observação](../tecnico/implantacao.md) a desativa.
+
+Quando uma interface web responde com um redirecionamento, o relatório de exposição mostra para onde ele aponta (sem segui-lo).
+
 ## Modo somente observação
 
 Para desligar todas as ações ativas (ping, Wake-on-LAN, varredura de portas, verificação de exposição) use `--no-active-tools`. Veja [Implantação](../tecnico/implantacao.md).

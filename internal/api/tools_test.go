@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"net/netip"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -331,5 +332,172 @@ func TestTracerouteValidationAndObserveOnly(t *testing.T) {
 		if w := g.do("POST", p, map[string]any{"host": "127.0.0.1", "confirm": true}, gc); w.Code != 403 {
 			t.Errorf("%s in observe-only mode: %d", p, w.Code)
 		}
+	}
+}
+
+func TestAllowedNetsLetAVPNThrough(t *testing.T) {
+	f := newFixture(t)
+	nets, err := ParseAllowedNets([]string{"100.64.0.0/10"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	vpn := func(r *http.Request) { r.RemoteAddr = "100.101.102.103:5555" }
+	if w := f.do("GET", "/api/status", nil, nil, vpn); w.Code != 403 {
+		t.Fatalf("a CGNAT address must be refused by default: %d", w.Code)
+	}
+	f.srv.AllowedNets = nets
+	if w := f.do("GET", "/api/status", nil, nil, vpn); w.Code != 200 {
+		t.Fatalf("an allowed network must pass: %d", w.Code)
+	}
+	if w := f.do("GET", "/api/status", nil, nil, func(r *http.Request) { r.RemoteAddr = "8.8.8.8:1" }); w.Code != 403 {
+		t.Fatalf("the internet must stay out: %d", w.Code)
+	}
+}
+
+func TestParseAllowedNetsRefusesTooWideAndMalformed(t *testing.T) {
+	for _, bad := range []string{"0.0.0.0/0", "1.0.0.0/4", "::/0", "2000::/16", "not-a-cidr", "100.64.0.0"} {
+		if _, err := ParseAllowedNets([]string{bad}); err == nil {
+			t.Errorf("%q must be refused", bad)
+		}
+	}
+	got, err := ParseAllowedNets([]string{"100.64.0.0/10", " ", "10.8.0.5/24"})
+	if err != nil || len(got) != 2 || got[1].String() != "10.8.0.0/24" {
+		t.Fatalf("%v %v", got, err)
+	}
+}
+
+func TestDeviceListMarksThisMachine(t *testing.T) {
+	f := newFixture(t)
+	c := f.setup()
+	ifs, _ := net.Interfaces()
+	var mine string
+	for _, i := range ifs {
+		if len(i.HardwareAddr) == 6 && i.Flags&net.FlagLoopback == 0 {
+			mine = i.HardwareAddr.String()
+			break
+		}
+	}
+	if mine == "" {
+		t.Skip("no interface with a hardware address here")
+	}
+	obs := []store.Observation{{MAC: mine, IP: netip.MustParseAddr("192.168.1.9")}, {MAC: "aa:bb:cc:00:00:99", IP: netip.MustParseAddr("192.168.1.10")}}
+	_, _ = f.st.Record(context.Background(), time.Now(), obs, time.Hour)
+	var list []deviceDTO
+	_ = json.Unmarshal(f.do("GET", "/api/devices", nil, c).Body.Bytes(), &list)
+	var self, other int
+	for _, d := range list {
+		if d.This {
+			self++
+			if d.MAC != mine {
+				t.Fatalf("wrong device marked: %+v", d)
+			}
+		} else {
+			other++
+		}
+	}
+	if self != 1 || other != 1 {
+		t.Fatalf("%+v", list)
+	}
+}
+
+func TestScheduledPortScansAreOptInFencedAndAudited(t *testing.T) {
+	f := newFixture(t)
+	now := time.Unix(1_800_000_000, 0)
+	f.srv.Now = func() time.Time { return now } // before setup, so the session is valid in this fake time
+	c := f.setup()
+	f.withScope("192.168.1.0/24")
+	var scanned []string
+	var mu sync.Mutex
+	f.srv.Dial = func(ctx context.Context, addr string) (net.Conn, error) {
+		mu.Lock()
+		scanned = append(scanned, addr[:strings.LastIndex(addr, ":")])
+		mu.Unlock()
+		return nil, errors.New("closed")
+	}
+	rec := func(mac, ip string) {
+		_, _ = f.st.Record(context.Background(), now, []store.Observation{{MAC: mac, IP: netip.MustParseAddr(ip)}}, time.Hour)
+	}
+	rec("b8:27:eb:00:00:01", "192.168.1.10") // known + online: will be scanned
+	rec("b8:27:eb:00:00:02", "192.168.1.11") // not known: never scanned
+	rec("b8:27:eb:00:00:03", "10.9.9.9")     // out of scope: never scanned
+	_, _, _ = f.st.UpdateDevice(context.Background(), "b8:27:eb:00:00:01", "", nil, true)
+	_, _, _ = f.st.UpdateDevice(context.Background(), "b8:27:eb:00:00:03", "", nil, true)
+
+	f.srv.RunScheduledPortScans(context.Background())
+	if len(scanned) != 0 {
+		t.Fatalf("off by default, yet it scanned: %v", scanned)
+	}
+	if w := f.do("PUT", "/api/settings", map[string]int{"port_scan_hours": 999}, c); w.Code != 400 {
+		t.Fatalf("limit: %d", w.Code)
+	}
+	if w := f.do("PUT", "/api/settings", map[string]int{"port_scan_hours": 24}, c); w.Code != 200 {
+		t.Fatalf("enable: %d %s", w.Code, w.Body)
+	}
+	f.srv.RunScheduledPortScans(context.Background())
+	mu.Lock()
+	n := len(scanned)
+	first := append([]string(nil), scanned...)
+	mu.Unlock()
+	if n == 0 {
+		t.Fatal("nothing scanned")
+	}
+	for _, a := range first {
+		if a != "192.168.1.10" {
+			t.Fatalf("scanned %s: only the known, online, in-scope device may be scanned", a)
+		}
+	}
+	// not again before the interval has passed
+	f.srv.RunScheduledPortScans(context.Background())
+	mu.Lock()
+	again := len(scanned)
+	mu.Unlock()
+	if again != n {
+		t.Fatalf("scanned twice within the interval: %d vs %d", again, n)
+	}
+	now = now.Add(25 * time.Hour)
+	f.srv.RunScheduledPortScans(context.Background())
+	mu.Lock()
+	later := len(scanned)
+	mu.Unlock()
+	if later <= n {
+		t.Fatal("did not scan after the interval")
+	}
+	var a []auditDTO
+	_ = json.Unmarshal(f.do("GET", "/api/audit", nil, c).Body.Bytes(), &a)
+	var sched int
+	for _, e := range a {
+		if e.Action == "portscan-scheduled" {
+			sched++
+		}
+	}
+	if sched != 2 {
+		t.Fatalf("each scheduled scan must be audited: %+v", a)
+	}
+	// busy gate: skipped, not queued
+	f.srv.active.Lock()
+	now = now.Add(48 * time.Hour)
+	f.srv.RunScheduledPortScans(context.Background())
+	f.srv.active.Unlock()
+	mu.Lock()
+	busy := len(scanned)
+	mu.Unlock()
+	if busy != later {
+		t.Fatal("scanned while another active tool was running")
+	}
+}
+
+func TestScheduledPortScansCannotBeEnabledInObserveOnlyMode(t *testing.T) {
+	f := newFixture(t)
+	f.srv.NoActiveTools = true
+	f.h = f.srv.Handler()
+	c := f.setup()
+	if w := f.do("PUT", "/api/settings", map[string]int{"port_scan_hours": 12}, c); w.Code != 403 {
+		t.Fatalf("%d", w.Code)
+	}
+	if w := f.do("PUT", "/api/settings", map[string]int{"port_scan_hours": 0}, c); w.Code != 200 {
+		t.Fatalf("turning it off stays possible: %d", w.Code)
+	}
+	if w := f.do("PUT", "/api/settings", map[string]any{}, c); w.Code != 400 {
+		t.Fatalf("empty update: %d", w.Code)
 	}
 }

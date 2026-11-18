@@ -40,7 +40,7 @@ The code went through a manual review of the critical parts (login, sessions, lo
 | `password` field serialized to JSON (G117) | **Accepted**: it is the SMTP password deliberately stored in the local database (`0600`) and never returned by the API |
 | ntfy/webhook addresses may point to the local network | **Accepted**: that is the use case (Home Assistant); only the signed-in administrator configures channels |
 | Channel secrets (Telegram token, SMTP password) are stored in clear in the database | **Accepted and documented**: the file is `0600`; protect the database backup as you would a password |
-| VPN addresses in CGNAT (for example Tailscale, `100.64.0.0/10`) do not count as "local network" | **Known limit**: the server answers 403; use the local-network IP or a proxy on the same machine |
+| VPN addresses in CGNAT (for example Tailscale, `100.64.0.0/10`) do not count as "local network" | **Solved with an option**: the server answers 403 by default; `--allow-cidr 100.64.0.0/10` accepts the VPN (see [Deployment](implantacao.md#access-over-a-vpn-tailscale-and-similar)) |
 
 This review was done by the project itself and does **not** replace an independent penetration test.
 
