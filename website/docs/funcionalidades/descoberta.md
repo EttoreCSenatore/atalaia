@@ -49,5 +49,7 @@ Eventos: `joined` (visto pela primeira vez), `online` (voltou), `offline` (sumiu
 ## Limites atuais
 
 - Só Linux e IPv4. macOS e Windows ficam para depois.
+- Não há descoberta por SSDP/UPnP, NetBIOS nem pelos aluguéis do DHCP: aparelhos sem nome mDNS ou DNS reverso aparecem só com fabricante (ou, com MAC aleatório, sem nenhum).
+- Endereços de VPN em CGNAT (por exemplo Tailscale, `100.64.0.0/10`) não são aceitos como "rede local" pelo servidor.
 - Dispositivos que não respondem a ARP (raro) não aparecem; os que estão dormindo podem faltar em uma varredura, daí o prazo de offline.
 - O próprio computador onde o Atalaia roda aparece na lista (a tabela ARP nunca lista a própria máquina, então ele é incluído à parte, só pela interface da rede principal, a que contém o roteador).

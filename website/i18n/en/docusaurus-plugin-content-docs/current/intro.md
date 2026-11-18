@@ -17,11 +17,11 @@ It is an independent project, inspired by the category of device-discovery tools
 
 | Feature | What for |
 |---|---|
-| **Device discovery** | Lists everything on the network (ARP, mDNS, SSDP, NetBIOS, DHCP) with vendor, name and type. |
-| **History and alerts** | Online/offline timeline and a notification when a new device joins (ntfy, Telegram, e-mail, webhook). |
-| **Passive security** | Detects ARP spoofing, duplicate IPs, MAC changes, rogue DHCP servers and new services. |
-| **Active security (opt-in)** | Ports and services, known CVEs, exposed panels, TLS and HTTP headers, UPnP, open DNS. |
-| **Network tools** | Ping, traceroute, DNS, Wake-on-LAN, speed and internet quality. |
+| **Device discovery** | Lists what is on the network (UDP sweep + ARP table, names by mDNS and reverse DNS) with vendor; flags random MACs. |
+| **History and alerts** | Online/offline timeline, names and tags, and alerts for new devices and other events (ntfy, Telegram, e-mail, webhook). |
+| **Passive security** | Signs of ARP spoofing (router MAC changed, one MAC with many IPs), a rogue DHCP server (opt-in) and newly opened ports. |
+| **Active security (opt-in)** | Port scan, risky services, exposed web interfaces and a TLS audit, with confirmation, limits and an audit log. No CVE matching, on purpose. |
+| **Network tools** | Ping, traceroute, DNS lookup, Wake-on-LAN and a download speed test. |
 
 ## Why it cannot run in the browser alone
 
@@ -37,4 +37,5 @@ A browser cannot send ARP or ICMP, nor listen for mDNS: it only speaks HTTP. So 
 
 ## Current state
 
-The foundation (M0) and **device discovery** (M1) are done: `atalaia scan` finds the devices on the network, identifies vendor and name and keeps the history. `atalaia serve` runs scheduled scans, the API with secure login and the **web app** (dashboard, devices, history), also as a Docker image. **Alerts** (ntfy, Telegram, webhook, e-mail), names, tags and known devices (M3) are ready too: see [Alerts](funcionalidades/alertas.md). See [Discovery](funcionalidades/descoberta.md) and the [roadmap](roadmap.md).
+Atalaia is at **v0.4** and already usable: `atalaia serve` discovers the devices, keeps the history, serves the **web app** with secure login (HTTP or built-in HTTPS) and alerts you through ntfy, Telegram, webhook or e-mail. There are `.deb` and `.rpm` packages, Linux binaries (amd64, arm64, armv7) and a Docker image. It is a new project, maintained by one person and **not yet independently pen-tested**; see the [known limits](funcionalidades/descoberta.md#current-limits) and the [roadmap](roadmap.md).
+

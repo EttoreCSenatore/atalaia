@@ -8,7 +8,7 @@
 
 **Vigia da sua rede.** Vigia de rede livre, de código aberto e auto-hospedado: descubra os dispositivos da sua rede, acompanhe o histórico, receba alertas e faça verificações de segurança **defensivas**. Um agente em Go com o app web embutido.
 
-> **Estado: v0.1 + M4.1 (sinais de ARP spoofing) + M5.1 (ferramentas) + M5.2 (exposição) + M4.2 (DHCP) + M5.3 (traceroute e velocidade).** `atalaia serve` descobre os dispositivos, guarda o histórico, serve um app web com login (Linux, Docker) e avisa por ntfy, Telegram, webhook ou e-mail quando surge um dispositivo novo. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
+> **Estado: v0.4.** `atalaia serve` descobre os dispositivos, guarda o histórico, serve um app web com login (Linux, Docker) e avisa por ntfy, Telegram, webhook ou e-mail quando surge um dispositivo novo. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
 
 ## Experimente (Linux)
 
@@ -23,12 +23,12 @@ Com Docker: `cd deploy && docker compose up -d --build` (o código de configura�
 
 ![Painel do Atalaia (dados fictícios)](website/static/img/screenshots/app-painel.png)
 
-## O que vai fazer
+## O que faz
 
-- **Descoberta de dispositivos** (ARP, mDNS, SSDP) com fabricante, nome e tipo.
+- **Descoberta de dispositivos** (tabela ARP, mDNS, DNS reverso) com fabricante e nome.
 - **Histórico e alertas**: linha do tempo online/offline e aviso de dispositivo novo (ntfy, Telegram, e-mail, webhook).
-- **Segurança passiva e ativa**: ARP spoofing, DHCP falso, portas e serviços, CVEs conhecidas, TLS, painéis expostos.
-- **Ferramentas de rede**: ping, traceroute, DNS, Wake-on-LAN, velocidade.
+- **Segurança passiva e ativa**: sinais de ARP spoofing, DHCP falso (opcional), portas e serviços arriscados, TLS, interfaces web expostas. Sem verificação de CVEs, de propósito.
+- **Ferramentas de rede**: ping, traceroute, DNS, Wake-on-LAN, velocidade de download.
 
 ## Princípios
 

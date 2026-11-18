@@ -104,6 +104,7 @@
     <p>{t('settings.version')}: <span class="mono">{app.status.version}</span></p>
     {#if settings}<p>{t('settings.scanInterval')}: <span class="mono">{settings.scan_interval}</span></p>{/if}
     <p class="muted">{t('settings.privacy')}</p>
+    <p>{t('settings.license')} <a href="https://github.com/EttoreCSenatore/atalaia" target="_blank" rel="noopener noreferrer">{t('app.source')}</a></p>
   </section>
 </div>
 

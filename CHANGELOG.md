@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Documentation and licensing audit: the docs and READMEs no longer claim features that do not exist (SSDP/NetBIOS discovery, CVE matching, UPnP and open-DNS checks, Rapid7/NVD data sources, `CAP_NET_RAW`); architecture page rewritten from the real packages; developer page covers gosec, packages and releases; known limits added; SECURITY.md states supported versions and scope; the web app now shows a **Source code** link (AGPL section 13) on every page and in Settings.
+
+**PT-BR** — Auditoria de documentação e licença: a documentação e os READMEs não prometem mais recursos que não existem (descoberta por SSDP/NetBIOS, CVEs, UPnP e DNS aberto, fontes Rapid7/NVD, `CAP_NET_RAW`); página de arquitetura reescrita a partir dos pacotes reais; página de desenvolvimento cobre gosec, pacotes e versões; limites conhecidos acrescentados; o SECURITY.md informa versões suportadas e escopo; o app web agora mostra o link **Código-fonte** (AGPL, seção 13) em todas as páginas e em Configurações.
+
 ## v0.4.0 — 2026-11-18
 
 **EN** — M5.3 tools: unprivileged traceroute (UDP with a small TTL, ICMP answers read from the socket error queue; verified on loopback and against the internet) and a download speed test (opt-in with a per-use confirmation, because it tells speed.cloudflare.com your public IP; redirects refused, size and time capped); both off in observe-only mode and in the audit log. CVE matching was deliberately not built: the docs explain why (no reliable versions, a database to maintain, false positives and false negatives).

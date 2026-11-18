@@ -17,11 +17,11 @@ sidebar_position: 1
 
 | Recurso | Para quê |
 |---|---|
-| **Descoberta de dispositivos** | Lista tudo o que está na rede (ARP, mDNS, SSDP, NetBIOS, DHCP) com fabricante, nome e tipo. |
-| **Histórico e alertas** | Linha do tempo online/offline e aviso quando um dispositivo novo entra (ntfy, Telegram, e-mail, webhook). |
-| **Segurança passiva** | Detecta ARP spoofing, IP duplicado, troca de MAC, servidor DHCP falso e serviços novos. |
-| **Segurança ativa (opcional)** | Portas e serviços, CVEs conhecidas, painéis expostos, TLS e cabeçalhos HTTP, UPnP, DNS aberto. |
-| **Ferramentas de rede** | Ping, traceroute, DNS, Wake-on-LAN, velocidade e qualidade da internet. |
+| **Descoberta de dispositivos** | Lista o que está na rede (varredura UDP + tabela ARP, nomes por mDNS e DNS reverso) com fabricante; marca MACs aleatórios. |
+| **Histórico e alertas** | Linha do tempo online/offline, nomes e etiquetas, e aviso de dispositivo novo e outros eventos (ntfy, Telegram, e-mail, webhook). |
+| **Segurança passiva** | Sinais de ARP spoofing (MAC do roteador mudou, um MAC com vários IPs), servidor DHCP falso (opcional) e portas recém-abertas. |
+| **Segurança ativa (opcional)** | Varredura de portas, serviços arriscados, interfaces web expostas e auditoria de TLS, com confirmação, limites e registro de auditoria. Sem verificação de CVEs, de propósito. |
+| **Ferramentas de rede** | Ping, traceroute, consulta DNS, Wake-on-LAN e teste de velocidade de download. |
 
 ## Por que não roda só no navegador
 
@@ -37,4 +37,5 @@ Um navegador não consegue enviar ARP, ICMP nem ouvir mDNS: ele só fala HTTP. P
 
 ## Estado atual
 
-A fundação (M0) e a **descoberta de dispositivos** (M1) estão prontas: `atalaia scan` encontra os dispositivos da rede, identifica fabricante e nome e guarda o histórico. `atalaia serve` roda a varredura agendada, a API com login seguro e o **app web** (painel, dispositivos, histórico), também em imagem Docker. Os **alertas** (ntfy, Telegram, webhook, e-mail), nomes, etiquetas e dispositivos conhecidos (M3) também estão prontos: veja [Alertas](funcionalidades/alertas.md). Veja [Descoberta](funcionalidades/descoberta.md) e o [roadmap](roadmap.md).
+O Atalaia está na **v0.4** e já é usável: `atalaia serve` descobre os dispositivos, guarda o histórico, serve o **app web** com login seguro (HTTP ou HTTPS embutido) e avisa por ntfy, Telegram, webhook ou e-mail. Há pacotes `.deb` e `.rpm`, binários Linux (amd64, arm64, armv7) e uma imagem Docker. É um projeto novo, mantido por uma pessoa e **ainda sem teste de invasão independente**; veja os [limites conhecidos](funcionalidades/descoberta.md#limites-atuais) e o [roadmap](roadmap.md).
+

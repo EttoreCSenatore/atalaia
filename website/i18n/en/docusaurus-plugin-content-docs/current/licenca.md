@@ -11,7 +11,7 @@ sidebar_position: 2
 | Code (agent, web app, scripts) | **GNU AGPL-3.0-or-later** (`LICENSE` file) |
 | Documentation and site images | **CC BY-SA 4.0** (`LICENSE-DOCS.md` file) |
 
-The AGPL ensures that anyone hosting a modified version of Atalaia as a service must also release that version's source code.
+The AGPL ensures that anyone hosting a modified version of Atalaia as a service must also release that version's source code. That is why the web app shows, on every page and in Settings, a **Source code** link to the repository (at the tag of the running version). **If you modify Atalaia and offer it to other people, change that link to point to your code.**
 
 The "Atalaia" name and logo are not covered by the licenses above.
 

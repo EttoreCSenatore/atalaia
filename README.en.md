@@ -8,7 +8,7 @@
 
 **Watch your network.** A free, open-source, self-hosted network watchtower: discover the devices on your network, track history, get alerts and run **defensive** security checks. A Go agent with the web app embedded.
 
-> **State: v0.1 + M4.1 (ARP spoofing signs) + M5.1 (tools) + M5.2 (exposure) + M4.2 (DHCP) + M5.3 (traceroute and speed).** `atalaia serve` discovers the devices, keeps the history, serves a web app with login (Linux, Docker) and alerts you through ntfy, Telegram, webhook or e-mail when a new device appears. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
+> **State: v0.4.** `atalaia serve` discovers the devices, keeps the history, serves a web app with login (Linux, Docker) and alerts you through ntfy, Telegram, webhook or e-mail when a new device appears. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
 
 ## Try it (Linux)
 
@@ -23,12 +23,12 @@ With Docker: `cd deploy && docker compose up -d --build` (the setup code shows i
 
 ![Atalaia dashboard (fictitious data)](website/static/img/screenshots/app-painel-en.png)
 
-## What it will do
+## What it does
 
-- **Device discovery** (ARP, mDNS, SSDP) with vendor, name and type.
+- **Device discovery** (ARP table, mDNS, reverse DNS) with vendor and name.
 - **History and alerts**: online/offline timeline and new-device notifications (ntfy, Telegram, e-mail, webhook).
-- **Passive and active security**: ARP spoofing, rogue DHCP, ports and services, known CVEs, TLS, exposed panels.
-- **Network tools**: ping, traceroute, DNS, Wake-on-LAN, speed.
+- **Passive and active security**: signs of ARP spoofing, rogue DHCP (opt-in), ports and risky services, TLS, exposed web interfaces. No CVE matching, on purpose.
+- **Network tools**: ping, traceroute, DNS, Wake-on-LAN, download speed.
 
 ## Principles
 

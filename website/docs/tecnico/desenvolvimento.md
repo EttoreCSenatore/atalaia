@@ -56,6 +56,21 @@ npm run start -- --locale en         # em inglês
 
 Cada página em `website/docs/` precisa da versão em inglês em `website/i18n/en/docusaurus-plugin-content-docs/current/`, com a mesma estrutura. A CI confere isso com `scripts/checar-traducao.py`.
 
+## Verificações de qualidade e segurança
+
+```bash
+gofmt -l .                                  # deve ficar vazio
+go vet ./... && go test -race ./...
+go run github.com/securego/gosec/v2/cmd/gosec@v2.30.0 -quiet -exclude=G304,G117 ./...
+go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 ./...
+```
+
+A CI roda as mesmas verificações, mais a das licenças das dependências, o Trivy na imagem e um teste de fumaça do contêiner.
+
+## Pacotes e versões
+
+Os pacotes `.deb`/`.rpm` são montados pelo [nfpm](https://nfpm.goreleaser.com/) a partir de `deploy/nfpm.yaml`. Uma versão sai ao enviar uma tag `vX.Y.Z`: o fluxo `release.yml` compila os binários (amd64, arm64, armv7), monta os pacotes, publica a imagem no GHCR e cria a release com `SHA256SUMS`. Antes, mova as entradas "Unreleased" do `CHANGELOG.md` para a nova versão.
+
 ## Fluxo de trabalho
 
 Uma etapa por pull request: branch, commits, CI verde, revisão do diff e integração com squash. Documentação (pt-BR e inglês) e memória do projeto são atualizadas na mesma etapa.
