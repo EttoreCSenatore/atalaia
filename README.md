@@ -16,6 +16,7 @@
 go run ./cmd/atalaia scan      # descobre os dispositivos da sua rede
 go run ./cmd/atalaia devices   # lista
 go run ./cmd/atalaia history   # o que mudou
+go run ./cmd/atalaia serve     # API com login em http://127.0.0.1:8080
 ```
 
 ## O que vai fazer

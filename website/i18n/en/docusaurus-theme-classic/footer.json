@@ -19,6 +19,7 @@
   "link.item.label.Arquitetura": {
     "message": "Architecture"
   },
+  "link.item.label.API e servidor": {"message": "API and server"},
   "link.item.label.Modelo de ameaças": {
     "message": "Threat model"
   },

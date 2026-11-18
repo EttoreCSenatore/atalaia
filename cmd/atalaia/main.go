@@ -12,6 +12,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/EttoreCSenatore/atalaia/internal/probe"
 	"github.com/EttoreCSenatore/atalaia/internal/scope"
 	"github.com/EttoreCSenatore/atalaia/internal/version"
 )
@@ -19,6 +20,8 @@ import (
 const usage = `Atalaia: open-source network watchtower.
 
 Usage:
+  atalaia serve [--listen ADDR] [--db FILE] [--interval DURATION] [--allow-host NAME]
+                    run the web app and scan the network in the background
   atalaia scan [--db FILE] [--no-names] [--offline-after DURATION]
                     discover the devices on the local network and record them
   atalaia devices [--db FILE] [--json]
@@ -35,7 +38,7 @@ Use Atalaia only on networks you administer or have written authorization for.
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
-	a := &app{out: os.Stdout, err: os.Stderr, now: time.Now, scan: liveScan}
+	a := &app{out: os.Stdout, err: os.Stderr, now: time.Now, scan: probe.Live}
 	os.Exit(a.run(ctx, os.Args[1:]))
 }
 
@@ -52,6 +55,8 @@ func (a *app) run(ctx context.Context, args []string) int {
 	}
 	rest := args[1:]
 	switch args[0] {
+	case "serve":
+		return a.cmdServe(ctx, rest)
 	case "scan":
 		return a.cmdScan(ctx, rest)
 	case "devices":

@@ -28,7 +28,9 @@ O Atalaia é uma ferramenta de segurança que também é um alvo: ele conhece to
 | Ameaça | Mitigação |
 |---|---|
 | Painel acessível sem login | Login obrigatório no primeiro uso, sem senha padrão |
-| Painel exposto à internet | Escuta só na rede local por padrão; documentação avisa e recomenda VPN ou proxy com autenticação |
+| Painel exposto à internet | Escuta em `127.0.0.1` por padrão; mesmo com `--listen`, recusa origens que não são da rede local; documentação recomenda VPN ou proxy com TLS |
+| DNS rebinding e CSRF contra o painel | Verificação do `Host`, cabeçalho `X-Atalaia` e conferência do `Origin`, cookie `SameSite=Strict` |
+| Adivinhar a senha | argon2id, bloqueio progressivo por endereço |
 | Uso para varrer redes de terceiros | Escopo fixo nas redes privadas do host (`internal/scope`), sem alvo arbitrário |
 | Varredura ativa sem consentimento | Opcional, exige confirmação "esta é a minha rede", limitada em taxa, registrada em log de auditoria |
 | Agente comprometido virar porta de entrada | Roda sem root, só com `CAP_NET_RAW`; imagem mínima sem privilégios extras |

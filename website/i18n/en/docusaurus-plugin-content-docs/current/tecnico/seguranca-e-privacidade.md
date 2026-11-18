@@ -8,8 +8,8 @@ sidebar_position: 3
 
 ## Secure defaults
 
-- Login required on first run, no default password.
-- Listens on the local network only, never on the internet.
+- Login required, no default password: the account is created with a one-time code printed in the console.
+- Listens on `127.0.0.1` by default; with `--listen` the server still refuses requests that do not come from the local network, and checks the `Host` header. See [API and server](api.md).
 - Active scans only on the host's own private networks, capped at a /16.
 - Active checks are opt-in, rate-limited and written to an audit log.
 - Runs without root, with `CAP_NET_RAW`.

@@ -38,7 +38,10 @@ O navegador não tem sockets brutos, ARP, ICMP nem mDNS. O agente roda com a per
 | `internal/identity` | Fabricante por MAC (IEEE) e limpeza de textos vindos da rede | M1 |
 | `internal/store` | SQLite, migrações, histórico de eventos | M1 |
 | `internal/discovery` (SSDP, NetBIOS) | Mais fontes de descoberta | M2+ |
-| `internal/api` | API HTTP, autenticação, SSE | M2 |
+| `internal/api` | API HTTP, autenticação, SSE, proteções do servidor | M2.1 |
+| `internal/auth` | Senha (argon2id), sessões, limite de tentativas | M2.1 |
+| `internal/monitor` | Varredura agendada e eventos ao vivo | M2.1 |
+| `internal/web` | App web embutido no binário | M2.2 |
 | `internal/notify` | Adaptadores de notificação | M3 |
 | `internal/detect` | Detecções passivas de segurança | M4 |
 | `internal/scan` | Portas, serviços, CVEs, TLS | M5 |

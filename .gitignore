@@ -15,3 +15,8 @@ dist/
 /atalaia
 /bin/
 *.db
+
+# web app build output (internal/web/dist/placeholder.txt stays)
+/internal/web/dist/*
+!/internal/web/dist/placeholder.txt
+/web/node_modules/

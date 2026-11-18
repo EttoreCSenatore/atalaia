@@ -38,7 +38,10 @@ A browser has no raw sockets, ARP, ICMP or mDNS. The agent runs with minimal per
 | `internal/identity` | Vendor by MAC (IEEE) and sanitizing of text from the network | M1 |
 | `internal/store` | SQLite, migrations, event history | M1 |
 | `internal/discovery` (SSDP, NetBIOS) | More discovery sources | M2+ |
-| `internal/api` | HTTP API, authentication, SSE | M2 |
+| `internal/api` | HTTP API, authentication, SSE, server protections | M2.1 |
+| `internal/auth` | Password (argon2id), sessions, attempt limiting | M2.1 |
+| `internal/monitor` | Scheduled scans and live events | M2.1 |
+| `internal/web` | Web app embedded in the binary | M2.2 |
 | `internal/notify` | Notification adapters | M3 |
 | `internal/detect` | Passive security detections | M4 |
 | `internal/scan` | Ports, services, CVEs, TLS | M5 |

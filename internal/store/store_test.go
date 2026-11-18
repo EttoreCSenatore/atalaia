@@ -120,3 +120,68 @@ func TestReopenKeepsDataAndRejectsNewerSchema(t *testing.T) {
 		t.Fatal("must refuse a database from a newer version")
 	}
 }
+
+func TestAdminAccountSessionsAndSettings(t *testing.T) {
+	ctx := context.Background()
+	s := open(t)
+	if has, _ := s.HasUser(ctx); has {
+		t.Fatal("fresh database must have no user")
+	}
+	if err := s.CreateUser(ctx, "hash1", t0); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.CreateUser(ctx, "hash2", t0); err != ErrUserExists {
+		t.Fatalf("second user must be refused, got %v", err)
+	}
+	if h, _ := s.PasswordHash(ctx); h != "hash1" {
+		t.Fatalf("hash = %q", h)
+	}
+
+	_ = s.CreateSession(ctx, "tokA", t0, time.Hour)
+	_ = s.CreateSession(ctx, "tokB", t0, time.Hour)
+	if ok, _ := s.SessionValid(ctx, "tokA", t0.Add(30*time.Minute)); !ok {
+		t.Fatal("session should be valid")
+	}
+	if ok, _ := s.SessionValid(ctx, "tokA", t0.Add(2*time.Hour)); ok {
+		t.Fatal("expired session must be invalid")
+	}
+	if ok, _ := s.SessionValid(ctx, "nope", t0); ok {
+		t.Fatal("unknown session must be invalid")
+	}
+	if err := s.ChangePassword(ctx, "hash3", "tokA"); err != nil {
+		t.Fatal(err)
+	}
+	if ok, _ := s.SessionValid(ctx, "tokB", t0); ok {
+		t.Fatal("other sessions must end when the password changes")
+	}
+	if ok, _ := s.SessionValid(ctx, "tokA", t0); !ok {
+		t.Fatal("the current session must survive")
+	}
+	_ = s.DeleteSession(ctx, "tokA")
+	if ok, _ := s.SessionValid(ctx, "tokA", t0); ok {
+		t.Fatal("deleted session must be invalid")
+	}
+
+	if n, _ := s.SettingInt(ctx, "retention_days", 90); n != 90 {
+		t.Fatalf("default = %d", n)
+	}
+	_ = s.SetSetting(ctx, "retention_days", "30")
+	_ = s.SetSetting(ctx, "retention_days", "45")
+	if n, _ := s.SettingInt(ctx, "retention_days", 90); n != 45 {
+		t.Fatalf("setting = %d", n)
+	}
+}
+
+func TestPurgeEvents(t *testing.T) {
+	ctx := context.Background()
+	s := open(t)
+	_, _ = s.Record(ctx, t0, []Observation{obs("a8:00:00:00:00:01", "192.168.1.10", "tv")}, time.Hour)
+	_, _ = s.Record(ctx, t0.Add(48*time.Hour), []Observation{}, time.Hour) // tv goes offline
+	n, err := s.PurgeEvents(ctx, t0.Add(24*time.Hour))
+	if err != nil || n != 1 {
+		t.Fatalf("purged %d, %v (want the old joined event only)", n, err)
+	}
+	if evs, _ := s.Events(ctx, 10); len(evs) != 1 || evs[0].Kind != EventOffline {
+		t.Fatalf("events left: %+v", evs)
+	}
+}
