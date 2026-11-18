@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { api, type PortsResult } from '../lib/api';
+  import { api, type Exposure, type PortsResult } from '../lib/api';
   import { toolError } from '../lib/errors';
   import { app, loadData } from '../lib/app.svelte';
   import { t, i18n } from '../lib/i18n.svelte';
+  import { riskGroup } from '../lib/risk';
   import { dateTime, parseTags, relativeTime } from '../lib/format';
   import StateBadge from './StateBadge.svelte';
 
@@ -51,14 +52,18 @@
   let scanBusy = $state(false);
   let toolMsg = $state<{ kind: 'ok' | 'error'; text: string } | null>(null);
   let portsFor = '';
+  let exposure = $state<Exposure | null>(null);
+  let exposureBusy = $state(false);
 
   $effect(() => {
     if (device && portsFor !== device.mac) {
       portsFor = device.mac;
       ports = null;
+      exposure = null;
       confirmScan = false;
       toolMsg = null;
       api.ports(device.mac).then((p) => (ports = p), () => (ports = null));
+      api.exposure(device.mac).then((x) => (exposure = x), () => (exposure = null));
     }
   });
 
@@ -82,6 +87,18 @@
       toolMsg = { kind: 'error', text: toolError(err) };
     } finally {
       scanBusy = false;
+    }
+  }
+
+  async function checkExposure() {
+    toolMsg = null;
+    exposureBusy = true;
+    try {
+      exposure = await api.exposureScan(mac);
+    } catch (err) {
+      toolMsg = { kind: 'error', text: toolError(err) };
+    } finally {
+      exposureBusy = false;
     }
   }
 
@@ -134,6 +151,8 @@
     <label class="check"><input type="checkbox" bind:checked={confirmScan} /> {t('detail.confirmScan')}</label>
     <button type="button" disabled={!confirmScan || scanBusy} onclick={scanPorts}>{scanBusy ? t('tools.running') : t('detail.scanPorts')}</button>
     <p class="muted help">{t('detail.scanHelp')}</p>
+    <button type="button" disabled={!confirmScan || exposureBusy || !ports} onclick={checkExposure}>{exposureBusy ? t('tools.running') : t('detail.checkExposure')}</button>
+    <p class="muted help">{t('detail.exposureHelp')}</p>
     {#if toolMsg}<p class={toolMsg.kind} role="alert">{toolMsg.text}</p>{/if}
     {#if ports}
       <p class="muted">{t('detail.scannedAt')}: {when(ports.at)}</p>
@@ -150,6 +169,60 @@
       {/if}
     {/if}
   </div>
+
+  {#if exposure}
+    <h2>{t('detail.exposure')}</h2>
+    <div class="card">
+      <p class="muted">{t('detail.scannedAt')}: {when(exposure.at)}</p>
+      {#if exposure.risks.length === 0}
+        <p class="ok">{t('detail.noRisks')}</p>
+      {:else}
+        <ul class="risks">
+          {#each exposure.risks as r (r.port)}
+            <li class={r.severity}>
+              <strong>{t(`detail.severity.${r.severity}`)}</strong> · <span class="mono">{r.port}/tcp {r.service}</span>
+              <br /><span class="muted">{t(`detail.risk.${riskGroup(r.service)}`)}</span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+      {#if exposure.web.length > 0}
+        <h3>{t('detail.web')}</h3>
+        <table>
+          <tbody>
+            {#each exposure.web as w (w.port)}
+              <tr>
+                <td class="mono">{w.tls ? 'https' : 'http'}://:{w.port}</td>
+                <td>{w.status}{w.auth ? ` · ${t('detail.login')}` : ''}</td>
+                <td>{w.title || '-'}</td>
+                <td class="muted">{w.server}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      {/if}
+      {#if exposure.tls.length > 0}
+        <h3>TLS</h3>
+        <table>
+          <tbody>
+            {#each exposure.tls as x (x.port)}
+              <tr>
+                <td class="mono">:{x.port}</td>
+                <td>{x.version}</td>
+                <td class="muted">{x.subject}</td>
+                <td>
+                  {#if x.expired}<span class="bad">{t('detail.tlsExpired')}</span>{:else}{x.days_left} {t('detail.tlsDays')}{/if}
+                  {#if x.self_signed} · {t('detail.tlsSelf')}{/if}
+                  {#if x.legacy_tls} · <span class="bad">{t('detail.tlsLegacy')}</span>{/if}
+                  {#if x.weak_key_bits} · <span class="bad">{t('detail.tlsWeak')} ({x.weak_key_bits})</span>{/if}
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      {/if}
+    </div>
+  {/if}
 
   <h2>{t('detail.history')}</h2>
   <div class="card table-wrap">
@@ -214,6 +287,27 @@
     border: 0;
     border-top: 1px solid var(--line);
     margin: 1rem 0;
+  }
+  .risks {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+  }
+  .risks li {
+    border-left: 4px solid var(--warn);
+    padding: 0.3rem 0.8rem;
+    margin: 0.5rem 0;
+  }
+  .risks li.critical,
+  .risks li.high {
+    border-color: var(--danger);
+  }
+  .bad {
+    color: var(--danger);
+    font-weight: 600;
+  }
+  h3 {
+    margin: 1.2rem 0 0.4rem;
   }
   .warn {
     color: var(--warn);

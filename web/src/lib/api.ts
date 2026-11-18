@@ -36,6 +36,21 @@ export type Alerts = { rules: AlertRules; channels: Channel[] };
 export type OpenPort = { port: number; service: string };
 export type PortsResult = { at: string; ports: OpenPort[]; opened?: number[]; closed?: number[] };
 export type PingResult = { address: string; sent: number; lost: number; replies: { seq: number; ok: boolean; rtt_ms: number }[] };
+export type Risk = { port: number; service: string; severity: 'critical' | 'high' | 'medium' };
+export type WebInfo = { port: number; tls: boolean; status: number; server: string; title: string; auth: boolean };
+export type TlsInfo = {
+  port: number;
+  version: string;
+  subject: string;
+  issuer: string;
+  not_after: string;
+  days_left: number;
+  expired: boolean;
+  self_signed: boolean;
+  legacy_tls: boolean;
+  weak_key_bits?: number;
+};
+export type Exposure = { at: string; risks: Risk[]; web: WebInfo[]; tls: TlsInfo[] };
 export type DnsResult = { name: string; type: string; answers: string[] };
 export type AuditEntry = { at: string; action: string; target: string; detail: string };
 export type Settings = { retention_days: number; scan_interval: string };
@@ -96,6 +111,8 @@ export const api = {
   testAlert: (id: string) => request<{ ok: boolean }>('POST', '/api/alerts/test', { id }),
   wake: (mac: string) => request<{ status: string }>('POST', `/api/devices/${encodeURIComponent(mac)}/wake`),
   portScan: (mac: string) => request<PortsResult>('POST', `/api/devices/${encodeURIComponent(mac)}/portscan`, { confirm: true }),
+  exposureScan: (mac: string) => request<Exposure>('POST', `/api/devices/${encodeURIComponent(mac)}/exposure`, { confirm: true }),
+  exposure: (mac: string) => request<Exposure>('GET', `/api/devices/${encodeURIComponent(mac)}/exposure`),
   ports: (mac: string) => request<PortsResult>('GET', `/api/devices/${encodeURIComponent(mac)}/ports`),
   ping: (host: string, count = 4) => request<PingResult>('POST', '/api/tools/ping', { host, count }),
   dns: (name: string, type: string) => request<DnsResult>('POST', '/api/tools/dns', { name, type }),

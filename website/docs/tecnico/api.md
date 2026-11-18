@@ -48,6 +48,8 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 | `PUT /api/devices/{mac}` | sim | `{label, tags, known}`: nome (até 64 caracteres), até 8 etiquetas (24 caracteres, sem vírgula) e se é conhecido. |
 | `POST /api/devices/{mac}/wake` | sim | Envia o pacote mágico (Wake-on-LAN). Só dispositivos do inventário, no escopo. |
 | `POST /api/devices/{mac}/portscan` | sim | `{confirm: true}` obrigatório. Varre ~65 portas TCP; no máx. uma a cada 10 s; devolve `ports` e, se havia resultado anterior, `opened`/`closed`. |
+| `POST /api/devices/{mac}/exposure` | sim | `{confirm: true}`; exige uma varredura de portas antes (409). Devolve `risks`, `web` e `tls`. Mesmos limites da varredura. |
+| `GET /api/devices/{mac}/exposure` | sim | Último relatório de exposição. |
 | `GET /api/devices/{mac}/ports` | sim | Último resultado da varredura de portas. |
 | `POST /api/tools/ping` | sim | `{host, count}` (1 a 10). ICMP sem privilégios; 501 se o sistema não permitir. |
 | `POST /api/tools/dns` | sim | `{name, type}` (A, AAAA, CNAME, MX, NS, TXT, PTR). |

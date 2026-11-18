@@ -97,6 +97,8 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("PUT /api/devices/{mac}", s.mutating(s.protected(s.updateDevice)))
 	mux.HandleFunc("POST /api/devices/{mac}/wake", s.mutating(s.protected(s.wake)))
 	mux.HandleFunc("POST /api/devices/{mac}/portscan", s.mutating(s.protected(s.portScan)))
+	mux.HandleFunc("POST /api/devices/{mac}/exposure", s.mutating(s.protected(s.exposureScan)))
+	mux.HandleFunc("GET /api/devices/{mac}/exposure", s.protected(s.exposure))
 	mux.HandleFunc("GET /api/devices/{mac}/ports", s.protected(s.ports))
 	mux.HandleFunc("POST /api/tools/ping", s.mutating(s.protected(s.ping)))
 	mux.HandleFunc("POST /api/tools/dns", s.mutating(s.protected(s.dnsLookup)))

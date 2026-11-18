@@ -18,10 +18,11 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **M4.1** | Passive security: signs of ARP spoofing (gateway MAC changed, one MAC with many IPs) | Done (see [Passive security](funcionalidades/seguranca-passiva.md)) |
 | **M4.2** | Passive security: rogue DHCP server and changed services (optional, needs extra capabilities) | Planned |
 | **M5.1** | Tools: ping, DNS, Wake-on-LAN and port scan with confirmation, limits and an audit log | Done (see [Tools](funcionalidades/ferramentas.md)) |
-| **M5.2** | Active security: CVEs, TLS, exposed panels; traceroute and speed test | Planned |
+| **M5.2** | Active security: risky services, exposed web panels and TLS audit | Done (see [Tools](funcionalidades/ferramentas.md)) |
+| **M5.3** | CVEs by service version, traceroute and speed test | Planned |
 | **M6** | Hardening, self-review, v0.2 release and packages (Linux, macOS, Windows, ARM) | Planned |
 
-**v0.1** is the end of M3: discovery, history and alerts. v0.1.0 has been published. The next steps are **M5.2** and **M4.2**.
+**v0.1** is the end of M3: discovery, history and alerts. v0.1.0 has been published. The next steps are **M5.3** and **M4.2**.
 
 ## Later
 

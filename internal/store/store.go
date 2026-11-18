@@ -90,6 +90,11 @@ var migrations = []string{
 		at        INTEGER NOT NULL,
 		ports     TEXT    NOT NULL -- JSON list
 	);`,
+	`CREATE TABLE exposure_results (
+		device_id INTEGER PRIMARY KEY REFERENCES devices(id) ON DELETE CASCADE,
+		at        INTEGER NOT NULL,
+		report    TEXT    NOT NULL -- JSON
+	);`,
 }
 
 // Store is the device inventory.
