@@ -12,11 +12,11 @@
 
 **PT-BR** — Segurança passiva (M4.1): detecção sem privilégios de dois sinais de ARP spoofing a cada varredura (o endereço do gateway respondendo com outro MAC; um MAC respondendo por 3+ endereços), destacados em vermelho no histórico, com regra de alerta ligada por padrão que vale também na primeira varredura; dispositivos conhecidos ficam isentos da checagem de vários endereços; uma observação por MAC nas varreduras (sem falsos eventos de "mudou de endereço"); documentação bilíngue com os limites.
 
+## v0.1.0 — 2026-11-18
+
 **EN** — Release automation: pushing a `vX.Y.Z` tag builds Linux binaries (amd64, arm64, armv7) with checksums, publishes a multi-arch image to GHCR (SBOM + provenance) and creates the GitHub release.
 
 **PT-BR** — Automação de versões: ao enviar uma tag `vX.Y.Z`, o CI gera binários Linux (amd64, arm64, armv7) com checksums, publica uma imagem multi-arquitetura no GHCR (SBOM + proveniência) e cria a release no GitHub.
-
-## v0.1.0 — 2026-11-18
 
 **EN** — M3 alerts: new-device and known-device-offline alerts through ntfy, Telegram, webhook and e-mail (STARTTLS, never sends a password without TLS); per-device name, tags and "known" flag; alert settings and a send-test button in the web app; the first scan never alerts; secrets stay server-side and are never returned by the API; bilingual docs with screenshots.
 
