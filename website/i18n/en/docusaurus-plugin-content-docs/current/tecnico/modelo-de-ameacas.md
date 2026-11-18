@@ -34,6 +34,7 @@ Atalaia is a security tool that is also a target: it knows every device on the n
 | Used to scan third-party networks | Scope fixed to the host's own private networks (`internal/scope`), no arbitrary target |
 | Active scan without consent | Opt-in, needs an "this is my network" confirmation, rate-limited, written to an audit log |
 | Compromised agent becomes a foothold | Runs without root, only `CAP_NET_RAW`; minimal image with no extra privileges |
+| Another device impersonates the router (ARP spoofing) | Passive detection of two signs (gateway MAC changed; one MAC with many IPs) with an alert; a heuristic, with documented limits |
 | An alert channel's secret leaks (Telegram token, e-mail password) | Stored only in the local `0600` database, never returned by the API nor repeated in errors; e-mail refuses to send a password without TLS |
 | A malicious device name used to attack the alert | Sent as plain text, no markup; line breaks removed from titles |
 | Data leaks | Local storage, no telemetry, configurable retention |

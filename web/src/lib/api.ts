@@ -31,7 +31,7 @@ export type Channel = {
   has_token?: boolean;
   has_password?: boolean;
 };
-export type AlertRules = { new_device: boolean; known_offline: boolean };
+export type AlertRules = { new_device: boolean; known_offline: boolean; arp_anomaly: boolean };
 export type Alerts = { rules: AlertRules; channels: Channel[] };
 export type Settings = { retention_days: number; scan_interval: string };
 

@@ -12,6 +12,7 @@ export const devices = [
 ];
 
 export const events = [
+  { at: ago(40), kind: 'gateway_changed', detail: '192.168.1.1: a8:11:22:00:00:01 -> a8:99:99:00:00:09', mac: 'a8:11:22:00:00:01', name: 'router.lan', vendor: 'Acme Networks Ltd' },
   { at: ago(95), kind: 'offline', detail: '', mac: 'ae:66:77:00:00:33', name: 'Joao-laptop.local', vendor: '' },
   { at: ago(3 * 60), kind: 'joined', detail: '192.168.1.31', mac: 'a8:33:44:00:00:1f', name: '', vendor: 'Samsung Electronics Co.,Ltd' },
   { at: ago(60 * 5), kind: 'ip_changed', detail: '192.168.1.44 -> 192.168.1.52', mac: 'ae:66:77:00:00:33', name: 'Joao-laptop.local', vendor: '' },
@@ -25,7 +26,7 @@ export const settings = { retention_days: 90, scan_interval: '5m0s' };
 export const status = (extra = {}) => ({ version: '0.2.0', setup_required: false, authenticated: true, scan: { scanning: false, last_scan: ago(1), last_error: '', interval: '5m0s' }, ...extra });
 
 export const alerts = {
-  rules: { new_device: true, known_offline: false },
+  rules: { new_device: true, known_offline: false, arp_anomaly: true },
   channels: [
     { id: 'c1a2b3', type: 'ntfy', name: 'Celular (ntfy)', enabled: true, url: 'https://ntfy.sh/atalaia-exemplo', has_token: false, has_password: false },
     { id: 'd4e5f6', type: 'telegram', name: 'Telegram', enabled: true, chat_id: '123456789', has_token: true, has_password: false },

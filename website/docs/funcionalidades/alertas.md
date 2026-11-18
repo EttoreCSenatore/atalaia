@@ -18,8 +18,9 @@ Na página de cada dispositivo você pode dar um **nome** (que vale mais que o n
 |---|---|---|
 | Dispositivo novo | ligada | Um dispositivo que nunca tinha sido visto entra na rede. |
 | Conhecido ficou offline | desligada | Um dispositivo marcado como conhecido sumiu (depois do prazo de tolerância). |
+| Sinais de ARP spoofing | ligada | O MAC do roteador mudou ou um dispositivo responde por vários endereços. Veja [Segurança passiva](seguranca-passiva.md). |
 
-A **primeira varredura** de um banco vazio só monta o inventário e **nunca** dispara alertas; senão você receberia um aviso para cada aparelho da casa. Quando uma varredura encontra vários dispositivos de uma vez, sai **uma só mensagem** com a lista (no máximo 10 linhas).
+A **primeira varredura** de um banco vazio só monta o inventário e **nunca** dispara alertas de dispositivo novo; senão você receberia um aviso para cada aparelho da casa. Quando uma varredura encontra vários dispositivos de uma vez, sai **uma só mensagem** com a lista (no máximo 10 linhas).
 
 ## Canais
 

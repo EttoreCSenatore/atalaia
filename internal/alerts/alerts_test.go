@@ -95,7 +95,7 @@ func TestRulesDefaultsAndRoundTrip(t *testing.T) {
 	s, _ := newService(t)
 	ctx := context.Background()
 	r, _ := s.Rules(ctx)
-	if !r.NewDevice || r.KnownOffline {
+	if !r.NewDevice || r.KnownOffline || !r.ARPAnomaly {
 		t.Fatalf("defaults: %+v", r)
 	}
 	_ = s.SaveRules(ctx, Rules{NewDevice: false, KnownOffline: true})
@@ -117,5 +117,23 @@ func TestSaveChannelsLimits(t *testing.T) {
 	dup := []notify.Channel{{ID: "a", Type: notify.TypeWebhook, URL: "http://x.test"}, {ID: "a", Type: notify.TypeWebhook, URL: "http://x.test"}}
 	if err := s.SaveChannels(ctx, dup); err == nil {
 		t.Fatal("expected duplicate ids to be refused")
+	}
+}
+
+func TestComposeSecurityFindings(t *testing.T) {
+	res := store.Result{Findings: []store.Finding{
+		{Kind: store.EventGatewayChanged, Device: dev, Detail: "192.168.1.1: aa -> bb"},
+		{Kind: store.EventMultiIP, Device: dev, Detail: "192.168.1.5, 192.168.1.6, 192.168.1.7"},
+	}}
+	got := Compose(res, Rules{ARPAnomaly: true}, false)
+	if len(got) != 2 || !strings.Contains(got[0].Title, "gateway") || !strings.Contains(got[1].Body, "192.168.1.6") {
+		t.Fatalf("%+v", got)
+	}
+	if got := Compose(res, Rules{}, false); len(got) != 0 {
+		t.Fatalf("rule off: %+v", got)
+	}
+	// security findings are news even on the first scan
+	if got := Compose(res, Rules{ARPAnomaly: true}, true); len(got) != 2 {
+		t.Fatalf("baseline: %+v", got)
 	}
 }

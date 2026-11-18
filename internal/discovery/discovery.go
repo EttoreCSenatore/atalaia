@@ -177,3 +177,43 @@ func udpNudge(ctx context.Context, ip netip.Addr) {
 	_, _ = conn.Write([]byte{0})
 	_ = conn.Close()
 }
+
+// RoutePath is where Linux exposes the routing table.
+const RoutePath = "/proc/net/route"
+
+// DefaultGateway returns the IPv4 default gateway from a /proc/net/route file.
+func DefaultGateway(path string) (netip.Addr, bool) {
+	f, err := os.Open(path)
+	if err != nil {
+		return netip.Addr{}, false
+	}
+	defer f.Close()
+	return ParseGateway(f)
+}
+
+// ParseGateway reads the default route (destination 0.0.0.0) of the
+// /proc/net/route format. The address is stored as little-endian hex.
+func ParseGateway(r io.Reader) (netip.Addr, bool) {
+	sc := bufio.NewScanner(r)
+	first := true
+	for sc.Scan() {
+		if first {
+			first = false
+			continue
+		}
+		f := strings.Fields(sc.Text())
+		if len(f) < 8 || f[1] != "00000000" || f[7] != "00000000" {
+			continue
+		}
+		flags, err := strconv.ParseUint(f[3], 16, 32)
+		if err != nil || flags&0x3 != 0x3 { // up and gateway
+			continue
+		}
+		v, err := strconv.ParseUint(f[2], 16, 32)
+		if err != nil || v == 0 {
+			continue
+		}
+		return netip.AddrFrom4([4]byte{byte(v), byte(v >> 8), byte(v >> 16), byte(v >> 24)}), true
+	}
+	return netip.Addr{}, false
+}
