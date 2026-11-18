@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/EttoreCSenatore/atalaia/internal/scope"
+	"github.com/EttoreCSenatore/atalaia/internal/store"
 )
 
 func (f *fixture) withScope(prefix string) {
@@ -136,5 +137,52 @@ func TestPingAndDNSValidation(t *testing.T) {
 	}
 	if w := f.do("POST", "/api/tools/dns", map[string]any{"name": "x.test", "type": "A"}, nil); w.Code != 401 {
 		t.Errorf("anonymous dns: %d", w.Code)
+	}
+}
+
+func TestExposureNeedsAPortScanConfirmationAndScope(t *testing.T) {
+	f := newFixture(t)
+	c := f.setup()
+	f.seedDevice() // 192.168.1.10
+	f.withScope("192.168.1.0/24")
+	f.srv.Dial = func(context.Context, string) (net.Conn, error) { return nil, errors.New("closed") }
+	path := "/api/devices/b8:27:eb:00:00:01/exposure"
+
+	if w := f.do("POST", path, map[string]bool{"confirm": false}, c); w.Code != 400 {
+		t.Fatalf("no confirmation: %d", w.Code)
+	}
+	if w := f.do("POST", path, map[string]bool{"confirm": true}, c); w.Code != 409 {
+		t.Fatalf("no port scan yet: %d %s", w.Code, w.Body)
+	}
+	if w := f.do("GET", path, nil, c); w.Code != 404 {
+		t.Fatalf("no report yet: %d", w.Code)
+	}
+	if err := f.st.SavePorts(context.Background(), "b8:27:eb:00:00:01", time.Now(), []store.OpenPort{{Port: 23, Service: "telnet"}, {Port: 22, Service: "ssh"}}); err != nil {
+		t.Fatal(err)
+	}
+	w := f.do("POST", path, map[string]bool{"confirm": true}, c)
+	if w.Code != 200 {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	var out exposureDTO
+	_ = json.Unmarshal(w.Body.Bytes(), &out)
+	if len(out.Risks) != 1 || out.Risks[0].Service != "telnet" || out.Risks[0].Severity != "high" || out.Web == nil || out.TLS == nil {
+		t.Fatalf("%+v", out)
+	}
+	if w := f.do("GET", path, nil, c); w.Code != 200 {
+		t.Fatalf("stored report: %d", w.Code)
+	}
+	if w := f.do("POST", path, map[string]bool{"confirm": true}, c); w.Code != 429 {
+		t.Fatalf("rate limit: %d", w.Code)
+	}
+	var a []auditDTO
+	_ = json.Unmarshal(f.do("GET", "/api/audit", nil, c).Body.Bytes(), &a)
+	if len(a) == 0 || a[0].Action != "exposure" {
+		t.Fatalf("audit: %+v", a)
+	}
+	f.withScope("10.0.0.0/24")
+	f.srv.lastScan = time.Time{}
+	if w := f.do("POST", path, map[string]bool{"confirm": true}, c); w.Code != 403 {
+		t.Fatalf("out of scope: %d", w.Code)
 	}
 }

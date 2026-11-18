@@ -2,7 +2,7 @@
 // Usage: PLAYWRIGHT=/path/to/playwright/index.mjs node scripts/screenshots.mjs <output-folder>
 // Writes app-<page>.png (Portuguese) and app-<page>-en.png (English). Run `npm run build` first.
 import { spawn } from 'node:child_process';
-import { alerts, audit, devices, ports, events, settings, status } from '../tests/fixtures.mjs';
+import { alerts, audit, devices, exposure, ports, events, settings, status } from '../tests/fixtures.mjs';
 
 const {chromium} = await import(process.env.PLAYWRIGHT ?? 'playwright');
 const out = process.argv[2];
@@ -32,6 +32,7 @@ try {
         if (p === '/api/devices') return route.fulfill(json(devices));
         if (p === '/api/events') return route.fulfill(json(events));
         if (p === '/api/audit') return route.fulfill(json(audit));
+        if (/^\/api\/devices\/[^/]+\/exposure$/.test(p)) return route.fulfill(json(exposure));
         if (/^\/api\/devices\/[^/]+\/ports$/.test(p)) return route.fulfill(json(ports));
         if (p === '/api/alerts') return route.fulfill(json(alerts));
         if (p === '/api/settings') return route.fulfill(json(settings));
@@ -45,7 +46,7 @@ try {
       await ctx.close();
     };
     await shot('painel', '/', { height: 740 });
-    await shot('dispositivo', '/devices/b8:27:eb:00:00:0a', { height: 1100 });
+    await shot('dispositivo', '/devices/b8:27:eb:00:00:0a', { height: 1900 });
     await shot('historico', '/history', { height: 560 });
     await shot('configuracoes', '/settings', { height: 700 });
     await shot('ferramentas', '/tools', { height: 760 });

@@ -31,6 +31,18 @@ export const ports = {
   ],
   opened: [8080],
 };
+export const exposure = {
+  at: new Date(Date.now() - 5 * 60_000).toISOString(),
+  risks: [
+    { port: 23, service: 'telnet', severity: 'high' },
+    { port: 445, service: 'smb', severity: 'medium' },
+  ],
+  web: [
+    { port: 80, tls: false, status: 200, server: 'lighttpd/1.4.71', title: 'Servidor da sala', auth: false },
+    { port: 8443, tls: true, status: 401, server: '', title: 'Painel de administração', auth: true },
+  ],
+  tls: [{ port: 8443, version: 'TLS 1.3', subject: 'CN=pi.local', issuer: 'CN=pi.local', not_after: '2027-03-01T00:00:00Z', days_left: 102, expired: false, self_signed: true, legacy_tls: false }],
+};
 export const audit = [
   { at: new Date(Date.now() - 12 * 60_000).toISOString(), action: 'portscan', target: 'b8:27:eb:00:00:0a', detail: '192.168.1.10: 3 open' },
   { at: new Date(Date.now() - 50 * 60_000).toISOString(), action: 'ping', target: '192.168.1.1', detail: '4 sent, 0 lost' },

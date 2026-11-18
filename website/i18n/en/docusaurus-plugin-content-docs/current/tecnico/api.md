@@ -48,6 +48,8 @@ The server speaks HTTP. On a trusted local network that is acceptable, but the p
 | `PUT /api/devices/{mac}` | yes | `{label, tags, known}`: name (up to 64 characters), up to 8 tags (24 characters, no commas) and whether it is known. |
 | `POST /api/devices/{mac}/wake` | yes | Sends the magic packet (Wake-on-LAN). Inventory devices in scope only. |
 | `POST /api/devices/{mac}/portscan` | yes | `{confirm: true}` required. Scans ~65 TCP ports; at most one per 10 s; returns `ports` and, if there was a previous result, `opened`/`closed`. |
+| `POST /api/devices/{mac}/exposure` | yes | `{confirm: true}`; needs a port scan first (409). Returns `risks`, `web` and `tls`. Same limits as the scan. |
+| `GET /api/devices/{mac}/exposure` | yes | The last exposure report. |
 | `GET /api/devices/{mac}/ports` | yes | The device's last port scan. |
 | `POST /api/tools/ping` | yes | `{host, count}` (1 to 10). Unprivileged ICMP; 501 if the system does not allow it. |
 | `POST /api/tools/dns` | yes | `{name, type}` (A, AAAA, CNAME, MX, NS, TXT, PTR). |

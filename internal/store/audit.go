@@ -90,3 +90,21 @@ func (s *Store) Ports(ctx context.Context, mac string) (PortResult, bool, error)
 	}
 	return PortResult{At: time.Unix(at, 0).UTC(), Ports: ports}, true, nil
 }
+
+// SaveExposure stores the latest exposure report (JSON) of the device with that MAC.
+func (s *Store) SaveExposure(ctx context.Context, mac string, at time.Time, report []byte) error {
+	_, err := s.db.ExecContext(ctx, `INSERT INTO exposure_results (device_id, at, report)
+		SELECT id, ?, ? FROM devices WHERE mac=?
+		ON CONFLICT(device_id) DO UPDATE SET at=excluded.at, report=excluded.report`, at.Unix(), string(report), mac)
+	return err
+}
+
+// Exposure returns the latest exposure report (JSON), or false if there is none.
+func (s *Store) Exposure(ctx context.Context, mac string) ([]byte, bool, error) {
+	var raw string
+	err := s.db.QueryRowContext(ctx, `SELECT e.report FROM exposure_results e JOIN devices d ON d.id = e.device_id WHERE d.mac=?`, mac).Scan(&raw)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, false, nil
+	}
+	return []byte(raw), err == nil, err
+}

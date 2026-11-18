@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { compareIp, deviceLabel, parseTags, relativeTime } from '../src/lib/format';
+import { riskGroup } from '../src/lib/risk';
 import { match } from '../src/lib/router.svelte';
 
 const now = new Date('2026-11-18T12:00:00Z');
@@ -47,5 +48,14 @@ describe('parseTags', () => {
   it('trims, lower-cases and removes duplicates and empties', () => {
     expect(parseTags(' IoT, media ,iot,, ')).toEqual(['iot', 'media']);
     expect(parseTags('')).toEqual([]);
+  });
+});
+
+describe('riskGroup', () => {
+  it('groups services and falls back to legacy', () => {
+    expect(riskGroup('telnet')).toBe('remoteAdmin');
+    expect(riskGroup('redis')).toBe('database');
+    expect(riskGroup('smb')).toBe('fileSharing');
+    expect(riskGroup('something-new')).toBe('legacy');
   });
 });

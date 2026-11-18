@@ -76,4 +76,12 @@ describe('api client', () => {
     const bodies = fn.mock.calls.map((c) => (c as unknown as [string, RequestInit])[1].body);
     expect(bodies).toEqual([JSON.stringify({ host: '192.168.1.1', count: 3 }), JSON.stringify({ name: 'example.com', type: 'MX' })]);
   });
+
+  it('exposure check sends an explicit confirmation', async () => {
+    const fn = mockFetch(200, { at: '', risks: [], web: [], tls: [] });
+    await api.exposureScan('aa:bb:cc:00:00:01');
+    const [url, init] = fn.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/devices/aa%3Abb%3Acc%3A00%3A00%3A01/exposure');
+    expect(init.body).toBe(JSON.stringify({ confirm: true }));
+  });
 });
