@@ -34,6 +34,7 @@ describe('device helpers', () => {
 describe('router', () => {
   it('matches the known pages and rejects the rest', () => {
     expect(match('/')).toEqual({ name: 'devices' });
+    expect(match('/tools')).toEqual({ name: 'tools' });
     expect(match('/history/')).toEqual({ name: 'history' });
     expect(match('/settings')).toEqual({ name: 'settings' });
     expect(match('/devices/B8:27:EB:00:00:01')).toEqual({ name: 'device', mac: 'b8:27:eb:00:00:01' });

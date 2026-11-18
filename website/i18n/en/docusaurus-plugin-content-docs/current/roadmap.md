@@ -17,10 +17,11 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **M3** | Alerts: new device, notification adapters (ntfy, Telegram, webhook, e-mail), names, tags and known devices | Done (see [Alerts](funcionalidades/alertas.md)) |
 | **M4.1** | Passive security: signs of ARP spoofing (gateway MAC changed, one MAC with many IPs) | Done (see [Passive security](funcionalidades/seguranca-passiva.md)) |
 | **M4.2** | Passive security: rogue DHCP server and changed services (optional, needs extra capabilities) | Planned |
-| **M5** | Active security and tools: ports, CVEs, exposed panels, TLS, ping, traceroute, DNS, Wake-on-LAN, speed | Planned |
+| **M5.1** | Tools: ping, DNS, Wake-on-LAN and port scan with confirmation, limits and an audit log | Done (see [Tools](funcionalidades/ferramentas.md)) |
+| **M5.2** | Active security: CVEs, TLS, exposed panels; traceroute and speed test | Planned |
 | **M6** | Hardening, self-review, v0.2 release and packages (Linux, macOS, Windows, ARM) | Planned |
 
-**v0.1** is the end of M3: discovery, history and alerts. v0.1.0 has been published. The next step is **M4.2**.
+**v0.1** is the end of M3: discovery, history and alerts. v0.1.0 has been published. The next steps are **M5.2** and **M4.2**.
 
 ## Later
 

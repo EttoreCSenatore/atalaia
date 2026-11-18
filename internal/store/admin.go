@@ -115,6 +115,9 @@ func (s *Store) SetSetting(ctx context.Context, key, value string) error {
 
 // PurgeEvents deletes events older than before and returns how many.
 func (s *Store) PurgeEvents(ctx context.Context, before time.Time) (int64, error) {
+	if _, err := s.db.ExecContext(ctx, `DELETE FROM audit WHERE at < ?`, before.Unix()); err != nil {
+		return 0, err
+	}
 	r, err := s.db.ExecContext(ctx, `DELETE FROM events WHERE at < ?`, before.Unix())
 	if err != nil {
 		return 0, err

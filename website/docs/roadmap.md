@@ -17,10 +17,11 @@ Cada etapa vira um pull request, revisado e integrado antes da próxima. Documen
 | **M3** | Alertas: dispositivo novo, adaptadores de notificação (ntfy, Telegram, webhook, e-mail), nomes, etiquetas e dispositivos conhecidos | Concluído (ver [Alertas](funcionalidades/alertas.md)) |
 | **M4.1** | Segurança passiva: sinais de ARP spoofing (MAC do roteador mudou, um MAC com vários IPs) | Concluído (ver [Segurança passiva](funcionalidades/seguranca-passiva.md)) |
 | **M4.2** | Segurança passiva: servidor DHCP falso e serviços alterados (opcional, exige capacidades extras) | Planejado |
-| **M5** | Segurança ativa e ferramentas: portas, CVEs, painéis expostos, TLS, ping, traceroute, DNS, Wake-on-LAN, velocidade | Planejado |
+| **M5.1** | Ferramentas: ping, DNS, Wake-on-LAN e varredura de portas com confirmação, limites e registro de auditoria | Concluído (ver [Ferramentas](funcionalidades/ferramentas.md)) |
+| **M5.2** | Segurança ativa: CVEs, TLS, painéis expostos; traceroute e teste de velocidade | Planejado |
 | **M6** | Endurecimento, autorrevisão, versão v0.2 e pacotes (Linux, macOS, Windows, ARM) | Planejado |
 
-A **v0.1** é o fim do M3: descoberta, histórico e alertas. A v0.1.0 foi publicada. O próximo passo é o **M4.2**.
+A **v0.1** é o fim do M3: descoberta, histórico e alertas. A v0.1.0 foi publicada. Os próximos passos são o **M5.2** e o **M4.2**.
 
 ## Depois
 

@@ -25,7 +25,9 @@ import (
 	"github.com/EttoreCSenatore/atalaia/internal/auth"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
 	"github.com/EttoreCSenatore/atalaia/internal/notify"
+	"github.com/EttoreCSenatore/atalaia/internal/scope"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
+	"github.com/EttoreCSenatore/atalaia/internal/tools"
 )
 
 const (
@@ -45,6 +47,10 @@ type Server struct {
 	Store   *store.Store
 	Monitor *monitor.Monitor
 	Alerts  *alerts.Service
+	// Scope returns the networks active tools may touch (default: the host's own private networks).
+	Scope func() (*scope.Scope, error)
+	// Dial opens TCP connections for the port scan (default: net dialer).
+	Dial    tools.Dialer
 	Sender  *notify.Sender
 	Version string
 	// AllowedHosts are extra Host names accepted besides IP addresses,
@@ -55,6 +61,9 @@ type Server struct {
 	Now    func() time.Time
 
 	limiter auth.Limiter
+
+	active   sync.Mutex // one active tool at a time
+	lastScan time.Time  // last port scan, for the minimum interval
 
 	mu         sync.Mutex
 	setupCode  string
@@ -86,6 +95,12 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/password", s.mutating(s.protected(s.changePassword)))
 	mux.HandleFunc("GET /api/devices", s.protected(s.devices))
 	mux.HandleFunc("PUT /api/devices/{mac}", s.mutating(s.protected(s.updateDevice)))
+	mux.HandleFunc("POST /api/devices/{mac}/wake", s.mutating(s.protected(s.wake)))
+	mux.HandleFunc("POST /api/devices/{mac}/portscan", s.mutating(s.protected(s.portScan)))
+	mux.HandleFunc("GET /api/devices/{mac}/ports", s.protected(s.ports))
+	mux.HandleFunc("POST /api/tools/ping", s.mutating(s.protected(s.ping)))
+	mux.HandleFunc("POST /api/tools/dns", s.mutating(s.protected(s.dnsLookup)))
+	mux.HandleFunc("GET /api/audit", s.protected(s.audit))
 	mux.HandleFunc("GET /api/alerts", s.protected(s.getAlerts))
 	mux.HandleFunc("PUT /api/alerts", s.mutating(s.protected(s.putAlerts)))
 	mux.HandleFunc("POST /api/alerts/test", s.mutating(s.protected(s.testAlert)))

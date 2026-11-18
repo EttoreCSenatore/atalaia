@@ -9,6 +9,7 @@
   const links = [
     { href: '/', key: 'nav.devices' },
     { href: '/history', key: 'nav.history' },
+    { href: '/tools', key: 'nav.tools' },
     { href: '/settings', key: 'nav.settings' },
   ];
   const active = (href: string) => (href === '/' ? route.path === '/' || route.path.startsWith('/devices') : route.path.startsWith(href));

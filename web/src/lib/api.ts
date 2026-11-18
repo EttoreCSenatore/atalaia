@@ -33,6 +33,11 @@ export type Channel = {
 };
 export type AlertRules = { new_device: boolean; known_offline: boolean; arp_anomaly: boolean };
 export type Alerts = { rules: AlertRules; channels: Channel[] };
+export type OpenPort = { port: number; service: string };
+export type PortsResult = { at: string; ports: OpenPort[]; opened?: number[]; closed?: number[] };
+export type PingResult = { address: string; sent: number; lost: number; replies: { seq: number; ok: boolean; rtt_ms: number }[] };
+export type DnsResult = { name: string; type: string; answers: string[] };
+export type AuditEntry = { at: string; action: string; target: string; detail: string };
 export type Settings = { retention_days: number; scan_interval: string };
 
 export class ApiError extends Error {
@@ -89,5 +94,11 @@ export const api = {
   alerts: () => request<Alerts>('GET', '/api/alerts'),
   saveAlerts: (a: Alerts) => request<Alerts>('PUT', '/api/alerts', a),
   testAlert: (id: string) => request<{ ok: boolean }>('POST', '/api/alerts/test', { id }),
+  wake: (mac: string) => request<{ status: string }>('POST', `/api/devices/${encodeURIComponent(mac)}/wake`),
+  portScan: (mac: string) => request<PortsResult>('POST', `/api/devices/${encodeURIComponent(mac)}/portscan`, { confirm: true }),
+  ports: (mac: string) => request<PortsResult>('GET', `/api/devices/${encodeURIComponent(mac)}/ports`),
+  ping: (host: string, count = 4) => request<PingResult>('POST', '/api/tools/ping', { host, count }),
+  dns: (name: string, type: string) => request<DnsResult>('POST', '/api/tools/dns', { name, type }),
+  audit: () => request<AuditEntry[]>('GET', '/api/audit'),
   changePassword: (current: string, next: string) => request<{ ok: boolean }>('POST', '/api/password', { current, new: next }),
 };

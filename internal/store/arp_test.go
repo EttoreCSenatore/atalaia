@@ -93,3 +93,40 @@ func TestMigrationKeepsEventsAndAllowsNewKinds(t *testing.T) {
 		t.Fatalf("%+v %v", evs, err)
 	}
 }
+
+func TestAuditAndPortResults(t *testing.T) {
+	s, ctx, now := open(t), context.Background(), time.Unix(1700000000, 0)
+	mac := "ee:00:00:00:00:06"
+	_, _ = s.Record(ctx, now, []Observation{{MAC: mac, IP: ip("192.168.1.9")}}, time.Hour)
+
+	if _, ok, _ := s.Ports(ctx, mac); ok {
+		t.Fatal("never scanned")
+	}
+	if err := s.SavePorts(ctx, mac, now, []OpenPort{{22, "ssh"}}); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.SavePorts(ctx, mac, now.Add(time.Hour), nil); err != nil { // overwrite with none open
+		t.Fatal(err)
+	}
+	r, ok, err := s.Ports(ctx, mac)
+	if err != nil || !ok || len(r.Ports) != 0 || !r.At.Equal(now.Add(time.Hour)) {
+		t.Fatalf("%+v %v %v", r, ok, err)
+	}
+	_ = s.SavePorts(ctx, "00:00:00:00:00:00", now, nil) // unknown device: no-op
+	if _, ok, _ := s.Ports(ctx, "00:00:00:00:00:00"); ok {
+		t.Fatal("saved for an unknown device")
+	}
+
+	_ = s.Audit(ctx, now, "portscan", mac, "2 open")
+	_ = s.Audit(ctx, now.Add(time.Minute), "wake", mac, "")
+	a, _ := s.Audits(ctx, 10)
+	if len(a) != 2 || a[0].Action != "wake" {
+		t.Fatalf("%+v", a)
+	}
+	if n, _ := s.PurgeEvents(ctx, now.Add(10*time.Minute)); n < 0 {
+		t.Fatal(n)
+	}
+	if a, _ := s.Audits(ctx, 10); len(a) != 0 {
+		t.Fatalf("audit not purged: %+v", a)
+	}
+}

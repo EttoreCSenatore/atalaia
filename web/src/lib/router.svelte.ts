@@ -19,12 +19,13 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export type Match = { name: 'devices' } | { name: 'device'; mac: string } | { name: 'history' } | { name: 'settings' } | { name: 'notfound' };
+export type Match = { name: 'devices' } | { name: 'device'; mac: string } | { name: 'history' } | { name: 'settings' } | { name: 'tools' } | { name: 'notfound' };
 
 export function match(path: string): Match {
   const p = path.replace(/\/+$/, '') || '/';
   if (p === '/') return { name: 'devices' };
   if (p === '/history') return { name: 'history' };
+  if (p === '/tools') return { name: 'tools' };
   if (p === '/settings') return { name: 'settings' };
   const m = /^\/devices\/([0-9a-f:]{17})$/i.exec(p);
   if (m) return { name: 'device', mac: m[1].toLowerCase() };
