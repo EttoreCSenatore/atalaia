@@ -503,15 +503,21 @@ type deviceDTO struct {
 	Label      string   `json:"label"`
 	Tags       []string `json:"tags"`
 	Known      bool     `json:"known"`
+	Model      string   `json:"model"`
+	Kind       string   `json:"kind"`
+	Services   []string `json:"services"`
 }
 
 func toDTO(d store.Device) deviceDTO {
-	tags := d.Tags
+	tags, services := d.Tags, d.Services
 	if tags == nil {
 		tags = []string{}
 	}
+	if services == nil {
+		services = []string{}
+	}
 	return deviceDTO{d.MAC, d.IP, d.Name, d.Vendor, d.Randomized, d.Online,
-		d.FirstSeen.Format(time.RFC3339), d.LastSeen.Format(time.RFC3339), d.Label, tags, d.Known}
+		d.FirstSeen.Format(time.RFC3339), d.LastSeen.Format(time.RFC3339), d.Label, tags, d.Known, d.Model, d.Kind, services}
 }
 
 type eventDTO struct {

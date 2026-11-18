@@ -13,7 +13,8 @@ A partir do M1, o Atalaia descobre os dispositivos da rede local, identifica o f
 1. O Atalaia calcula as **redes que pode sondar**: só as redes IPv4 privadas das interfaces da própria máquina (veja `atalaia scope`). Nada fora delas é sondado.
 2. Envia **um byte UDP** para cada endereço da rede (só a /24 onde a máquina está, mesmo que a rede seja maior). Isso faz o sistema resolver cada endereço por ARP.
 3. Lê a **tabela de vizinhos do sistema** (`/proc/net/arp`) e confere de novo cada endereço contra o escopo.
-4. Procura o **nome** de cada dispositivo (mDNS e DNS reverso) e o **fabricante** pelo MAC (lista pública do IEEE, MA-L, MA-M e MA-S, embutida no programa).
+4. Procura o **nome** de cada dispositivo (mDNS, DNS reverso, NetBIOS) e o **fabricante** pelo MAC (lista pública do IEEE, MA-L, MA-M e MA-S, embutida no programa).
+5. Pergunta a cada um o que ele **diz que é** (veja abaixo) e adivinha o tipo.
 
 Não precisa de root nem de sockets brutos. Por enquanto roda só em **Linux** e só com **IPv4**.
 
@@ -40,6 +41,24 @@ atalaia history --limit 5
 
 Eventos: `joined` (visto pela primeira vez), `online` (voltou), `offline` (sumiu além do prazo) e `ip_changed` (mesmo dispositivo, endereço novo).
 
+## O que o Atalaia descobre sobre cada dispositivo
+
+Além do fabricante (pelo MAC), cada dispositivo pode **dizer o que é**. O Atalaia pergunta, na própria rede local e só aos endereços que já encontrou:
+
+| Fonte | O que traz | Como |
+|---|---|---|
+| **mDNS (tipos de serviço)** | Os serviços que o aparelho anuncia (`_airplay`, `_googlecast`, `_ipp` de impressoras, `_hap` do HomeKit, `_companion-link` da Apple…) e o **modelo** (`Chromecast Ultra`, `iPhone14,5`, o modelo da impressora) | Uma pergunta direta à porta 5353 de cada dispositivo |
+| **SSDP/UPnP** | Fabricante, modelo, nome amigável e tipo (`MediaRenderer`, roteador…) de TVs, consoles, NAS e roteadores | Uma busca em multicast; a descrição só é baixada **do próprio endereço que respondeu** |
+| **NetBIOS** | O nome do computador e o grupo de trabalho de PCs Windows, Samba e muitos NAS | Uma consulta direta à porta UDP 137 |
+
+Com isso o Atalaia **adivinha o tipo** do dispositivo (roteador, impressora, TV, caixa de som, câmera, NAS, computador, celular, casa inteligente…) e mostra um ícone no painel. É uma **heurística**: sinais fortes (o roteador, um serviço de impressão, um tipo UPnP) valem mais que sinais fracos (um nome, um fabricante), e sem sinal nenhum ele **não chuta**. Um MAC aleatório sem nenhum anúncio aparece como "celular, tablet ou notebook", que é o que ele quase sempre é.
+
+O que o aparelho anuncia **nunca apaga** o que você escreveu (o nome e as etiquetas são seus), e uma varredura em que ele ficou calado não apaga o que já se sabia.
+
+**Limite honesto**: só descobre quem fala. Num teste em uma rede doméstica real, a maioria dos aparelhos eram celulares com MAC aleatório que **não anunciam nada** (nem mDNS, nem UPnP, nem NetBIOS): nesses casos o melhor é dar um nome e etiquetas à mão.
+
+Tudo o que vem da rede é tratado como **não confiável**: texto é limpo de caracteres de controle e cortado, o XML do UPnP é lido sem expandir entidades, e um aparelho não consegue fazer o Atalaia baixar nada de outro endereço.
+
 ## Segurança e privacidade
 
 - O banco guarda o inventário da rede, que é dado pessoal. O arquivo é criado com permissão `0600` e a pasta com `0700`, e nada sai da máquina.
@@ -49,7 +68,7 @@ Eventos: `joined` (visto pela primeira vez), `online` (voltou), `offline` (sumiu
 ## Limites atuais
 
 - Só Linux e IPv4. macOS e Windows ficam para depois.
-- Não há descoberta por SSDP/UPnP, NetBIOS nem pelos aluguéis do DHCP: aparelhos sem nome mDNS ou DNS reverso aparecem só com fabricante (ou, com MAC aleatório, sem nenhum).
+- Aparelhos que não anunciam nada (muitos celulares com MAC aleatório) aparecem sem nome nem modelo.
 - Endereços de VPN em CGNAT (por exemplo Tailscale, `100.64.0.0/10`) não são aceitos como "rede local" pelo servidor.
 - Dispositivos que não respondem a ARP (raro) não aparecem; os que estão dormindo podem faltar em uma varredura, daí o prazo de offline.
 - O próprio computador onde o Atalaia roda aparece na lista (a tabela ARP nunca lista a própria máquina, então ele é incluído à parte, só pela interface da rede principal, a que contém o roteador).

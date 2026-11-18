@@ -34,6 +34,7 @@ A browser has no raw sockets, ARP, ICMP or mDNS. The agent runs **without root a
 |---|---|
 | `internal/scope` | Which addresses may be probed (only the host's own private networks) |
 | `internal/discovery` | UDP sweep + the system ARP table, routes, the host itself |
+| `internal/fingerprint` | What a device says it is: mDNS services and model, UPnP (SSDP), NetBIOS, and the type guess |
 | `internal/names`, `internal/identity` | Names (mDNS, reverse DNS), vendor by MAC (IEEE) and sanitizing of text from the network |
 | `internal/probe` | One full discovery pass, one observation per MAC |
 | `internal/store` | SQLite, migrations, history, ARP-spoofing sign detection, audit log |

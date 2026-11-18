@@ -168,3 +168,20 @@ func TestDHCPBaselineThenNewServerIsFlaggedOnce(t *testing.T) {
 		t.Fatal("after forgetting, the next probe is a baseline")
 	}
 }
+
+func TestWhatADeviceSaysAboutItselfIsKeptAndOnlyReplacedByNewInformation(t *testing.T) {
+	s, ctx, now := open(t), context.Background(), time.Unix(1700000000, 0)
+	mac := "aa:11:22:00:00:09"
+	_, _ = s.Record(ctx, now, []Observation{{MAC: mac, IP: ip("192.168.1.30"), Model: "Chromecast", Kind: "tv", Services: []string{"_googlecast._tcp", "_airplay._tcp"}}}, time.Hour)
+	// a scan where the device stayed silent must not erase it
+	_, _ = s.Record(ctx, now.Add(time.Minute), []Observation{{MAC: mac, IP: ip("192.168.1.30")}}, time.Hour)
+	d, _, _ := getByMAC(ctx, s.db, mac)
+	if d.Model != "Chromecast" || d.Kind != "tv" || len(d.Services) != 2 {
+		t.Fatalf("erased by silence: %+v", d)
+	}
+	_, _ = s.Record(ctx, now.Add(2*time.Minute), []Observation{{MAC: mac, IP: ip("192.168.1.30"), Kind: "speaker", Services: []string{"_spotify-connect._tcp"}}}, time.Hour)
+	d, _, _ = getByMAC(ctx, s.db, mac)
+	if d.Kind != "speaker" || d.Model != "Chromecast" || len(d.Services) != 1 {
+		t.Fatalf("new information not applied: %+v", d)
+	}
+}

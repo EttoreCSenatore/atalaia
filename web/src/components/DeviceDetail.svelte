@@ -3,6 +3,7 @@
   import { toolError } from '../lib/errors';
   import { app, loadData } from '../lib/app.svelte';
   import { t, i18n } from '../lib/i18n.svelte';
+  import { kindIcon } from '../lib/kinds';
   import { riskGroup } from '../lib/risk';
   import { dateTime, parseTags, relativeTime } from '../lib/format';
   import StateBadge from './StateBadge.svelte';
@@ -119,11 +120,13 @@
   <div class="card">
     <dl>
       <dt>{t('dashboard.cols.ip')}</dt><dd class="mono">{device.ip || t('common.none')}</dd>
+      <dt>{t('detail.type')}</dt><dd>{kindIcon(device.kind)} {device.kind ? t(`kinds.${device.kind}`) : t('kinds.unknown')}{#if device.model} · {device.model}{/if}</dd>
       <dt>{t('dashboard.cols.mac')}</dt><dd class="mono">{device.mac}</dd>
       <dt>{t('dashboard.cols.vendor')}</dt><dd>{device.randomized_mac ? t('common.randomMac') : device.vendor || t('common.unknown')}</dd>
       <dt>{t('detail.firstSeen')}</dt><dd>{when(device.first_seen)}</dd>
       <dt>{t('detail.lastSeen')}</dt><dd>{when(device.last_seen)} <span class="muted">({rel(device.last_seen)})</span></dd>
     </dl>
+    {#if device.services.length > 0}<p class="muted">{t('detail.services')}: <span class="mono">{device.services.join(', ')}</span></p>{/if}
     {#if device.randomized_mac}<p class="note">{t('detail.randomNote')}</p>{/if}
   </div>
 

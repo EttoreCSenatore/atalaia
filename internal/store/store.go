@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "modernc.org/sqlite" // pure-Go driver: keeps the binary static
@@ -114,6 +115,9 @@ var migrations = []string{
 		last_seen  INTEGER NOT NULL,
 		detail     TEXT    NOT NULL DEFAULT '' -- JSON of the last offer
 	);`,
+	`ALTER TABLE devices ADD COLUMN model    TEXT NOT NULL DEFAULT '';
+	ALTER TABLE devices ADD COLUMN kind     TEXT NOT NULL DEFAULT '';
+	ALTER TABLE devices ADD COLUMN services TEXT NOT NULL DEFAULT '';`,
 }
 
 // Store is the device inventory.
@@ -133,6 +137,9 @@ type Device struct {
 	Label      string   // chosen by the user; never overwritten by scans
 	Tags       []string // chosen by the user
 	Known      bool     // the user recognises this device
+	Model      string   // what the device says it is (mDNS, SSDP)
+	Kind       string   // best guess of what it is: router, printer, tv...
+	Services   []string // service types it announces (mDNS)
 }
 
 // Event is something that happened to a device.
@@ -156,6 +163,10 @@ type Observation struct {
 	// one shown). Gateway is true when IP is the default gateway's address.
 	IPs     []netip.Addr
 	Gateway bool
+	// What the device announced about itself (all optional, never erase known values).
+	Model    string
+	Kind     string
+	Services []string
 }
 
 // Result summarizes what a scan changed.
@@ -252,8 +263,8 @@ func (s *Store) Record(ctx context.Context, at time.Time, obs []Observation, off
 		}
 		ip := o.IP.String()
 		if !found {
-			r, err := tx.ExecContext(ctx, `INSERT INTO devices (mac, vendor, randomized, name, ip, online, first_seen, last_seen)
-				VALUES (?, ?, ?, ?, ?, 1, ?, ?)`, o.MAC, o.Vendor, b2i(o.Randomized), o.Name, ip, now, now)
+			r, err := tx.ExecContext(ctx, `INSERT INTO devices (mac, vendor, randomized, name, ip, online, first_seen, last_seen, model, kind, services)
+				VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?)`, o.MAC, o.Vendor, b2i(o.Randomized), o.Name, ip, now, now, o.Model, o.Kind, strings.Join(o.Services, ","))
 			if err != nil {
 				return res, err
 			}
@@ -263,7 +274,7 @@ func (s *Store) Record(ctx context.Context, at time.Time, obs []Observation, off
 			}
 			seen[id] = true
 			d = Device{ID: id, MAC: o.MAC, Vendor: o.Vendor, Randomized: o.Randomized, Name: o.Name, IP: ip, Online: true,
-				FirstSeen: at, LastSeen: at}
+				FirstSeen: at, LastSeen: at, Model: o.Model, Kind: o.Kind, Services: o.Services}
 			res.New = append(res.New, d)
 			continue
 		}
@@ -275,11 +286,22 @@ func (s *Store) Record(ctx context.Context, at time.Time, obs []Observation, off
 		if o.Name != "" {
 			name = o.Name
 		}
-		if _, err := tx.ExecContext(ctx, `UPDATE devices SET vendor=?, randomized=?, name=?, ip=?, online=1, last_seen=? WHERE id=?`,
-			vendor, b2i(o.Randomized), name, ip, now, d.ID); err != nil {
+		// what a device says about itself is only replaced by something new, never by silence
+		model, kind, services := d.Model, d.Kind, d.Services
+		if o.Model != "" {
+			model = o.Model
+		}
+		if o.Kind != "" {
+			kind = o.Kind
+		}
+		if len(o.Services) > 0 {
+			services = o.Services
+		}
+		if _, err := tx.ExecContext(ctx, `UPDATE devices SET vendor=?, randomized=?, name=?, ip=?, online=1, last_seen=?, model=?, kind=?, services=? WHERE id=?`,
+			vendor, b2i(o.Randomized), name, ip, now, model, kind, strings.Join(services, ","), d.ID); err != nil {
 			return res, err
 		}
-		d.Vendor, d.Name = vendor, name
+		d.Vendor, d.Name, d.Model, d.Kind, d.Services = vendor, name, model, kind, services
 		if !d.Online {
 			if err := addEvent(ctx, tx, d.ID, EventOnline, ip, now); err != nil {
 				return res, err
@@ -300,7 +322,7 @@ func (s *Store) Record(ctx context.Context, at time.Time, obs []Observation, off
 
 	// devices that were online but have not been seen for too long
 	cutoff := at.Add(-offlineAfter).Unix()
-	rows, err := tx.QueryContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen, label, tags, known
+	rows, err := tx.QueryContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen, label, tags, known, model, kind, services
 		FROM devices WHERE online=1 AND last_seen < ?`, cutoff)
 	if err != nil {
 		return res, err
@@ -334,7 +356,7 @@ func (s *Store) Record(ctx context.Context, at time.Time, obs []Observation, off
 
 // Devices returns every known device, online first, then by address.
 func (s *Store) Devices(ctx context.Context) ([]Device, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen, label, tags, known
+	rows, err := s.db.QueryContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen, label, tags, known, model, kind, services
 		FROM devices ORDER BY online DESC, ip, mac`)
 	if err != nil {
 		return nil, err
@@ -381,7 +403,7 @@ type queryer interface {
 }
 
 func getByMAC(ctx context.Context, q queryer, mac string) (Device, bool, error) {
-	row := q.QueryRowContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen, label, tags, known FROM devices WHERE mac=?`, mac)
+	row := q.QueryRowContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen, label, tags, known, model, kind, services FROM devices WHERE mac=?`, mac)
 	d, err := scanDevice(row)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Device{}, false, nil
@@ -394,12 +416,13 @@ type scanner interface{ Scan(dest ...any) error }
 func scanDevice(r scanner) (Device, error) {
 	var d Device
 	var rnd, on, first, last, known int64
-	var tags string
-	if err := r.Scan(&d.ID, &d.MAC, &d.Vendor, &rnd, &d.Name, &d.IP, &on, &first, &last, &d.Label, &tags, &known); err != nil {
+	var tags, services string
+	if err := r.Scan(&d.ID, &d.MAC, &d.Vendor, &rnd, &d.Name, &d.IP, &on, &first, &last, &d.Label, &tags, &known, &d.Model, &d.Kind, &services); err != nil {
 		return d, err
 	}
 	d.Randomized, d.Online, d.Known = rnd != 0, on != 0, known != 0
 	d.Tags = splitTags(tags)
+	d.Services = splitTags(services)
 	d.FirstSeen, d.LastSeen = time.Unix(first, 0).UTC(), time.Unix(last, 0).UTC()
 	return d, nil
 }
