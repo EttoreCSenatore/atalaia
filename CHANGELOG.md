@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — M6.3 packaging: `.deb` and `.rpm` packages (amd64, arm64, armv7) in every release, with a hardened systemd unit (DynamicUser, no capabilities, read-only file system, syscall filter, IP sockets only; sandbox tested with the real binary) and `/etc/default/atalaia` options; observe-only mode (`--no-active-tools`) that disables ping, Wake-on-LAN, port scan and exposure check; `ATALAIA_LISTEN` is now read by the binary.
+
+**PT-BR** — Pacotes (M6.3): `.deb` e `.rpm` (amd64, arm64, armv7) em toda versão, com unidade systemd endurecida (DynamicUser, sem capabilities, sistema de arquivos somente leitura, filtro de chamadas de sistema, só sockets IP; sandbox testado com o binário real) e opções em `/etc/default/atalaia`; modo somente observação (`--no-active-tools`) que desliga ping, Wake-on-LAN, varredura de portas e verificação de exposição; `ATALAIA_LISTEN` agora é lido pelo binário.
+
 **EN** — M6.2 security self-review: gosec added to CI (G304/G117 accepted, documented); fixes for integer conversions (ports, argon2 key size, route parsing), the logout cookie's `Secure` flag, and a new `--secure-cookies` for TLS-terminating proxies; the review's findings and accepted risks are documented in the security page.
 
 **PT-BR** — Autorrevisão de segurança (M6.2): gosec na CI (G304/G117 aceitos e documentados); correções em conversões de inteiros (portas, tamanho da chave argon2, leitura da tabela de rotas), na flag `Secure` do cookie de logout e novo `--secure-cookies` para proxies que terminam TLS; achados e riscos aceitos documentados na página de segurança.

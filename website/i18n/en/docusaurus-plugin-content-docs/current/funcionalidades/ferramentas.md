@@ -42,6 +42,10 @@ The certificate is not verified (home equipment uses self-signed ones); the repo
 - The port scan only completes the TCP handshake and closes: it **sends no data**. The exposure check sends **one HTTP request and one TLS handshake** per applicable open port, and nothing that tries to exploit or guess passwords.
 - **Every action goes to the audit log** (time, action, target and result), visible on the page itself, and it is deleted along with the history, following the retention setting.
 
+## Observe-only mode
+
+To turn off every active action (ping, Wake-on-LAN, port scan, exposure check) use `--no-active-tools`. See [Deployment](../tecnico/implantacao.md).
+
 ## Ping on Docker and Linux
 
 Ping uses **unprivileged** ICMP (a *ping socket*). It works when the user running Atalaia is inside the system's `net.ipv4.ping_group_range`; if not, the app says so. To allow every user:

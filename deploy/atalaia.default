@@ -1,0 +1,18 @@
+# Options for the Atalaia service (read by systemd). Uncomment what you need, then:
+#   sudo systemctl restart atalaia
+
+# Address to listen on. The default (127.0.0.1:8080) is this machine only.
+# For the whole local network use 0.0.0.0:8443 together with HTTPS below.
+#ATALAIA_LISTEN=0.0.0.0:8443
+
+# HTTPS with a self-signed certificate that Atalaia makes and renews (compare the fingerprint in the log):
+#ATALAIA_TLS_SELF_SIGNED=1
+# ...or your own certificate:
+#ATALAIA_TLS_CERT=/etc/atalaia/cert.pem
+#ATALAIA_TLS_KEY=/etc/atalaia/key.pem
+
+# Behind a reverse proxy that terminates TLS, mark the session cookie Secure:
+#ATALAIA_SECURE_COOKIES=1
+
+# Observe only: turn off ping, Wake-on-LAN, port scans and exposure checks.
+#ATALAIA_NO_ACTIVE_TOOLS=1

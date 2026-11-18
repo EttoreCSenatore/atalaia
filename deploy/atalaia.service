@@ -1,0 +1,53 @@
+# Atalaia: network inventory and monitor. Installed by the .deb/.rpm package.
+# Start it with:  sudo systemctl enable --now atalaia
+# Then read the first-run setup code with:  journalctl -u atalaia | grep -A1 "Setup code"
+# Options (HTTPS, listen address, observe-only mode...) go in /etc/default/atalaia.
+[Unit]
+Description=Atalaia network inventory and monitor
+Documentation=https://ettorecsenatore.github.io/atalaia/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/default/atalaia
+ExecStart=/usr/bin/atalaia serve
+Restart=on-failure
+RestartSec=5
+
+# Runs as a throwaway unprivileged user; the database lives in /var/lib/atalaia.
+DynamicUser=yes
+StateDirectory=atalaia
+StateDirectoryMode=0700
+Environment=ATALAIA_DB=/var/lib/atalaia/atalaia.db
+
+# Hardening: no privileges, no capabilities, almost no file system, only IP sockets.
+# (Ping uses unprivileged ICMP; needs net.ipv4.ping_group_range to include the service's group, the default on systemd systems.)
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RemoveIPC=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+# AF_NETLINK is how Go lists the network interfaces.
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

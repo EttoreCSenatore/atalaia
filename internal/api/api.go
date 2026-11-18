@@ -56,6 +56,8 @@ type Server struct {
 	// AllowedHosts are extra Host names accepted besides IP addresses,
 	// localhost and the machine's own host name.
 	AllowedHosts []string
+	// NoActiveTools disables ping, Wake-on-LAN, port scan and the exposure check: the server then only observes.
+	NoActiveTools bool
 	// SecureCookies marks the session cookie Secure even over plain HTTP: for a TLS proxy in front of Atalaia.
 	SecureCookies bool
 	// HSTS adds Strict-Transport-Security on HTTPS responses (only for a certificate the user chose).
@@ -101,12 +103,12 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/password", s.mutating(s.protected(s.changePassword)))
 	mux.HandleFunc("GET /api/devices", s.protected(s.devices))
 	mux.HandleFunc("PUT /api/devices/{mac}", s.mutating(s.protected(s.updateDevice)))
-	mux.HandleFunc("POST /api/devices/{mac}/wake", s.mutating(s.protected(s.wake)))
-	mux.HandleFunc("POST /api/devices/{mac}/portscan", s.mutating(s.protected(s.portScan)))
-	mux.HandleFunc("POST /api/devices/{mac}/exposure", s.mutating(s.protected(s.exposureScan)))
+	mux.HandleFunc("POST /api/devices/{mac}/wake", s.mutating(s.protected(s.activeOnly(s.wake))))
+	mux.HandleFunc("POST /api/devices/{mac}/portscan", s.mutating(s.protected(s.activeOnly(s.portScan))))
+	mux.HandleFunc("POST /api/devices/{mac}/exposure", s.mutating(s.protected(s.activeOnly(s.exposureScan))))
 	mux.HandleFunc("GET /api/devices/{mac}/exposure", s.protected(s.exposure))
 	mux.HandleFunc("GET /api/devices/{mac}/ports", s.protected(s.ports))
-	mux.HandleFunc("POST /api/tools/ping", s.mutating(s.protected(s.ping)))
+	mux.HandleFunc("POST /api/tools/ping", s.mutating(s.protected(s.activeOnly(s.ping))))
 	mux.HandleFunc("POST /api/tools/dns", s.mutating(s.protected(s.dnsLookup)))
 	mux.HandleFunc("GET /api/audit", s.protected(s.audit))
 	mux.HandleFunc("GET /api/alerts", s.protected(s.getAlerts))
@@ -314,6 +316,7 @@ func serverError(w http.ResponseWriter, err error) {
 // ---- handlers: account ------------------------------------------------------
 
 type statusDTO struct {
+	ActiveTools   bool            `json:"active_tools"`
 	Version       string          `json:"version"`
 	SetupRequired bool            `json:"setup_required"`
 	Authenticated bool            `json:"authenticated"`
@@ -326,7 +329,7 @@ func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 		serverError(w, err)
 		return
 	}
-	out := statusDTO{Version: s.Version, SetupRequired: !has, Authenticated: s.authenticated(r)}
+	out := statusDTO{Version: s.Version, SetupRequired: !has, Authenticated: s.authenticated(r), ActiveTools: !s.NoActiveTools}
 	if out.Authenticated {
 		st := s.Monitor.Status()
 		out.Scan = &st

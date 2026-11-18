@@ -42,6 +42,10 @@ O certificado não é verificado (equipamentos domésticos usam autoassinados); 
 - A varredura de portas só completa o *handshake* TCP e fecha: **não envia dados**. A verificação de exposição envia **uma requisição HTTP e um handshake TLS** por porta aberta aplicável, e nada que tente explorar ou adivinhar senhas.
 - **Toda ação fica no registro de auditoria** (data, ação, alvo e resultado), visível na própria página, e é apagado junto com o histórico, conforme a retenção.
 
+## Modo somente observação
+
+Para desligar todas as ações ativas (ping, Wake-on-LAN, varredura de portas, verificação de exposição) use `--no-active-tools`. Veja [Implantação](../tecnico/implantacao.md).
+
 ## Ping no Docker e no Linux
 
 O ping usa ICMP **sem privilégios** (um *ping socket*). Ele funciona quando o usuário que roda o Atalaia está no intervalo `net.ipv4.ping_group_range` do sistema; se não estiver, o app avisa. Para liberar para todos os usuários:
