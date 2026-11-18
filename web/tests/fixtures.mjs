@@ -43,6 +43,11 @@ export const exposure = {
   ],
   tls: [{ port: 8443, version: 'TLS 1.3', subject: 'CN=pi.local', issuer: 'CN=pi.local', not_after: '2027-03-01T00:00:00Z', days_left: 102, expired: false, self_signed: true, legacy_tls: false }],
 };
+export const dhcp = {
+  enabled: true,
+  servers: [{ ip: '192.168.1.1', first_seen: new Date(Date.now() - 3 * 86400_000).toISOString(), last_seen: new Date(Date.now() - 4 * 60_000).toISOString(), router: '192.168.1.1', dns: ['192.168.1.1', '1.1.1.1'] }],
+  last: { at: new Date(Date.now() - 4 * 60_000).toISOString(), offers: [], baseline: false, new: [] },
+};
 export const audit = [
   { at: new Date(Date.now() - 12 * 60_000).toISOString(), action: 'portscan', target: 'b8:27:eb:00:00:0a', detail: '192.168.1.10: 3 open' },
   { at: new Date(Date.now() - 50 * 60_000).toISOString(), action: 'ping', target: '192.168.1.1', detail: '4 sent, 0 lost' },
@@ -52,7 +57,7 @@ export const settings = { retention_days: 90, scan_interval: '5m0s' };
 export const status = (extra = {}) => ({ version: '0.2.0', setup_required: false, authenticated: true, scan: { scanning: false, last_scan: ago(1), last_error: '', interval: '5m0s' }, ...extra });
 
 export const alerts = {
-  rules: { new_device: true, known_offline: false, arp_anomaly: true },
+  rules: { new_device: true, known_offline: false, arp_anomaly: true, rogue_dhcp: true, new_ports: true },
   channels: [
     { id: 'c1a2b3', type: 'ntfy', name: 'Celular (ntfy)', enabled: true, url: 'https://ntfy.sh/atalaia-exemplo', has_token: false, has_password: false },
     { id: 'd4e5f6', type: 'telegram', name: 'Telegram', enabled: true, chat_id: '123456789', has_token: true, has_password: false },

@@ -46,6 +46,7 @@
     color: var(--ok);
   }
   .kind.gateway_changed,
+  .kind.rogue_dhcp,
   .kind.multi_ip {
     background: var(--danger-bg);
     color: var(--danger);

@@ -130,3 +130,41 @@ func TestAuditAndPortResults(t *testing.T) {
 		t.Fatalf("audit not purged: %+v", a)
 	}
 }
+
+func TestDHCPBaselineThenNewServerIsFlaggedOnce(t *testing.T) {
+	s, ctx, now := open(t), context.Background(), time.Unix(1700000000, 0)
+	// the future rogue server is also a device on the network
+	_, _ = s.Record(ctx, now, []Observation{{MAC: "ff:00:00:00:00:07", IP: ip("192.168.1.99")}}, time.Hour)
+
+	r, err := s.RecordDHCP(ctx, now, []DHCPObservation{{IP: "192.168.1.1", Detail: "{}"}})
+	if err != nil || !r.Baseline || len(r.New) != 0 {
+		t.Fatalf("baseline: %+v %v", r, err)
+	}
+	r, _ = s.RecordDHCP(ctx, now.Add(time.Minute), []DHCPObservation{{IP: "192.168.1.1"}})
+	if r.Baseline || len(r.New) != 0 {
+		t.Fatalf("same server: %+v", r)
+	}
+	r, _ = s.RecordDHCP(ctx, now.Add(2*time.Minute), []DHCPObservation{{IP: "192.168.1.1"}, {IP: "192.168.1.99", Detail: "{}"}})
+	if len(r.New) != 1 || r.New[0].IP != "192.168.1.99" {
+		t.Fatalf("new server: %+v", r)
+	}
+	r, _ = s.RecordDHCP(ctx, now.Add(3*time.Minute), []DHCPObservation{{IP: "192.168.1.99"}})
+	if len(r.New) != 0 {
+		t.Fatalf("flagged twice: %+v", r)
+	}
+	evs, _ := s.Events(ctx, 5)
+	if evs[0].Kind != EventRogueDHCP || evs[0].MAC != "ff:00:00:00:00:07" {
+		t.Fatalf("event: %+v", evs[0])
+	}
+	if list, _ := s.DHCPServers(ctx); len(list) != 2 {
+		t.Fatalf("%+v", list)
+	}
+	// an empty probe never creates a baseline; forgetting resets it
+	_ = s.ForgetDHCPServers(ctx)
+	if r, _ := s.RecordDHCP(ctx, now, nil); r.Baseline {
+		t.Fatal("an empty probe is not a baseline")
+	}
+	if r, _ := s.RecordDHCP(ctx, now, []DHCPObservation{{IP: "10.0.0.1"}}); !r.Baseline {
+		t.Fatal("after forgetting, the next probe is a baseline")
+	}
+}

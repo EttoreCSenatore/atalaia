@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — M4.2 passive security: optional rogue-DHCP check (one DISCOVER broadcast, offers listened to, never a REQUEST; first check is the baseline; a new server raises an event and an alert; check now or after every scan; needs UDP port 68, so root or `CAP_NET_BIND_SERVICE`; off in observe-only mode; verified against a real DHCP server); alert for ports that opened since the previous port scan; alert rules `rogue_dhcp` and `new_ports`; bilingual docs.
+
+**PT-BR** — Segurança passiva (M4.2): verificação opcional de servidor DHCP falso (um DISCOVER em broadcast, escuta as ofertas, nunca envia REQUEST; a primeira verificação é a base; um servidor novo gera evento e alerta; verificar agora ou depois de cada varredura; exige a porta UDP 68, ou seja root ou `CAP_NET_BIND_SERVICE`; desligada no modo somente observação; testada contra um servidor DHCP real); alerta de portas que abriram desde a varredura anterior; regras de alerta `rogue_dhcp` e `new_ports`; documentação bilíngue.
+
 **EN** — M6.3 packaging: `.deb` and `.rpm` packages (amd64, arm64, armv7) in every release, with a hardened systemd unit (DynamicUser, no capabilities, read-only file system, syscall filter, IP sockets only; sandbox tested with the real binary) and `/etc/default/atalaia` options; observe-only mode (`--no-active-tools`) that disables ping, Wake-on-LAN, port scan and exposure check; `ATALAIA_LISTEN` is now read by the binary.
 
 **PT-BR** — Pacotes (M6.3): `.deb` e `.rpm` (amd64, arm64, armv7) em toda versão, com unidade systemd endurecida (DynamicUser, sem capabilities, sistema de arquivos somente leitura, filtro de chamadas de sistema, só sockets IP; sandbox testado com o binário real) e opções em `/etc/default/atalaia`; modo somente observação (`--no-active-tools`) que desliga ping, Wake-on-LAN, varredura de portas e verificação de exposição; `ATALAIA_LISTEN` agora é lido pelo binário.

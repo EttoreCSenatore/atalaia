@@ -95,7 +95,7 @@ func TestRulesDefaultsAndRoundTrip(t *testing.T) {
 	s, _ := newService(t)
 	ctx := context.Background()
 	r, _ := s.Rules(ctx)
-	if !r.NewDevice || r.KnownOffline || !r.ARPAnomaly {
+	if !r.NewDevice || r.KnownOffline || !r.ARPAnomaly || !r.RogueDHCP || !r.NewPorts {
 		t.Fatalf("defaults: %+v", r)
 	}
 	_ = s.SaveRules(ctx, Rules{NewDevice: false, KnownOffline: true})
@@ -135,5 +135,23 @@ func TestComposeSecurityFindings(t *testing.T) {
 	// security findings are news even on the first scan
 	if got := Compose(res, Rules{ARPAnomaly: true}, true); len(got) != 2 {
 		t.Fatalf("baseline: %+v", got)
+	}
+}
+
+func TestComposeDHCPAndPorts(t *testing.T) {
+	sv := []store.DHCPServer{{IP: "192.168.1.77", Detail: `{"router":"192.168.1.77","dns":["6.6.6.6"]}`}}
+	m := ComposeDHCP(sv, Rules{RogueDHCP: true})
+	if len(m) != 1 || !strings.Contains(m[0].Body, "192.168.1.77") || !strings.Contains(m[0].Body, "6.6.6.6") {
+		t.Fatalf("%+v", m)
+	}
+	if len(ComposeDHCP(sv, Rules{})) != 0 || len(ComposeDHCP(nil, Rules{RogueDHCP: true})) != 0 {
+		t.Fatal("rule off or nothing new must be silent")
+	}
+	p := ComposePorts(dev, []int{23, 8080}, Rules{NewPorts: true})
+	if len(p) != 1 || !strings.Contains(p[0].Body, "23, 8080") || !strings.Contains(p[0].Body, "cam.local") {
+		t.Fatalf("%+v", p)
+	}
+	if len(ComposePorts(dev, nil, Rules{NewPorts: true})) != 0 || len(ComposePorts(dev, []int{1}, Rules{})) != 0 {
+		t.Fatal("silent cases")
 	}
 }

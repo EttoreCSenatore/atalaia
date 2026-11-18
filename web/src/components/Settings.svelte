@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { api, ApiError, type Settings } from '../lib/api';
   import AlertsSettings from './AlertsSettings.svelte';
+  import DhcpSettings from './DhcpSettings.svelte';
   import { app } from '../lib/app.svelte';
   import { t, i18n, setLang, type Lang } from '../lib/i18n.svelte';
 
@@ -87,6 +88,8 @@
   </section>
 
   <AlertsSettings />
+
+  <DhcpSettings />
 
   <section class="card">
     <h2>{t('settings.language')}</h2>

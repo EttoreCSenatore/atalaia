@@ -26,6 +26,7 @@ const (
 	// Security events (see arp.go).
 	EventGatewayChanged = "gateway_changed" // the default gateway's address now belongs to another MAC
 	EventMultiIP        = "multi_ip"        // one MAC answers for several addresses (a spoofing sign)
+	EventRogueDHCP      = "rogue_dhcp"      // a DHCP server that was not there before answered
 )
 
 var migrations = []string{
@@ -94,6 +95,24 @@ var migrations = []string{
 		device_id INTEGER PRIMARY KEY REFERENCES devices(id) ON DELETE CASCADE,
 		at        INTEGER NOT NULL,
 		report    TEXT    NOT NULL -- JSON
+	);`,
+	// events gets one more kind (rogue_dhcp); dhcp_servers remembers the DHCP servers seen on the network.
+	`CREATE TABLE events_new (
+		id        INTEGER PRIMARY KEY,
+		device_id INTEGER NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+		kind      TEXT    NOT NULL CHECK (kind IN ('joined','online','offline','ip_changed','gateway_changed','multi_ip','rogue_dhcp')),
+		detail    TEXT    NOT NULL DEFAULT '',
+		at        INTEGER NOT NULL
+	);
+	INSERT INTO events_new (id, device_id, kind, detail, at) SELECT id, device_id, kind, detail, at FROM events;
+	DROP TABLE events;
+	ALTER TABLE events_new RENAME TO events;
+	CREATE INDEX events_at ON events(at DESC);
+	CREATE TABLE dhcp_servers (
+		ip         TEXT PRIMARY KEY,
+		first_seen INTEGER NOT NULL,
+		last_seen  INTEGER NOT NULL,
+		detail     TEXT    NOT NULL DEFAULT '' -- JSON of the last offer
 	);`,
 }
 

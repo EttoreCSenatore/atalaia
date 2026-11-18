@@ -15,6 +15,8 @@ import (
 	"time"
 
 	"github.com/EttoreCSenatore/atalaia/internal/alerts"
+	"github.com/EttoreCSenatore/atalaia/internal/dhcpprobe"
+	"github.com/EttoreCSenatore/atalaia/internal/dhcpwatch"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
 	"github.com/EttoreCSenatore/atalaia/internal/notify"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
@@ -44,7 +46,8 @@ func newFixture(t *testing.T) *fixture {
 		return []store.Observation{{MAC: "b8:27:eb:00:00:01", IP: netip.MustParseAddr("192.168.1.10"), Vendor: "Raspberry Pi", Name: "pi.local"}}, nil
 	}}
 	sender := &notify.Sender{}
-	srv := &Server{Store: st, Monitor: mon, Version: "test", Alerts: &alerts.Service{Store: st, Sender: sender}, Sender: sender}
+	srv := &Server{Store: st, Monitor: mon, Version: "test", Alerts: &alerts.Service{Store: st, Sender: sender}, Sender: sender,
+		DHCP: &dhcpwatch.Watcher{Store: st, Probe: func(context.Context) ([]dhcpprobe.Offer, error) { return nil, nil }}}
 	srv.SetSetupCode(code)
 	return &fixture{t: t, srv: srv, h: srv.Handler(), st: st, mon: mon}
 }

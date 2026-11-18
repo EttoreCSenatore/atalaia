@@ -16,7 +16,7 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **M2.2** | Embedded web app: dashboard, device detail, timeline and Docker image | Done (see [Web app](funcionalidades/app-web.md) and [Deployment](tecnico/implantacao.md)) |
 | **M3** | Alerts: new device, notification adapters (ntfy, Telegram, webhook, e-mail), names, tags and known devices | Done (see [Alerts](funcionalidades/alertas.md)) |
 | **M4.1** | Passive security: signs of ARP spoofing (gateway MAC changed, one MAC with many IPs) | Done (see [Passive security](funcionalidades/seguranca-passiva.md)) |
-| **M4.2** | Passive security: rogue DHCP server and changed services (optional, needs extra capabilities) | Planned |
+| **M4.2** | Rogue DHCP server (optional, needs port 68) and a newly-opened-ports alert | Done (see [Passive security](funcionalidades/seguranca-passiva.md)) |
 | **M5.1** | Tools: ping, DNS, Wake-on-LAN and port scan with confirmation, limits and an audit log | Done (see [Tools](funcionalidades/ferramentas.md)) |
 | **M5.2** | Active security: risky services, exposed web panels and TLS audit | Done (see [Tools](funcionalidades/ferramentas.md)) |
 | **M5.3** | CVEs by service version, traceroute and speed test | Planned |
@@ -24,7 +24,7 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **M6.2** | Security self-review of the code and gosec in CI | Done (see [Security and privacy](tecnico/seguranca-e-privacidade.md)) |
 | **M6.3** | systemd unit, .deb/.rpm packages and an observe-only mode | Done (see [Deployment](tecnico/implantacao.md)) |
 
-**v0.1** is the end of M3: discovery, history and alerts. v0.1.0 has been published. The next steps are **M5.3** and **M4.2**.
+**v0.1** is the end of M3: discovery, history and alerts. v0.1.0 has been published. The next step is **M5.3**.
 
 ## Later
 

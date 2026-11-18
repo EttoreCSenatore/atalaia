@@ -16,7 +16,7 @@ Cada etapa vira um pull request, revisado e integrado antes da próxima. Documen
 | **M2.2** | App web embutido: painel, detalhe do dispositivo, linha do tempo e imagem Docker | Concluído (ver [App web](funcionalidades/app-web.md) e [Implantação](tecnico/implantacao.md)) |
 | **M3** | Alertas: dispositivo novo, adaptadores de notificação (ntfy, Telegram, webhook, e-mail), nomes, etiquetas e dispositivos conhecidos | Concluído (ver [Alertas](funcionalidades/alertas.md)) |
 | **M4.1** | Segurança passiva: sinais de ARP spoofing (MAC do roteador mudou, um MAC com vários IPs) | Concluído (ver [Segurança passiva](funcionalidades/seguranca-passiva.md)) |
-| **M4.2** | Segurança passiva: servidor DHCP falso e serviços alterados (opcional, exige capacidades extras) | Planejado |
+| **M4.2** | Servidor DHCP falso (opcional, exige a porta 68) e alerta de portas recém-abertas | Concluído (ver [Segurança passiva](funcionalidades/seguranca-passiva.md)) |
 | **M5.1** | Ferramentas: ping, DNS, Wake-on-LAN e varredura de portas com confirmação, limites e registro de auditoria | Concluído (ver [Ferramentas](funcionalidades/ferramentas.md)) |
 | **M5.2** | Segurança ativa: serviços arriscados, painéis web expostos e auditoria de TLS | Concluído (ver [Ferramentas](funcionalidades/ferramentas.md)) |
 | **M5.3** | CVEs por versão de serviço, traceroute e teste de velocidade | Planejado |
@@ -24,7 +24,7 @@ Cada etapa vira um pull request, revisado e integrado antes da próxima. Documen
 | **M6.2** | Autorrevisão de segurança do código e gosec na CI | Concluído (ver [Segurança e privacidade](tecnico/seguranca-e-privacidade.md)) |
 | **M6.3** | Unidade systemd, pacotes .deb/.rpm e modo somente observação | Concluído (ver [Implantação](tecnico/implantacao.md)) |
 
-A **v0.1** é o fim do M3: descoberta, histórico e alertas. A v0.1.0 foi publicada. Os próximos passos são o **M5.3** e o **M4.2**.
+A **v0.1** é o fim do M3: descoberta, histórico e alertas. A v0.1.0 foi publicada. O próximo passo é o **M5.3**.
 
 ## Depois
 

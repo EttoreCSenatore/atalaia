@@ -31,7 +31,7 @@ export type Channel = {
   has_token?: boolean;
   has_password?: boolean;
 };
-export type AlertRules = { new_device: boolean; known_offline: boolean; arp_anomaly: boolean };
+export type AlertRules = { new_device: boolean; known_offline: boolean; arp_anomaly: boolean; rogue_dhcp: boolean; new_ports: boolean };
 export type Alerts = { rules: AlertRules; channels: Channel[] };
 export type OpenPort = { port: number; service: string };
 export type PortsResult = { at: string; ports: OpenPort[]; opened?: number[]; closed?: number[] };
@@ -53,6 +53,9 @@ export type TlsInfo = {
 export type Exposure = { at: string; risks: Risk[]; web: WebInfo[]; tls: TlsInfo[] };
 export type DnsResult = { name: string; type: string; answers: string[] };
 export type AuditEntry = { at: string; action: string; target: string; detail: string };
+export type DhcpServer = { ip: string; first_seen: string; last_seen: string; router: string; dns: string[] };
+export type DhcpReport = { at: string; offers: unknown[]; baseline: boolean; new: string[]; error?: string };
+export type Dhcp = { enabled: boolean; servers: DhcpServer[]; last: DhcpReport | null };
 export type Settings = { retention_days: number; scan_interval: string };
 
 export class ApiError extends Error {
@@ -117,5 +120,9 @@ export const api = {
   ping: (host: string, count = 4) => request<PingResult>('POST', '/api/tools/ping', { host, count }),
   dns: (name: string, type: string) => request<DnsResult>('POST', '/api/tools/dns', { name, type }),
   audit: () => request<AuditEntry[]>('GET', '/api/audit'),
+  dhcp: () => request<Dhcp>('GET', '/api/dhcp'),
+  setDhcp: (enabled: boolean) => request<Dhcp>('PUT', '/api/dhcp', { enabled }),
+  checkDhcp: () => request<Dhcp>('POST', '/api/dhcp/check', { confirm: true }),
+  resetDhcp: () => request<Dhcp>('POST', '/api/dhcp/reset', { confirm: true }),
   changePassword: (current: string, next: string) => request<{ ok: boolean }>('POST', '/api/password', { current, new: next }),
 };
