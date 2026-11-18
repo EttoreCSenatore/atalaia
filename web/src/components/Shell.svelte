@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import { route } from '../lib/router.svelte';
   import { t } from '../lib/i18n.svelte';
-  import { signOut } from '../lib/app.svelte';
+  import { app, signOut } from '../lib/app.svelte';
 
   let { children }: { children: Snippet } = $props();
 
@@ -31,7 +31,20 @@
 </header>
 <main>{@render children()}</main>
 
+<footer class="source">
+  <a href={`https://github.com/EttoreCSenatore/atalaia/tree/${app.status.version.startsWith('v') ? app.status.version : 'main'}`} target="_blank" rel="noopener noreferrer">{t('app.source')}</a>
+  · AGPL-3.0-or-later
+</footer>
+
 <style>
+  .source {
+    max-width: 72rem;
+    margin: 2rem auto 1rem;
+    padding: 0 1rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: center;
+  }
   header {
     background: var(--surface);
     border-bottom: 3px solid var(--accent);

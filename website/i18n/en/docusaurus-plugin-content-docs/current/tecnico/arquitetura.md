@@ -13,7 +13,7 @@ flowchart LR
   subgraph LAN["Your local network"]
     A["Atalaia agent (Go)"]
     D["Devices"]
-    A -- "ARP, mDNS, SSDP, ICMP" --> D
+    A -- "ARP, mDNS, ICMP, TCP" --> D
   end
   A --> DB[("SQLite")]
   A -- "HTTP + SSE" --> W["Web app (browser)"]
@@ -26,25 +26,24 @@ flowchart LR
 
 ## Why an agent
 
-A browser has no raw sockets, ARP, ICMP or mDNS. The agent runs with minimal permission (`CAP_NET_RAW`, no root) and is the only component that touches the network.
+A browser has no raw sockets, ARP, ICMP or mDNS. The agent runs **without root and without capabilities** (discovery uses only UDP and the system ARP table; the optional DHCP check is the only thing that asks for `CAP_NET_BIND_SERVICE`) and is the only component that touches the network.
 
-## Planned components
+## Components
 
-| Package | Responsibility | Step |
-|---|---|---|
-| `internal/scope` | Which addresses may be probed (only the host's own private networks) | M0 |
-| `internal/discovery` | UDP sweep + the system ARP table (no root) | M1 |
-| `internal/names` | Device name: mDNS and reverse DNS | M1 |
-| `internal/identity` | Vendor by MAC (IEEE) and sanitizing of text from the network | M1 |
-| `internal/store` | SQLite, migrations, event history | M1 |
-| `internal/discovery` (SSDP, NetBIOS) | More discovery sources | M2+ |
-| `internal/api` | HTTP API, authentication, SSE, server protections | M2.1 |
-| `internal/auth` | Password (argon2id), sessions, attempt limiting | M2.1 |
-| `internal/monitor` | Scheduled scans and live events | M2.1 |
-| `internal/web` + `web/` | Web app (Svelte) embedded in the binary | M2.2 |
-| `internal/notify` | Notification adapters | M3 |
-| `internal/detect` | Passive security detections | M4 |
-| `internal/scan` | Ports, services, CVEs, TLS | M5 |
+| Package | Responsibility |
+|---|---|
+| `internal/scope` | Which addresses may be probed (only the host's own private networks) |
+| `internal/discovery` | UDP sweep + the system ARP table, routes, the host itself |
+| `internal/names`, `internal/identity` | Names (mDNS, reverse DNS), vendor by MAC (IEEE) and sanitizing of text from the network |
+| `internal/probe` | One full discovery pass, one observation per MAC |
+| `internal/store` | SQLite, migrations, history, ARP-spoofing sign detection, audit log |
+| `internal/monitor` | Scheduled scans, live events |
+| `internal/api`, `internal/auth` | HTTP API, login (argon2id), sessions, server protections, active tools |
+| `internal/tlsutil` | Built-in HTTPS: self-signed certificate with renewal, or your own |
+| `internal/alerts`, `internal/notify` | Alert rules and adapters (ntfy, Telegram, webhook, e-mail) |
+| `internal/tools` | Ping, DNS, Wake-on-LAN, port scan, exposure, traceroute, speed test |
+| `internal/dhcpprobe`, `internal/dhcpwatch` | Optional rogue DHCP server check |
+| `internal/web` + `web/` | Web app (Svelte) embedded in the binary |
 
 ## Stack
 
@@ -58,8 +57,6 @@ A browser has no raw sockets, ARP, ICMP or mDNS. The agent runs with minimal per
 | Source | Use | License |
 |---|---|---|
 | IEEE OUI lists (MA-L, MA-M, MA-S) | Vendor from MAC (`scripts/atualizar-oui.py` builds `oui.tsv.gz`) | Public IEEE registry |
-| mDNS/DNS-SD service types | Device type | Public |
-| Rapid7 Recog | Banner fingerprints | BSD-2-Clause |
-| NVD and OSV | CVEs | Public data |
+| `speed.cloudflare.com` (only if you run the speed test) | Test file to measure download | Third-party service; see [Security and privacy](seguranca-e-privacidade.md) |
 
-Every new source is recorded here, with its license checked, before it is added. Proprietary sources are not used.
+We do not use vulnerability databases (NVD, OSV) or banner fingerprints: see why in [Tools](../funcionalidades/ferramentas.md#cve-checks-why-there-are-none). Every new source is recorded here, with its license checked, before it is added. Proprietary sources are not used.

@@ -1,7 +1,7 @@
 import type { Messages } from './en';
 
 export const ptBR: Messages = {
-  app: { name: 'Atalaia', tagline: 'Vigia da sua rede' },
+  app: { name: 'Atalaia', tagline: 'Vigia da sua rede', source: 'Código-fonte' },
   nav: { devices: 'Dispositivos', history: 'Histórico', tools: 'Ferramentas', settings: 'Configurações', logout: 'Sair' },
   common: {
     loading: 'Carregando…',
@@ -129,6 +129,7 @@ export const ptBR: Messages = {
     about: 'Sobre',
     version: 'Versão',
     scanInterval: 'Intervalo das varreduras',
+    license: 'Software livre sob a AGPL-3.0-or-later. Você pode obter o código-fonte desta versão aqui:',
     privacy: 'Todos os dados ficam nesta máquina. Nada é enviado para a nuvem.',
   },
   alerts: {

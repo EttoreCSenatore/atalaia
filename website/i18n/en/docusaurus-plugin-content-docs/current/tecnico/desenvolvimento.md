@@ -56,6 +56,21 @@ npm run start -- --locale en         # in English
 
 Every page in `website/docs/` needs an English version in `website/i18n/en/docusaurus-plugin-content-docs/current/` with the same structure. CI checks this with `scripts/checar-traducao.py`.
 
+## Quality and security checks
+
+```bash
+gofmt -l .                                  # must be empty
+go vet ./... && go test -race ./...
+go run github.com/securego/gosec/v2/cmd/gosec@v2.30.0 -quiet -exclude=G304,G117 ./...
+go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 ./...
+```
+
+CI runs the same checks, plus the dependency license check, Trivy on the image and a smoke test of the container.
+
+## Packages and releases
+
+The `.deb`/`.rpm` packages are built by [nfpm](https://nfpm.goreleaser.com/) from `deploy/nfpm.yaml`. A release goes out when a `vX.Y.Z` tag is pushed: the `release.yml` workflow builds the binaries (amd64, arm64, armv7), builds the packages, publishes the image to GHCR and creates the release with `SHA256SUMS`. Before that, move the "Unreleased" entries of `CHANGELOG.md` under the new version.
+
 ## Workflow
 
 One step per pull request: branch, commits, green CI, diff review and squash merge. Documentation (pt-BR and English) and project memory are updated in the same step.

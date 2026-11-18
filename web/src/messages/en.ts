@@ -1,5 +1,5 @@
 export const en = {
-  app: { name: 'Atalaia', tagline: 'Network watchtower' },
+  app: { name: 'Atalaia', tagline: 'Network watchtower', source: 'Source code' },
   nav: { devices: 'Devices', history: 'History', tools: 'Tools', settings: 'Settings', logout: 'Log out' },
   common: {
     loading: 'Loading…',
@@ -127,6 +127,7 @@ export const en = {
     about: 'About',
     version: 'Version',
     scanInterval: 'Scan interval',
+    license: 'Free software under the AGPL-3.0-or-later. You can get the source of this version here:',
     privacy: 'All data stays on this machine. Nothing is sent to the cloud.',
   },
   alerts: {

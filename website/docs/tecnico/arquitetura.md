@@ -13,7 +13,7 @@ flowchart LR
   subgraph LAN["Sua rede local"]
     A["Agente Atalaia (Go)"]
     D["Dispositivos"]
-    A -- "ARP, mDNS, SSDP, ICMP" --> D
+    A -- "ARP, mDNS, ICMP, TCP" --> D
   end
   A --> DB[("SQLite")]
   A -- "HTTP + SSE" --> W["App web (navegador)"]
@@ -26,25 +26,24 @@ flowchart LR
 
 ## Por que um agente
 
-O navegador não tem sockets brutos, ARP, ICMP nem mDNS. O agente roda com a permissão mínima (`CAP_NET_RAW`, sem root) e é o único componente que toca a rede.
+O navegador não tem sockets brutos, ARP, ICMP nem mDNS. O agente roda **sem root e sem capacidades** (a descoberta usa só UDP e a tabela ARP do sistema; a verificação de DHCP, opcional, é a única que pede `CAP_NET_BIND_SERVICE`) e é o único componente que toca a rede.
 
-## Componentes planejados
+## Componentes
 
-| Pacote | Responsabilidade | Etapa |
-|---|---|---|
-| `internal/scope` | Quais endereços podem ser sondados (só redes privadas do próprio host) | M0 |
-| `internal/discovery` | Varredura UDP + tabela ARP do sistema (sem root) | M1 |
-| `internal/names` | Nome do dispositivo: mDNS e DNS reverso | M1 |
-| `internal/identity` | Fabricante por MAC (IEEE) e limpeza de textos vindos da rede | M1 |
-| `internal/store` | SQLite, migrações, histórico de eventos | M1 |
-| `internal/discovery` (SSDP, NetBIOS) | Mais fontes de descoberta | M2+ |
-| `internal/api` | API HTTP, autenticação, SSE, proteções do servidor | M2.1 |
-| `internal/auth` | Senha (argon2id), sessões, limite de tentativas | M2.1 |
-| `internal/monitor` | Varredura agendada e eventos ao vivo | M2.1 |
-| `internal/web` + `web/` | App web (Svelte) embutido no binário | M2.2 |
-| `internal/notify` | Adaptadores de notificação | M3 |
-| `internal/detect` | Detecções passivas de segurança | M4 |
-| `internal/scan` | Portas, serviços, CVEs, TLS | M5 |
+| Pacote | Responsabilidade |
+|---|---|
+| `internal/scope` | Quais endereços podem ser sondados (só redes privadas do próprio host) |
+| `internal/discovery` | Varredura UDP + tabela ARP do sistema, rotas, o próprio host |
+| `internal/names`, `internal/identity` | Nomes (mDNS, DNS reverso), fabricante por MAC (IEEE) e limpeza de textos vindos da rede |
+| `internal/probe` | Uma passada de descoberta completa, uma observação por MAC |
+| `internal/store` | SQLite, migrações, histórico, detecção de sinais de ARP spoofing, auditoria |
+| `internal/monitor` | Varredura agendada, eventos ao vivo |
+| `internal/api`, `internal/auth` | API HTTP, login (argon2id), sessões, proteções do servidor, ferramentas ativas |
+| `internal/tlsutil` | HTTPS embutido: certificado autoassinado com renovação ou o seu |
+| `internal/alerts`, `internal/notify` | Regras de alerta e adaptadores (ntfy, Telegram, webhook, e-mail) |
+| `internal/tools` | Ping, DNS, Wake-on-LAN, varredura de portas, exposição, traceroute, teste de velocidade |
+| `internal/dhcpprobe`, `internal/dhcpwatch` | Verificação opcional de servidor DHCP falso |
+| `internal/web` + `web/` | App web (Svelte) embutido no binário |
 
 ## Pilha
 
@@ -58,8 +57,6 @@ O navegador não tem sockets brutos, ARP, ICMP nem mDNS. O agente roda com a per
 | Fonte | Uso | Licença |
 |---|---|---|
 | Listas de OUI do IEEE (MA-L, MA-M, MA-S) | Fabricante pelo MAC (`scripts/atualizar-oui.py` gera `oui.tsv.gz`) | Registro público do IEEE |
-| Tipos de serviço mDNS/DNS-SD | Tipo do dispositivo | Pública |
-| Rapid7 Recog | Impressão digital de banners | BSD-2-Clause |
-| NVD e OSV | CVEs | Dados públicos |
+| `speed.cloudflare.com` (só se você rodar o teste de velocidade) | Arquivo de teste para medir o download | Serviço de terceiro; veja [Segurança e privacidade](seguranca-e-privacidade.md) |
 
-Cada fonte nova é registrada aqui, com a licença verificada, antes de entrar. Fontes proprietárias não são usadas.
+Não usamos bancos de vulnerabilidades (NVD, OSV) nem impressões digitais de banners: veja por que em [Ferramentas](../funcionalidades/ferramentas.md#verificação-de-cves-por-que-não-tem). Cada fonte nova é registrada aqui, com a licença verificada, antes de entrar. Fontes proprietárias não são usadas.
