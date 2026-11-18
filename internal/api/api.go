@@ -56,6 +56,8 @@ type Server struct {
 	// AllowedHosts are extra Host names accepted besides IP addresses,
 	// localhost and the machine's own host name.
 	AllowedHosts []string
+	// SecureCookies marks the session cookie Secure even over plain HTTP: for a TLS proxy in front of Atalaia.
+	SecureCookies bool
 	// HSTS adds Strict-Transport-Security on HTTPS responses (only for a certificate the user chose).
 	HSTS bool
 	// Static serves the web app for every path outside /api/ (may be nil).
@@ -79,6 +81,8 @@ func (s *Server) SetSetupCode(code string) {
 	s.setupCode = code
 	s.mu.Unlock()
 }
+
+func (s *Server) secureCookie(r *http.Request) bool { return r.TLS != nil || s.SecureCookies }
 
 func (s *Server) now() time.Time {
 	if s.Now != nil {
@@ -293,9 +297,10 @@ func (s *Server) startSession(w http.ResponseWriter, r *http.Request) error {
 	if err := s.Store.CreateSession(r.Context(), hash, s.now(), sessionTTL); err != nil {
 		return err
 	}
+	// #nosec G124 -- Secure follows the transport (see secureCookie): a Secure cookie over plain HTTP would be dropped by the browser
 	http.SetCookie(w, &http.Cookie{
 		Name: cookieName, Value: token, Path: "/", MaxAge: int(sessionTTL.Seconds()),
-		HttpOnly: true, SameSite: http.SameSiteStrictMode, Secure: r.TLS != nil,
+		HttpOnly: true, SameSite: http.SameSiteStrictMode, Secure: s.secureCookie(r),
 	})
 	return nil
 }
@@ -425,7 +430,8 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) logout(w http.ResponseWriter, r *http.Request) {
 	_ = s.Store.DeleteSession(r.Context(), s.sessionHash(r))
-	http.SetCookie(w, &http.Cookie{Name: cookieName, Value: "", Path: "/", MaxAge: -1, HttpOnly: true, SameSite: http.SameSiteStrictMode})
+	// #nosec G124 -- Secure follows the transport (see secureCookie): a Secure cookie over plain HTTP would be dropped by the browser
+	http.SetCookie(w, &http.Cookie{Name: cookieName, Value: "", Path: "/", MaxAge: -1, HttpOnly: true, SameSite: http.SameSiteStrictMode, Secure: s.secureCookie(r)})
 	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 }
 

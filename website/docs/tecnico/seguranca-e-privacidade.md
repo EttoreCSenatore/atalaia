@@ -27,6 +27,23 @@ Endereços MAC, nomes de dispositivos e horários de conexão podem identificar 
 
 A documentação de conformidade do projeto é feita com **revisão assistida por IA** e **não é aconselhamento jurídico**.
 
+## Autorrevisão de segurança (M6.2)
+
+O código passou por uma revisão manual das partes críticas (login, sessões, proteção da rede local, ferramentas ativas, segredos) e por análise estática com o **gosec**, agora também **na CI**. O que a revisão encontrou e o que foi decidido:
+
+| Achado | Decisão |
+|---|---|
+| Conversões `int`→`uint16`/`uint32`/`byte` apontadas (G115) | Corrigidas: porta fora de 1–65535 vira porta 0 (recusada); tamanho da chave do argon2 limitado a 128 bytes; máscaras explícitas na leitura da tabela de rotas |
+| Cookie de logout sem `Secure` (G124) | Corrigido; novo `--secure-cookies` (`ATALAIA_SECURE_COOKIES=1`) marca o cookie `Secure` atrás de um proxy que termina TLS |
+| Cookie `Secure` só quando há HTTPS (G124) | **Aceito**: um cookie `Secure` em HTTP puro seria descartado pelo navegador |
+| Leitura de arquivos por caminho variável (G304) | **Aceito**: os caminhos vêm de flags do administrador ou de arquivos do sistema (`/proc`), nunca de entrada da rede |
+| Campo `password` serializado em JSON (G117) | **Aceito**: é a senha SMTP guardada de propósito no banco local (`0600`) e nunca devolvida pela API |
+| Endereços de ntfy/webhook podem apontar para a rede local | **Aceito**: é o caso de uso (Home Assistant); só o administrador autenticado configura canais |
+| Segredos dos canais (token do Telegram, senha SMTP) ficam em texto no banco | **Aceito e documentado**: o arquivo é `0600`; proteja o backup do banco como protegeria uma senha |
+| Endereços de VPN em CGNAT (por exemplo Tailscale, `100.64.0.0/10`) não contam como "rede local" | **Limite conhecido**: o servidor responde 403; use o IP da rede local ou um proxy na própria máquina |
+
+Esta revisão foi feita pelo próprio projeto, **não** substitui um teste de invasão independente.
+
 ## Como relatar uma vulnerabilidade
 
 Use o [relato privado de vulnerabilidades do GitHub](https://github.com/EttoreCSenatore/atalaia/security/advisories/new). Não abra uma issue pública com detalhes e não envie dados pessoais reais. O arquivo `SECURITY.md` do repositório tem o mesmo texto.

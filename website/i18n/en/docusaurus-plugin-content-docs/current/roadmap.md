@@ -21,7 +21,7 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **M5.2** | Active security: risky services, exposed web panels and TLS audit | Done (see [Tools](funcionalidades/ferramentas.md)) |
 | **M5.3** | CVEs by service version, traceroute and speed test | Planned |
 | **M6.1** | Built-in HTTPS (own certificate, or self-signed with renewal) | Done (see [Deployment](tecnico/implantacao.md)) |
-| **M6.2** | Security self-review of the code | Planned |
+| **M6.2** | Security self-review of the code and gosec in CI | Done (see [Security and privacy](tecnico/seguranca-e-privacidade.md)) |
 | **M6.3** | systemd unit, .deb/.rpm packages and a no-active-tools mode | Planned |
 
 **v0.1** is the end of M3: discovery, history and alerts. v0.1.0 has been published. The next steps are **M5.3** and **M4.2**.

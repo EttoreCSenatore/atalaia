@@ -77,10 +77,10 @@ func VerifyPassword(encoded, pw string) bool {
 	}
 	salt, err1 := base64.RawStdEncoding.DecodeString(parts[4])
 	want, err2 := base64.RawStdEncoding.DecodeString(parts[5])
-	if err1 != nil || err2 != nil || len(want) == 0 {
+	if err1 != nil || err2 != nil || len(want) == 0 || len(want) > 128 {
 		return false
 	}
-	got := argon2.IDKey([]byte(pw), salt, t, m, p, uint32(len(want)))
+	got := argon2.IDKey([]byte(pw), salt, t, m, p, uint32(len(want))) // #nosec G115 -- bounded above
 	return subtle.ConstantTimeCompare(got, want) == 1
 }
 

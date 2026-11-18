@@ -88,3 +88,12 @@ func TestDNSLookupValidationAndCleaning(t *testing.T) {
 		t.Errorf("clean: %q", got)
 	}
 }
+
+func TestDialAddrRefusesOutOfRangePorts(t *testing.T) {
+	ip := netip.MustParseAddr("192.168.1.9")
+	for port, want := range map[int]string{22: "192.168.1.9:22", 65535: "192.168.1.9:65535", 0: "192.168.1.9:0", -1: "192.168.1.9:0", 65536: "192.168.1.9:0", 70000: "192.168.1.9:0"} {
+		if got := dialAddr(ip, port); got != want {
+			t.Errorf("%d: %s want %s", port, got, want)
+		}
+	}
+}

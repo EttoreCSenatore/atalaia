@@ -217,3 +217,18 @@ func TestHTTPSMarksTheCookieSecureAndHSTSOnlyWhenAsked(t *testing.T) {
 		t.Fatalf("plain HTTP: %+v %v", c, w.Header())
 	}
 }
+
+func TestSecureCookiesFlagForTLSProxies(t *testing.T) {
+	f := newFixture(t)
+	f.srv.SecureCookies = true
+	f.h = f.srv.Handler()
+	w := f.do("POST", "/api/setup", map[string]string{"code": code, "password": password}, nil)
+	c := session(w)
+	if c == nil || !c.Secure {
+		t.Fatalf("cookie must be Secure behind a TLS proxy: %+v", c)
+	}
+	out := f.do("POST", "/api/logout", nil, c)
+	if lc := session(out); lc == nil || !lc.Secure || lc.MaxAge >= 0 {
+		t.Fatalf("logout cookie: %+v", lc)
+	}
+}

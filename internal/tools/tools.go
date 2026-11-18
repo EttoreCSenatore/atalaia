@@ -210,7 +210,7 @@ func PortScan(ctx context.Context, ip netip.Addr, dial Dialer, workers int, time
 			defer wg.Done()
 			for p := range ports {
 				cctx, cancel := context.WithTimeout(ctx, timeout)
-				c, err := dial(cctx, netip.AddrPortFrom(ip, uint16(p)).String())
+				c, err := dial(cctx, dialAddr(ip, p))
 				cancel()
 				if err != nil {
 					continue
@@ -325,4 +325,13 @@ func clean(s string, max int) string {
 		s = s[:max]
 	}
 	return s
+}
+
+// dialAddr formats ip:port. A port outside 1-65535 cannot be dialed, so it is
+// mapped to port 0, which every dial refuses.
+func dialAddr(ip netip.Addr, port int) string {
+	if port < 1 || port > 65535 {
+		port = 0
+	}
+	return netip.AddrPortFrom(ip, uint16(port)).String() // #nosec G115 -- range checked above
 }

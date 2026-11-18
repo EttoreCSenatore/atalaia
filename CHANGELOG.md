@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — M6.2 security self-review: gosec added to CI (G304/G117 accepted, documented); fixes for integer conversions (ports, argon2 key size, route parsing), the logout cookie's `Secure` flag, and a new `--secure-cookies` for TLS-terminating proxies; the review's findings and accepted risks are documented in the security page.
+
+**PT-BR** — Autorrevisão de segurança (M6.2): gosec na CI (G304/G117 aceitos e documentados); correções em conversões de inteiros (portas, tamanho da chave argon2, leitura da tabela de rotas), na flag `Secure` do cookie de logout e novo `--secure-cookies` para proxies que terminam TLS; achados e riscos aceitos documentados na página de segurança.
+
 **EN** — M6.1 built-in HTTPS: `--tls-self-signed` (ECDSA P-256 certificate made, reused and renewed by Atalaia, fingerprint printed) or `--tls-cert`/`--tls-key` (picked up on change, HSTS enabled); TLS 1.2+, `Secure` session cookie; HSTS never with the self-signed certificate; env vars for Docker; bilingual docs.
 
 **PT-BR** — HTTPS embutido (M6.1): `--tls-self-signed` (certificado ECDSA P-256 criado, reaproveitado e renovado pelo Atalaia, com impressão digital no console) ou `--tls-cert`/`--tls-key` (recarregado quando muda, HSTS ligado); TLS 1.2+, cookie de sessão `Secure`; nunca HSTS com o certificado autoassinado; variáveis de ambiente para Docker; documentação bilíngue.
