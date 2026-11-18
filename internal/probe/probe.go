@@ -6,6 +6,8 @@ import (
 	"context"
 	"errors"
 	"net/netip"
+	"os"
+	"sort"
 	"time"
 
 	"github.com/EttoreCSenatore/atalaia/internal/discovery"
@@ -32,18 +34,26 @@ func Live(ctx context.Context, withNames bool) ([]store.Observation, error) {
 	if err != nil {
 		return nil, err
 	}
+	gw, _ := discovery.DefaultGateway(discovery.RoutePath)
+	hosts = appendSelf(hosts, discovery.SelfHosts(gw, sc))
 	found := map[string]string{}
+	if me, err := os.Hostname(); err == nil {
+		for _, h := range discovery.SelfHosts(gw, sc) {
+			found[h.IP.String()] = me
+		}
+	}
 	if withNames {
 		ips := make([]netip.Addr, 0, len(hosts))
 		for _, h := range hosts {
 			ips = append(ips, h.IP)
 		}
 		for ip, n := range names.ResolveAll(ctx, names.Chain{names.MDNS{}, names.ReverseDNS{}}, ips, 16) {
-			found[ip.String()] = n
+			if found[ip.String()] == "" {
+				found[ip.String()] = n
+			}
 		}
 	}
 	reg := identity.Default()
-	gw, _ := discovery.DefaultGateway(discovery.RoutePath)
 	return Collapse(hosts, gw, found, reg), nil
 }
 
@@ -76,4 +86,19 @@ func Collapse(hosts []discovery.Host, gateway netip.Addr, names map[string]strin
 		}
 	}
 	return obs
+}
+
+// appendSelf adds the machine's own addresses unless the neighbor table already lists them.
+func appendSelf(hosts, self []discovery.Host) []discovery.Host {
+	seen := map[netip.Addr]bool{}
+	for _, h := range hosts {
+		seen[h.IP] = true
+	}
+	for _, h := range self {
+		if !seen[h.IP] {
+			hosts = append(hosts, h)
+		}
+	}
+	sort.Slice(hosts, func(i, j int) bool { return hosts[i].IP.Less(hosts[j].IP) })
+	return hosts
 }

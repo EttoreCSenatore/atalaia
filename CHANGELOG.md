@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Fix found while testing on a real network: the machine running Atalaia was missing from its own inventory (the ARP table never lists the host itself); it is now added, using only the interface on the gateway's network.
+
+**PT-BR** — Correção achada testando numa rede real: a máquina que roda o Atalaia não aparecia no próprio inventário (a tabela ARP nunca lista o próprio host); agora ela é incluída, usando só a interface da rede do roteador.
+
 ## v0.3.0 — 2026-11-18
 
 **EN** — M5.2 exposure check: from a device's last port scan, flags risky open services (rule table, 3 levels), reads what web ports answer (status, Server, title, login) with one non-redirecting GET, and audits TLS (version, certificate validity, self-signed, legacy TLS 1.0/1.1, weak RSA). Same fences as the port scan (confirmation, local scope, one at a time, interval, audit log). Bilingual docs.

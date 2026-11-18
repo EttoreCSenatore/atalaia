@@ -50,4 +50,4 @@ Events: `joined` (seen for the first time), `online` (came back), `offline` (gon
 
 - Linux and IPv4 only. macOS and Windows come later.
 - Devices that do not answer ARP (rare) do not show up; sleeping ones may be missing from one sweep, hence the offline grace period.
-- The computer running Atalaia does not appear in the list yet.
+- The computer running Atalaia is in the list (the ARP table never lists the machine itself, so it is added separately, using only the main network interface, the one that contains the router).
