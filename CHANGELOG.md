@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — M5.3 tools: unprivileged traceroute (UDP with a small TTL, ICMP answers read from the socket error queue; verified on loopback and against the internet) and a download speed test (opt-in with a per-use confirmation, because it tells speed.cloudflare.com your public IP; redirects refused, size and time capped); both off in observe-only mode and in the audit log. CVE matching was deliberately not built: the docs explain why (no reliable versions, a database to maintain, false positives and false negatives).
+
+**PT-BR** — Ferramentas (M5.3): traceroute sem privilégios (UDP com TTL baixo, respostas ICMP lidas da fila de erros do socket; testado no loopback e na internet) e teste de velocidade de download (opt-in com confirmação a cada uso, porque informa seu IP público a speed.cloudflare.com; redirecionamentos recusados, tamanho e tempo limitados); ambos desligados no modo somente observação e no registro de auditoria. A verificação de CVEs foi deliberadamente não implementada: a documentação explica o motivo (sem versões confiáveis, banco para manter, falsos positivos e negativos).
+
 **EN** — M4.2 passive security: optional rogue-DHCP check (one DISCOVER broadcast, offers listened to, never a REQUEST; first check is the baseline; a new server raises an event and an alert; check now or after every scan; needs UDP port 68, so root or `CAP_NET_BIND_SERVICE`; off in observe-only mode; verified against a real DHCP server); alert for ports that opened since the previous port scan; alert rules `rogue_dhcp` and `new_ports`; bilingual docs.
 
 **PT-BR** — Segurança passiva (M4.2): verificação opcional de servidor DHCP falso (um DISCOVER em broadcast, escuta as ofertas, nunca envia REQUEST; a primeira verificação é a base; um servidor novo gera evento e alerta; verificar agora ou depois de cada varredura; exige a porta UDP 68, ou seja root ou `CAP_NET_BIND_SERVICE`; desligada no modo somente observação; testada contra um servidor DHCP real); alerta de portas que abriram desde a varredura anterior; regras de alerta `rogue_dhcp` e `new_ports`; documentação bilíngue.

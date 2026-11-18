@@ -16,6 +16,8 @@ Em **Ferramentas** (e na página de cada dispositivo) ficam as ações que **mex
 |---|---|---|
 | **Ping** | Envia até 10 pedidos de eco ICMP e mostra o tempo de resposta. | Só IPv4 unicast; recusa multicast e broadcast. |
 | **Consulta DNS** | Registros A, AAAA, CNAME, MX, NS, TXT e PTR, pelo resolvedor do sistema. | Até 20 respostas, texto limpo de caracteres de controle. |
+| **Traceroute** | Mostra os roteadores entre você e um endereço, sem privilégios (um datagrama UDP com TTL baixo; as respostas ICMP são lidas da fila de erros do socket). | IPv4, até 20 saltos, 2 s por salto; para depois de 5 saltos mudos seguidos. |
+| **Teste de velocidade** | Baixa um arquivo de teste (até 25 MB, no máximo 15 s) de `speed.cloudflare.com` e mostra os Mbit/s e a latência. | **Contata um servidor de terceiros**: ele verá o IP público da sua rede. Exige confirmação a cada uso. |
 | **Wake-on-LAN** | Envia o "pacote mágico" para acordar um dispositivo. | Só dispositivos do inventário, cujo endereço está numa rede local do host. |
 | **Varredura de portas** | Tenta conectar em cerca de 65 portas TCP comuns de **um dispositivo** e lista as abertas. | Veja abaixo. |
 
@@ -56,6 +58,8 @@ sudo sysctl -w net.ipv4.ping_group_range="0 2147483647"
 
 Com a imagem Docker (rede do host, sem capabilities) vale a configuração do host.
 
-## O que ainda não tem
+## Verificação de CVEs: por que não tem
 
-**Verificação de CVEs** (exige um banco de vulnerabilidades e identificar versões com confiabilidade, o que ainda não fazemos), traceroute e teste de velocidade (exige falar com um servidor externo, o que merece um aviso de privacidade próprio). Veja o [roadmap](../roadmap.md).
+Dizer "este dispositivo tem a vulnerabilidade CVE-XXXX" exige (1) um **banco de vulnerabilidades** atualizado (NVD, OSV) e (2) saber a **versão exata** do software, o que raramente aparece de forma confiável num banner (muitos aparelhos escondem, mentem ou aplicam correções sem mudar o número). Sem isso, a ferramenta ou **cala sobre problemas reais** ou **alarma por falso positivo**, e os dois erros são piores que não ter o recurso. Por isso o Atalaia, por ora, **não promete** CVEs: a [verificação de exposição](#verificação-de-exposição) aponta o que é arriscado por si só (serviços que não deveriam estar abertos, TLS fraco, certificados vencidos) sem depender de versões. Se um dia entrar, será opcional, com a fonte dos dados e a data da consulta sempre visíveis.
+
+O teste de velocidade mede só o **download**.

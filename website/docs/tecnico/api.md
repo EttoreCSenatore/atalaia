@@ -53,6 +53,8 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 | `GET /api/devices/{mac}/ports` | sim | Último resultado da varredura de portas. |
 | `POST /api/tools/ping` | sim | `{host, count}` (1 a 10). ICMP sem privilégios; 501 se o sistema não permitir. |
 | `POST /api/tools/dns` | sim | `{name, type}` (A, AAAA, CNAME, MX, NS, TXT, PTR). |
+| `POST /api/tools/traceroute` | sim | `{host}`: saltos até o destino (IPv4, até 20, sem privilégios). |
+| `POST /api/tools/speedtest` | sim | `{confirm: true}`: baixa um arquivo de teste de um servidor de terceiros e devolve Mbit/s e latência. |
 | `GET /api/dhcp` | sim | Servidores DHCP conhecidos, se a verificação agendada está ligada e o último resultado. |
 | `PUT /api/dhcp` | sim | `{enabled}`: liga ou desliga a verificação depois de cada varredura. Desativado no modo somente observação. |
 | `POST /api/dhcp/check` | sim | `{confirm: true}`: uma descoberta DHCP agora (precisa da porta 68). |

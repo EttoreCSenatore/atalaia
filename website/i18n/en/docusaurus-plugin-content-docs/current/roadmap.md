@@ -19,7 +19,7 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **M4.2** | Rogue DHCP server (optional, needs port 68) and a newly-opened-ports alert | Done (see [Passive security](funcionalidades/seguranca-passiva.md)) |
 | **M5.1** | Tools: ping, DNS, Wake-on-LAN and port scan with confirmation, limits and an audit log | Done (see [Tools](funcionalidades/ferramentas.md)) |
 | **M5.2** | Active security: risky services, exposed web panels and TLS audit | Done (see [Tools](funcionalidades/ferramentas.md)) |
-| **M5.3** | CVEs by service version, traceroute and speed test | Planned |
+| **M5.3** | Traceroute and speed test (with a privacy notice). CVEs: decided **not** to do for now, with the reason in the docs | Done (see [Tools](funcionalidades/ferramentas.md)) |
 | **M6.1** | Built-in HTTPS (own certificate, or self-signed with renewal) | Done (see [Deployment](tecnico/implantacao.md)) |
 | **M6.2** | Security self-review of the code and gosec in CI | Done (see [Security and privacy](tecnico/seguranca-e-privacidade.md)) |
 | **M6.3** | systemd unit, .deb/.rpm packages and an observe-only mode | Done (see [Deployment](tecnico/implantacao.md)) |

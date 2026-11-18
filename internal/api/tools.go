@@ -295,3 +295,64 @@ func (s *Server) audit(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, out)
 }
+
+func (s *Server) traceroute(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Host string `json:"host"`
+	}
+	if !decode(w, r, &in) {
+		return
+	}
+	if !s.gate(w) {
+		return
+	}
+	defer s.active.Unlock()
+	ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
+	defer cancel()
+	ip, err := tools.ResolveIPv4(ctx, in.Host)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	hops, err := tools.Traceroute(ctx, ip, 20, 2*time.Second)
+	if err != nil && len(hops) == 0 {
+		writeError(w, http.StatusBadGateway, err.Error())
+		return
+	}
+	s.audited(r, "traceroute", ip.String(), fmt.Sprintf("%d hops", len(hops)))
+	if hops == nil {
+		hops = []tools.Hop{}
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"address": ip.String(), "hops": hops})
+}
+
+// speedTest downloads a test file from a third-party server, which tells that
+// server the public address of this network: it needs an explicit confirmation.
+func (s *Server) speedTest(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Confirm bool `json:"confirm"`
+	}
+	if !decode(w, r, &in) {
+		return
+	}
+	if !in.Confirm {
+		writeError(w, http.StatusBadRequest, "confirm that you accept contacting the speed test server (confirm: true)")
+		return
+	}
+	if !s.gate(w) {
+		return
+	}
+	defer s.active.Unlock()
+	target := s.SpeedURL
+	if target == "" {
+		target = tools.DefaultSpeedURL
+	}
+	res, err := tools.SpeedTest(r.Context(), s.SpeedClient, target, 50<<20, 15*time.Second)
+	if err != nil {
+		s.audited(r, "speedtest", res.Server, "failed")
+		writeError(w, http.StatusBadGateway, err.Error())
+		return
+	}
+	s.audited(r, "speedtest", res.Server, fmt.Sprintf("%.0f Mbit/s", res.Mbps))
+	writeJSON(w, http.StatusOK, res)
+}

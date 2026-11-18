@@ -19,7 +19,7 @@ Cada etapa vira um pull request, revisado e integrado antes da próxima. Documen
 | **M4.2** | Servidor DHCP falso (opcional, exige a porta 68) e alerta de portas recém-abertas | Concluído (ver [Segurança passiva](funcionalidades/seguranca-passiva.md)) |
 | **M5.1** | Ferramentas: ping, DNS, Wake-on-LAN e varredura de portas com confirmação, limites e registro de auditoria | Concluído (ver [Ferramentas](funcionalidades/ferramentas.md)) |
 | **M5.2** | Segurança ativa: serviços arriscados, painéis web expostos e auditoria de TLS | Concluído (ver [Ferramentas](funcionalidades/ferramentas.md)) |
-| **M5.3** | CVEs por versão de serviço, traceroute e teste de velocidade | Planejado |
+| **M5.3** | Traceroute e teste de velocidade (com aviso de privacidade). CVEs: decidido **não** fazer por ora, com o motivo na documentação | Concluído (ver [Ferramentas](funcionalidades/ferramentas.md)) |
 | **M6.1** | HTTPS embutido (certificado próprio ou autoassinado com renovação) | Concluído (ver [Implantação](tecnico/implantacao.md)) |
 | **M6.2** | Autorrevisão de segurança do código e gosec na CI | Concluído (ver [Segurança e privacidade](tecnico/seguranca-e-privacidade.md)) |
 | **M6.3** | Unidade systemd, pacotes .deb/.rpm e modo somente observação | Concluído (ver [Implantação](tecnico/implantacao.md)) |

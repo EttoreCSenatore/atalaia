@@ -51,6 +51,9 @@ export type TlsInfo = {
   weak_key_bits?: number;
 };
 export type Exposure = { at: string; risks: Risk[]; web: WebInfo[]; tls: TlsInfo[] };
+export type TraceHop = { ttl: number; addr: string; rtt_ms: number; reached: boolean };
+export type TraceResult = { address: string; hops: TraceHop[] };
+export type SpeedResult = { server: string; mbps: number; bytes: number; seconds: number; latency_ms: number };
 export type DnsResult = { name: string; type: string; answers: string[] };
 export type AuditEntry = { at: string; action: string; target: string; detail: string };
 export type DhcpServer = { ip: string; first_seen: string; last_seen: string; router: string; dns: string[] };
@@ -118,6 +121,8 @@ export const api = {
   exposure: (mac: string) => request<Exposure>('GET', `/api/devices/${encodeURIComponent(mac)}/exposure`),
   ports: (mac: string) => request<PortsResult>('GET', `/api/devices/${encodeURIComponent(mac)}/ports`),
   ping: (host: string, count = 4) => request<PingResult>('POST', '/api/tools/ping', { host, count }),
+  traceroute: (host: string) => request<TraceResult>('POST', '/api/tools/traceroute', { host }),
+  speedtest: () => request<SpeedResult>('POST', '/api/tools/speedtest', { confirm: true }),
   dns: (name: string, type: string) => request<DnsResult>('POST', '/api/tools/dns', { name, type }),
   audit: () => request<AuditEntry[]>('GET', '/api/audit'),
   dhcp: () => request<Dhcp>('GET', '/api/dhcp'),
