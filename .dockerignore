@@ -1,0 +1,8 @@
+.git
+.github
+website
+**/node_modules
+internal/web/dist/*
+!internal/web/dist/placeholder.txt
+web/dist
+*.db

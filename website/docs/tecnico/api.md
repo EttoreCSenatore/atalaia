@@ -6,7 +6,7 @@ sidebar_position: 2
 
 # API e servidor
 
-`atalaia serve` roda a varredura em segundo plano e serve a API HTTP (e, a partir do M2.2, o app web) no mesmo processo.
+`atalaia serve` roda a varredura em segundo plano e serve a API HTTP (e o app web) no mesmo processo.
 
 ```bash
 atalaia serve                                  # http://127.0.0.1:8080, varre a cada 5 minutos

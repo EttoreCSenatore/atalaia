@@ -1,0 +1,54 @@
+// Takes the documentation screenshots of the web app with FICTITIOUS data (API calls are answered by tests/fixtures.mjs).
+// Usage: PLAYWRIGHT=/path/to/playwright/index.mjs node scripts/screenshots.mjs <output-folder>
+// Writes app-<page>.png (Portuguese) and app-<page>-en.png (English). Run `npm run build` first.
+import { spawn } from 'node:child_process';
+import { devices, events, settings, status } from '../tests/fixtures.mjs';
+
+const {chromium} = await import(process.env.PLAYWRIGHT ?? 'playwright');
+const out = process.argv[2];
+if (!out) throw new Error('usage: node scripts/screenshots.mjs <output-folder>');
+const port = 4173;
+const server = spawn('npx', ['vite', 'preview', '--host', '127.0.0.1', '--port', String(port), '--strictPort'], { stdio: 'ignore' });
+const base = `http://127.0.0.1:${port}`;
+for (let i = 0; i < 50; i++) {
+  try { await fetch(base); break; } catch { await new Promise((r) => setTimeout(r, 200)); }
+}
+
+const json = (body, code = 200) => ({ status: code, contentType: 'application/json', body: JSON.stringify(body) });
+const browser = await chromium.launch();
+try {
+  for (const [lang, suffix] of [['pt-BR', ''], ['en', '-en']]) {
+    const shot = async (name, path, { auth = true, setup = false, width = 1100, height = 640 } = {}) => {
+      const ctx = await browser.newContext({ viewport: { width, height }, colorScheme: 'light', locale: lang });
+      await ctx.addInitScript((l) => localStorage.setItem('atalaia.lang', l), lang);
+      // a stand-in for the live stream, so the page shows "live updates on"
+      await ctx.addInitScript(() => {
+        window.EventSource = class { constructor() { setTimeout(() => this.onopen?.(), 0); } addEventListener() {} close() {} };
+      });
+      const page = await ctx.newPage();
+      await page.route('**/api/**', (route) => {
+        const p = new URL(route.request().url()).pathname;
+        if (p === '/api/status') return route.fulfill(json(status({ authenticated: auth, setup_required: setup, ...(auth ? {} : { scan: undefined }) })));
+        if (p === '/api/devices') return route.fulfill(json(devices));
+        if (p === '/api/events') return route.fulfill(json(events));
+        if (p === '/api/settings') return route.fulfill(json(settings));
+        if (p === '/api/stream') return route.fulfill({ status: 200, contentType: 'text/event-stream', body: 'event: hello\ndata: {}\n\n' });
+        return route.fulfill(json({ error: 'not mocked' }, 404));
+      });
+      await page.goto(base + path);
+      await page.waitForSelector('h1');
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: `${out}/app-${name}${suffix}.png` });
+      await ctx.close();
+    };
+    await shot('painel', '/', { height: 740 });
+    await shot('dispositivo', '/devices/da:44:55:00:00:14', { height: 800 });
+    await shot('historico', '/history', { height: 560 });
+    await shot('configuracoes', '/settings', { height: 700 });
+    await shot('login', '/', { auth: false, width: 640, height: 460 });
+    await shot('configuracao-inicial', '/', { auth: false, setup: true, width: 640, height: 640 });
+  }
+} finally {
+  await browser.close();
+  server.kill();
+}

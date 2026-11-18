@@ -10,6 +10,16 @@ updates:
       # TypeScript 7 remove `baseUrl`, que o @docusaurus/tsconfig ainda usa: esperar o Docusaurus.
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
+  - package-ecosystem: npm
+    directory: /web
+    schedule: {interval: weekly}
+    ignore:
+      # svelte-check ainda exige o TypeScript 6 (o 7 pede um alias extra): esperar o suporte.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: docker
+    directory: /deploy
+    schedule: {interval: weekly}
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: weekly}

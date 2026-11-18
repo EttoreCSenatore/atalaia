@@ -41,7 +41,7 @@ A browser has no raw sockets, ARP, ICMP or mDNS. The agent runs with minimal per
 | `internal/api` | HTTP API, authentication, SSE, server protections | M2.1 |
 | `internal/auth` | Password (argon2id), sessions, attempt limiting | M2.1 |
 | `internal/monitor` | Scheduled scans and live events | M2.1 |
-| `internal/web` | Web app embedded in the binary | M2.2 |
+| `internal/web` + `web/` | Web app (Svelte) embedded in the binary | M2.2 |
 | `internal/notify` | Notification adapters | M3 |
 | `internal/detect` | Passive security detections | M4 |
 | `internal/scan` | Ports, services, CVEs, TLS | M5 |
@@ -50,7 +50,7 @@ A browser has no raw sockets, ARP, ICMP or mDNS. The agent runs with minimal per
 
 - **Go** (a static binary that cross-compiles to ARM).
 - Embedded **SQLite**.
-- **UI**: compiled SvelteKit or React, decided in M2.
+- **UI**: Svelte 5 + Vite + TypeScript (about 25 KB gzipped), compiled into the binary (`go:embed`).
 - **Packaging**: a binary per OS, a Docker image (`--network host`, required for layer-2 discovery) and a systemd unit.
 
 ## Open data sources

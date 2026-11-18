@@ -64,10 +64,68 @@ jobs:
       - name: govulncheck
         run: go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 ./...
 
+  web:
+    name: App web (tipos, testes, auditoria, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - name: Auditoria npm (dependências de produção)
+        run: python3 ../scripts/auditar-npm.py .
+      - name: Licenças das dependências (AGPL-3.0)
+        run: python3 ../scripts/auditar-licencas.py --npm web
+      - name: SBOM do app web (CycloneDX)
+        run: npm sbom --omit=dev --sbom-format cyclonedx > ../sbom-web.cdx.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sbom-web
+          path: sbom-web.cdx.json
+      - run: npm run build
+
+  imagem:
+    name: Imagem (build, varredura, teste de fumaça)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: docker build -f deploy/Dockerfile -t atalaia:ci .
+      - name: Valida o compose
+        working-directory: deploy
+        run: docker compose config --quiet
+      - name: Varredura de vulnerabilidades (Trivy; falha em CRÍTICA com correção disponível)
+        run: |
+          docker save atalaia:ci -o atalaia.tar
+          docker run --rm -v "$PWD/atalaia.tar:/image.tar:ro" aquasec/trivy:0.76.2 image --input /image.tar \
+            --scanners vuln --ignore-unfixed --severity CRITICAL --exit-code 1
+      - name: Teste de fumaça (servidor sobe, app e API respondem, código de configuração no log)
+        run: |
+          docker run -d --name atalaia-smoke --network host atalaia:ci serve --listen 127.0.0.1:18080
+          for i in $(seq 1 30); do curl -fs http://127.0.0.1:18080/api/status >/dev/null && break; sleep 1; done
+          curl -fs http://127.0.0.1:18080/api/status | grep -q '"setup_required":true'
+          curl -fs http://127.0.0.1:18080/ | grep -qi '<title>Atalaia'
+          curl -fsI http://127.0.0.1:18080/api/status | grep -qi 'content-security-policy'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/api/devices)" = 401
+          test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example' http://127.0.0.1:18080/api/status)" = 403
+          docker logs atalaia-smoke 2>&1 | grep -q 'Setup code'
+          docker rm -f atalaia-smoke
+
   deploy:
     name: Deploy to GitHub Pages
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: [docs, go]
+    needs: [docs, go, web, imagem]
     runs-on: ubuntu-latest
     permissions:
       pages: write

@@ -8,7 +8,7 @@
 
 **Vigia da sua rede.** Vigia de rede livre, de código aberto e auto-hospedado: descubra os dispositivos da sua rede, acompanhe o histórico, receba alertas e faça verificações de segurança **defensivas**. Um agente em Go com o app web embutido.
 
-> **Estado: M1 (descoberta).** `atalaia scan` já encontra os dispositivos da rede e guarda o histórico (CLI, Linux). O app web vem no M2. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
+> **Estado: M2 (app web).** `atalaia serve` descobre os dispositivos, guarda o histórico e serve um app web com login (Linux, Docker). Os alertas vêm no M3. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
 
 ## Experimente (Linux)
 
@@ -16,8 +16,12 @@
 go run ./cmd/atalaia scan      # descobre os dispositivos da sua rede
 go run ./cmd/atalaia devices   # lista
 go run ./cmd/atalaia history   # o que mudou
-go run ./cmd/atalaia serve     # API com login em http://127.0.0.1:8080
+go run ./cmd/atalaia serve     # app web com login em http://127.0.0.1:8080
 ```
+
+Com Docker: `cd deploy && docker compose up -d --build` (o código de configuração aparece em `docker compose logs atalaia`).
+
+![Painel do Atalaia (dados fictícios)](website/static/img/screenshots/app-painel.png)
 
 ## O que vai fazer
 

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — M2.2 web app: Svelte 5 UI embedded in the binary (setup, login, dashboard with search and live updates, device page, history, settings; pt-BR and English; light/dark), hardened ~26 MB Docker image + compose (host network, read-only, no capabilities), CI jobs for the app and the image (Trivy, smoke test), bilingual docs with screenshots.
+
+**PT-BR** — App web (M2.2): interface Svelte 5 embutida no binário (configuração inicial, login, painel com busca e atualização ao vivo, página do dispositivo, histórico, configurações; pt-BR e inglês; claro/escuro), imagem Docker de ~26 MB e compose endurecidos (rede do host, somente leitura, sem capabilities), jobs de CI do app e da imagem (Trivy, teste de fumaça), documentação bilíngue com capturas de tela.
+
 **EN** — M2.1 server: `atalaia serve` runs scheduled background scans and an HTTP API with one-time-code first-run setup, argon2id login, hashed server-side sessions, lockout, local-network-only + Host + CSRF protections, live events (SSE), event retention.
 
 **PT-BR** — Servidor (M2.1): `atalaia serve` roda varreduras agendadas em segundo plano e uma API HTTP com configuração inicial por código de uso único, login argon2id, sessões com hash no servidor, bloqueio de tentativas, proteções (só rede local, Host, CSRF), eventos ao vivo (SSE) e retenção de eventos.

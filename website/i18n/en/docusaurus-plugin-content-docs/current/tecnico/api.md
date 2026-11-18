@@ -6,7 +6,7 @@ sidebar_position: 2
 
 # API and server
 
-`atalaia serve` runs the background scanner and serves the HTTP API (and, from M2.2, the web app) in the same process.
+`atalaia serve` runs the background scanner and serves the HTTP API (and the web app) in the same process.
 
 ```bash
 atalaia serve                                  # http://127.0.0.1:8080, scans every 5 minutes

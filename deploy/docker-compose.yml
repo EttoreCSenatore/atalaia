@@ -1,0 +1,25 @@
+# Atalaia. Run from this folder:  docker compose up -d --build
+# The setup code for the first login is in the logs:  docker compose logs atalaia
+services:
+  atalaia:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: atalaia:local
+    # Discovery needs to see the real network (ARP table, mDNS), so the container shares the host's network.
+    network_mode: host
+    # Listens on the host itself only. To serve the whole local network, set ATALAIA_LISTEN=0.0.0.0:8080 (plain HTTP:
+    # trusted network only, or put a TLS reverse proxy in front).
+    command: ["serve", "--listen", "${ATALAIA_LISTEN:-127.0.0.1:8080}"]
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    volumes:
+      - atalaia-data:/data
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "3"}
+
+volumes:
+  atalaia-data:

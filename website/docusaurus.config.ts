@@ -94,13 +94,17 @@ const config: Config = {
         },
         {
           title: 'Funcionalidades',
-          items: [{label: 'Descoberta de dispositivos', to: '/docs/funcionalidades/descoberta'}],
+          items: [
+            {label: 'Descoberta de dispositivos', to: '/docs/funcionalidades/descoberta'},
+            {label: 'App web', to: '/docs/funcionalidades/app-web'},
+          ],
         },
         {
           title: 'Técnico',
           items: [
             {label: 'Arquitetura', to: '/docs/tecnico/arquitetura'},
             {label: 'API e servidor', to: '/docs/tecnico/api'},
+            {label: 'Implantação', to: '/docs/tecnico/implantacao'},
             {label: 'Modelo de ameaças', to: '/docs/tecnico/modelo-de-ameacas'},
             {label: 'Segurança e privacidade', to: '/docs/tecnico/seguranca-e-privacidade'},
             {label: 'Desenvolvimento', to: '/docs/tecnico/desenvolvimento'},

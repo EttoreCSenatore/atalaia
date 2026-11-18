@@ -4,6 +4,8 @@
   },
   "link.title.Funcionalidades": {"message": "Features"},
   "link.item.label.Descoberta de dispositivos": {"message": "Device discovery"},
+  "link.item.label.App web": {"message": "Web app"},
+  "link.item.label.Implantação": {"message": "Deployment"},
   "link.title.Técnico": {
     "message": "Technical"
   },
