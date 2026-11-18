@@ -28,6 +28,7 @@ O Atalaia é uma ferramenta de segurança que também é um alvo: ele conhece to
 | Ameaça | Mitigação |
 |---|---|
 | Painel acessível sem login | Login obrigatório no primeiro uso, sem senha padrão |
+| Senha e sessão lidas na rede local (HTTP puro) | HTTPS embutido opcional (TLS 1.2+, cookie `Secure`, HSTS com certificado próprio); sem ele, o aviso de HTTP puro no console |
 | Painel exposto à internet | Escuta em `127.0.0.1` por padrão; mesmo com `--listen`, recusa origens que não são da rede local; documentação recomenda VPN ou proxy com TLS |
 | DNS rebinding e CSRF contra o painel | Verificação do `Host`, cabeçalho `X-Atalaia` e conferência do `Origin`, cookie `SameSite=Strict` |
 | Adivinhar a senha | argon2id, bloqueio progressivo por endereço |

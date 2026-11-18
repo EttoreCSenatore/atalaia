@@ -20,7 +20,9 @@ Cada etapa vira um pull request, revisado e integrado antes da próxima. Documen
 | **M5.1** | Ferramentas: ping, DNS, Wake-on-LAN e varredura de portas com confirmação, limites e registro de auditoria | Concluído (ver [Ferramentas](funcionalidades/ferramentas.md)) |
 | **M5.2** | Segurança ativa: serviços arriscados, painéis web expostos e auditoria de TLS | Concluído (ver [Ferramentas](funcionalidades/ferramentas.md)) |
 | **M5.3** | CVEs por versão de serviço, traceroute e teste de velocidade | Planejado |
-| **M6** | Endurecimento, autorrevisão, versão v0.2 e pacotes (Linux, macOS, Windows, ARM) | Planejado |
+| **M6.1** | HTTPS embutido (certificado próprio ou autoassinado com renovação) | Concluído (ver [Implantação](tecnico/implantacao.md)) |
+| **M6.2** | Autorrevisão de segurança do código | Planejado |
+| **M6.3** | Unidade systemd, pacotes .deb/.rpm e modo sem ferramentas ativas | Planejado |
 
 A **v0.1** é o fim do M3: descoberta, histórico e alertas. A v0.1.0 foi publicada. Os próximos passos são o **M5.3** e o **M4.2**.
 

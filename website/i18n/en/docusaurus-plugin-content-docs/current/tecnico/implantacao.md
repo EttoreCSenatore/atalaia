@@ -26,7 +26,7 @@ By default the server listens on `127.0.0.1:8080` only. To open it from a phone 
 ATALAIA_LISTEN=0.0.0.0:8080 docker compose up -d
 ```
 
-The server still refuses requests that do not come from the local network, but the traffic is plain HTTP. For use beyond a trusted network, put a TLS reverse proxy in front (for example, Caddy) or use a VPN, and pass the name with `--allow-host`.
+The server still refuses requests that do not come from the local network, but the traffic is plain HTTP. Turn on the [built-in HTTPS](#built-in-https) (`--tls-self-signed`), put a TLS reverse proxy in front (for example, Caddy) or use a VPN, and pass the name with `--allow-host`.
 
 ## Ready-made releases
 
@@ -40,6 +40,21 @@ docker run -d --name atalaia --network host --read-only --cap-drop ALL \
   -v atalaia-data:/data ghcr.io/ettorecsenatore/atalaia:latest
 docker logs atalaia                  # look for the "Setup code"
 ```
+
+## Built-in HTTPS
+
+Atalaia can serve HTTPS by itself, without a proxy (TLS 1.2 or higher; the session cookie becomes `Secure`):
+
+| Option | When to use it |
+|---|---|
+| `--tls-self-signed` (or `ATALAIA_TLS_SELF_SIGNED=1`) | Home network. Atalaia creates a self-signed certificate in `<database folder>/tls/` (ECDSA P-256, 1 year, `0600` key) covering `localhost`, the machine name, the local addresses and any `--allow-host`, and **renews it by itself** 30 days before it expires. The browser will warn once: compare the **SHA-256 fingerprint** printed on the console before accepting. |
+| `--tls-cert file.pem --tls-key key.pem` (or `ATALAIA_TLS_CERT` / `ATALAIA_TLS_KEY`) | You already have a certificate (for example from an internal CA, or Let's Encrypt via DNS). A replaced file is picked up without a restart. With this option the server also sends `Strict-Transport-Security`. |
+
+```bash
+atalaia serve --listen 0.0.0.0:8443 --tls-self-signed
+```
+
+HSTS is **not** sent with the self-signed certificate: it would stop the browser from letting you accept the warning. Behind a proxy that terminates TLS, Atalaia sees plain HTTP; in that case prefer the built-in HTTPS, or make sure the proxy talks to it only over the local machine.
 
 ## Binary
 

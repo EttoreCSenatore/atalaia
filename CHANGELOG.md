@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — M6.1 built-in HTTPS: `--tls-self-signed` (ECDSA P-256 certificate made, reused and renewed by Atalaia, fingerprint printed) or `--tls-cert`/`--tls-key` (picked up on change, HSTS enabled); TLS 1.2+, `Secure` session cookie; HSTS never with the self-signed certificate; env vars for Docker; bilingual docs.
+
+**PT-BR** — HTTPS embutido (M6.1): `--tls-self-signed` (certificado ECDSA P-256 criado, reaproveitado e renovado pelo Atalaia, com impressão digital no console) ou `--tls-cert`/`--tls-key` (recarregado quando muda, HSTS ligado); TLS 1.2+, cookie de sessão `Secure`; nunca HSTS com o certificado autoassinado; variáveis de ambiente para Docker; documentação bilíngue.
+
 **EN** — Fix found while testing on a real network: the machine running Atalaia was missing from its own inventory (the ARP table never lists the host itself); it is now added, using only the interface on the gateway's network.
 
 **PT-BR** — Correção achada testando numa rede real: a máquina que roda o Atalaia não aparecia no próprio inventário (a tabela ARP nunca lista o próprio host); agora ela é incluída, usando só a interface da rede do roteador.

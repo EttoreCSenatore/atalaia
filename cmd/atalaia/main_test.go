@@ -3,9 +3,11 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"net/http"
 	"net/netip"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -13,6 +15,7 @@ import (
 	"time"
 
 	"github.com/EttoreCSenatore/atalaia/internal/store"
+	"github.com/EttoreCSenatore/atalaia/internal/tlsutil"
 )
 
 func newApp(t *testing.T, obs []store.Observation, now time.Time) (*app, *bytes.Buffer, *bytes.Buffer, string) {
@@ -137,5 +140,103 @@ func TestServeFirstRunAndShutdown(t *testing.T) {
 		}
 	case <-time.After(5 * time.Second):
 		t.Fatal("server did not shut down")
+	}
+}
+
+// startServe runs `serve` with args and returns the base URL, the console output and a stop function.
+func startServe(t *testing.T, args ...string) (string, *syncBuf, func()) {
+	t.Helper()
+	var out, errOut syncBuf
+	a := &app{out: &out, err: &errOut, now: time.Now,
+		scan: func(context.Context, bool) ([]store.Observation, error) { return nil, nil }}
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan int, 1)
+	go func() {
+		done <- a.run(ctx, append([]string{"serve", "--listen", "127.0.0.1:0", "--interval", "0"}, args...))
+	}()
+	var base string
+	for i := 0; i < 150 && base == ""; i++ {
+		if _, rest, ok := strings.Cut(out.String(), "listening on "); ok {
+			base = strings.Fields(rest)[0]
+		}
+		select {
+		case code := <-done:
+			t.Fatalf("serve exited early (%d): %q %q", code, out.String(), errOut.String())
+		default:
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	if base == "" {
+		cancel()
+		t.Fatalf("server did not start: %q %q", out.String(), errOut.String())
+	}
+	return base, &out, func() { cancel(); <-done }
+}
+
+func insecureClient() *http.Client {
+	return &http.Client{Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}}
+}
+
+func TestServeSelfSignedHTTPS(t *testing.T) {
+	dir := t.TempDir()
+	base, out, stop := startServe(t, "--db", filepath.Join(dir, "a.db"), "--tls-self-signed")
+	defer stop()
+	if !strings.HasPrefix(base, "https://") || !strings.Contains(out.String(), "SHA-256") {
+		t.Fatalf("base %q out %q", base, out.String())
+	}
+	resp, err := insecureClient().Get(base + "/api/status")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.TLS == nil || resp.TLS.Version < tls.VersionTLS12 {
+		t.Fatalf("not TLS 1.2+: %+v", resp.TLS)
+	}
+	if resp.Header.Get("Strict-Transport-Security") != "" {
+		t.Fatal("HSTS must not be sent with a self-signed certificate (it blocks the click-through)")
+	}
+	if st, err := os.Stat(filepath.Join(dir, "tls", "key.pem")); err != nil || st.Mode().Perm() != 0o600 {
+		t.Fatalf("key file: %v %v", st, err)
+	}
+	// plain HTTP to a TLS port does not work
+	if r, err := http.Get(strings.Replace(base, "https://", "http://", 1) + "/api/status"); err == nil && r.StatusCode == 200 {
+		t.Fatal("the TLS port answered plain HTTP")
+	}
+}
+
+func TestServeWithOwnCertificateSendsHSTSAndSecureCookie(t *testing.T) {
+	dir := t.TempDir()
+	cert, key, err := tlsutil.SelfSigned(filepath.Join(dir, "mine"), []string{"localhost", "127.0.0.1"}, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	base, out, stop := startServe(t, "--db", filepath.Join(dir, "a.db"), "--tls-cert", cert, "--tls-key", key)
+	defer stop()
+	if strings.Contains(out.String(), "warning: serving the local network over plain HTTP") {
+		t.Fatal("plain-HTTP warning shown on HTTPS")
+	}
+	resp, err := insecureClient().Get(base + "/api/status")
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if !strings.Contains(resp.Header.Get("Strict-Transport-Security"), "max-age=") {
+		t.Fatalf("no HSTS: %v", resp.Header)
+	}
+}
+
+func TestServeTLSFlagValidation(t *testing.T) {
+	for name, args := range map[string][]string{
+		"cert only":  {"--tls-cert", "c.pem"},
+		"key only":   {"--tls-key", "k.pem"},
+		"both modes": {"--tls-self-signed", "--tls-cert", "c.pem", "--tls-key", "k.pem"},
+		"missing":    {"--tls-cert", "/nonexistent/c.pem", "--tls-key", "/nonexistent/k.pem"},
+	} {
+		var out, errOut syncBuf
+		a := &app{out: &out, err: &errOut, now: time.Now, scan: func(context.Context, bool) ([]store.Observation, error) { return nil, nil }}
+		args = append([]string{"serve", "--listen", "127.0.0.1:0", "--db", filepath.Join(t.TempDir(), "a.db")}, args...)
+		if code := a.run(context.Background(), args); code == 0 {
+			t.Errorf("%s: expected a failure", name)
+		}
 	}
 }

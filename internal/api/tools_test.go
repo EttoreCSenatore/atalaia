@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"net"
+	"net/http"
 	"net/netip"
 	"sync/atomic"
 	"testing"
@@ -184,5 +186,34 @@ func TestExposureNeedsAPortScanConfirmationAndScope(t *testing.T) {
 	f.srv.lastScan = time.Time{}
 	if w := f.do("POST", path, map[string]bool{"confirm": true}, c); w.Code != 403 {
 		t.Fatalf("out of scope: %d", w.Code)
+	}
+}
+
+func TestHTTPSMarksTheCookieSecureAndHSTSOnlyWhenAsked(t *testing.T) {
+	for _, hsts := range []bool{false, true} {
+		f := newFixture(t)
+		f.srv.HSTS = hsts
+		f.h = f.srv.Handler()
+		w := f.do("POST", "/api/setup", map[string]string{"code": code, "password": password}, nil, func(r *http.Request) {
+			r.TLS = &tls.ConnectionState{}
+		})
+		if w.Code != 200 {
+			t.Fatalf("setup: %d %s", w.Code, w.Body)
+		}
+		c := session(w)
+		if c == nil || !c.Secure || !c.HttpOnly || c.SameSite != http.SameSiteStrictMode {
+			t.Fatalf("cookie flags: %+v", c)
+		}
+		if got := w.Header().Get("Strict-Transport-Security") != ""; got != hsts {
+			t.Fatalf("hsts=%v but header present=%v", hsts, got)
+		}
+	}
+	// over plain HTTP: no HSTS, cookie not Secure (browsers would drop it otherwise)
+	f := newFixture(t)
+	f.srv.HSTS = true
+	f.h = f.srv.Handler()
+	w := f.do("POST", "/api/setup", map[string]string{"code": code, "password": password}, nil)
+	if c := session(w); c == nil || c.Secure || w.Header().Get("Strict-Transport-Security") != "" {
+		t.Fatalf("plain HTTP: %+v %v", c, w.Header())
 	}
 }
