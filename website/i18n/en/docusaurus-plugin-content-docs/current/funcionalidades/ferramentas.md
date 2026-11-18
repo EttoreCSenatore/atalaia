@@ -16,6 +16,8 @@ sidebar_position: 5
 |---|---|---|
 | **Ping** | Sends up to 10 ICMP echo requests and shows the response time. | IPv4 unicast only; refuses multicast and broadcast. |
 | **DNS lookup** | A, AAAA, CNAME, MX, NS, TXT and PTR records, through the system resolver. | Up to 20 answers, text stripped of control characters. |
+| **Traceroute** | Shows the routers between you and an address, with no privileges (a UDP datagram with a small TTL; the ICMP answers are read from the socket's error queue). | IPv4, up to 20 hops, 2 s per hop; stops after 5 silent hops in a row. |
+| **Speed test** | Downloads a test file (up to 25 MB, at most 15 s) from `speed.cloudflare.com` and shows Mbit/s and latency. | **Contacts a third-party server**: it will see your network's public IP. Needs a confirmation every time. |
 | **Wake-on-LAN** | Sends the "magic packet" to wake a device. | Only devices in the inventory whose address is on a local network of the host. |
 | **Port scan** | Tries to connect to about 65 common TCP ports of **one device** and lists the open ones. | See below. |
 
@@ -56,6 +58,8 @@ sudo sysctl -w net.ipv4.ping_group_range="0 2147483647"
 
 With the Docker image (host network, no capabilities) the host's setting applies.
 
-## What is not there yet
+## CVE checks: why there are none
 
-**CVE checks** (they need a vulnerability database and reliable version detection, which we do not do yet), traceroute and speed test (it needs to talk to an outside server, which deserves its own privacy notice). See the [roadmap](../roadmap.md).
+Saying "this device has vulnerability CVE-XXXX" needs (1) an up-to-date **vulnerability database** (NVD, OSV) and (2) the **exact version** of the software, which rarely shows up reliably in a banner (many devices hide it, lie about it, or backport fixes without changing the number). Without both, a tool either **stays silent about real problems** or **raises false alarms**, and both mistakes are worse than not having the feature. So Atalaia does **not promise** CVEs for now: the [exposure check](#exposure-check) flags what is risky by itself (services that should not be open, weak TLS, expired certificates) without depending on versions. If it ever comes, it will be optional, with the data source and the date of the lookup always visible.
+
+The speed test measures **download** only.

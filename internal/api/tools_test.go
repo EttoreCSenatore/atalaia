@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"net/netip"
 	"strings"
 	"sync/atomic"
@@ -273,5 +274,62 @@ func TestObserveOnlyModeBlocksActiveToolsButNotDNSOrReading(t *testing.T) {
 	_ = json.Unmarshal(f2.do("GET", "/api/status", nil, nil).Body.Bytes(), &st2)
 	if !st2.ActiveTools {
 		t.Error("active tools are on by default")
+	}
+}
+
+func TestSpeedTestNeedsConfirmationAndIsAudited(t *testing.T) {
+	f := newFixture(t)
+	c := f.setup()
+	hits := 0
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits++
+		_, _ = w.Write(make([]byte, 64<<10))
+	}))
+	defer ts.Close()
+	f.srv.SpeedURL = ts.URL
+	if w := f.do("POST", "/api/tools/speedtest", map[string]bool{"confirm": false}, c); w.Code != 400 || hits != 0 {
+		t.Fatalf("no confirmation: %d, hits %d", w.Code, hits)
+	}
+	w := f.do("POST", "/api/tools/speedtest", map[string]bool{"confirm": true}, c)
+	if w.Code != 200 {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	var r struct {
+		Mbps  float64 `json:"mbps"`
+		Bytes int64   `json:"bytes"`
+	}
+	_ = json.Unmarshal(w.Body.Bytes(), &r)
+	if r.Bytes != 64<<10 || r.Mbps <= 0 {
+		t.Fatalf("%+v", r)
+	}
+	var a []auditDTO
+	_ = json.Unmarshal(f.do("GET", "/api/audit", nil, c).Body.Bytes(), &a)
+	if len(a) != 1 || a[0].Action != "speedtest" {
+		t.Fatalf("audit: %+v", a)
+	}
+	if w := f.do("POST", "/api/tools/speedtest", map[string]bool{"confirm": true}, nil); w.Code != 401 {
+		t.Fatalf("anonymous: %d", w.Code)
+	}
+}
+
+func TestTracerouteValidationAndObserveOnly(t *testing.T) {
+	f := newFixture(t)
+	c := f.setup()
+	for _, bad := range []string{"", "224.0.0.1", "255.255.255.255"} {
+		if w := f.do("POST", "/api/tools/traceroute", map[string]string{"host": bad}, c); w.Code != 400 {
+			t.Errorf("%q: %d", bad, w.Code)
+		}
+	}
+	if w := f.do("POST", "/api/tools/traceroute", map[string]string{"host": "127.0.0.1"}, c); w.Code != 200 {
+		t.Fatalf("loopback: %d %s", w.Code, w.Body)
+	}
+	g := newFixture(t)
+	g.srv.NoActiveTools = true
+	g.h = g.srv.Handler()
+	gc := g.setup()
+	for _, p := range []string{"/api/tools/traceroute", "/api/tools/speedtest"} {
+		if w := g.do("POST", p, map[string]any{"host": "127.0.0.1", "confirm": true}, gc); w.Code != 403 {
+			t.Errorf("%s in observe-only mode: %d", p, w.Code)
+		}
 	}
 }

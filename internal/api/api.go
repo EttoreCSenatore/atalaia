@@ -51,6 +51,9 @@ type Server struct {
 	DHCP    *dhcpwatch.Watcher
 	// Scope returns the networks active tools may touch (default: the host's own private networks).
 	Scope func() (*scope.Scope, error)
+	// SpeedURL and SpeedClient replace the speed test file and HTTP client (tests).
+	SpeedURL    string
+	SpeedClient *http.Client
 	// Dial opens TCP connections for the port scan (default: net dialer).
 	Dial    tools.Dialer
 	Sender  *notify.Sender
@@ -111,6 +114,8 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/devices/{mac}/exposure", s.protected(s.exposure))
 	mux.HandleFunc("GET /api/devices/{mac}/ports", s.protected(s.ports))
 	mux.HandleFunc("POST /api/tools/ping", s.mutating(s.protected(s.activeOnly(s.ping))))
+	mux.HandleFunc("POST /api/tools/traceroute", s.mutating(s.protected(s.activeOnly(s.traceroute))))
+	mux.HandleFunc("POST /api/tools/speedtest", s.mutating(s.protected(s.activeOnly(s.speedTest))))
 	mux.HandleFunc("POST /api/tools/dns", s.mutating(s.protected(s.dnsLookup)))
 	mux.HandleFunc("GET /api/dhcp", s.protected(s.getDHCP))
 	mux.HandleFunc("PUT /api/dhcp", s.mutating(s.protected(s.activeOnly(s.putDHCP))))

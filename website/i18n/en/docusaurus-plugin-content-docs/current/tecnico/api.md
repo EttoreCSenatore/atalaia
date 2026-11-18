@@ -53,6 +53,8 @@ The server speaks HTTP. On a trusted local network that is acceptable, but the p
 | `GET /api/devices/{mac}/ports` | yes | The device's last port scan. |
 | `POST /api/tools/ping` | yes | `{host, count}` (1 to 10). Unprivileged ICMP; 501 if the system does not allow it. |
 | `POST /api/tools/dns` | yes | `{name, type}` (A, AAAA, CNAME, MX, NS, TXT, PTR). |
+| `POST /api/tools/traceroute` | yes | `{host}`: hops to the destination (IPv4, up to 20, no privileges). |
+| `POST /api/tools/speedtest` | yes | `{confirm: true}`: downloads a test file from a third-party server and returns Mbit/s and latency. |
 | `GET /api/dhcp` | yes | Known DHCP servers, whether the scheduled check is on, and the last result. |
 | `PUT /api/dhcp` | yes | `{enabled}`: turns the check after every scan on or off. Disabled in observe-only mode. |
 | `POST /api/dhcp/check` | yes | `{confirm: true}`: one DHCP discovery now (needs port 68). |

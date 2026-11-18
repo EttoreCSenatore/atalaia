@@ -49,6 +49,7 @@ export const dhcp = {
   last: { at: new Date(Date.now() - 4 * 60_000).toISOString(), offers: [], baseline: false, new: [] },
 };
 export const audit = [
+  { at: new Date(Date.now() - 20 * 60_000).toISOString(), action: 'traceroute', target: '1.1.1.1', detail: '9 hops' },
   { at: new Date(Date.now() - 12 * 60_000).toISOString(), action: 'portscan', target: 'b8:27:eb:00:00:0a', detail: '192.168.1.10: 3 open' },
   { at: new Date(Date.now() - 50 * 60_000).toISOString(), action: 'ping', target: '192.168.1.1', detail: '4 sent, 0 lost' },
   { at: new Date(Date.now() - 26 * 3600_000).toISOString(), action: 'wake', target: 'a8:55:66:00:00:41', detail: 'magic packet to 192.168.1.255' },
