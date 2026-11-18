@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.4.0 — 2026-11-18
+
 **EN** — M5.3 tools: unprivileged traceroute (UDP with a small TTL, ICMP answers read from the socket error queue; verified on loopback and against the internet) and a download speed test (opt-in with a per-use confirmation, because it tells speed.cloudflare.com your public IP; redirects refused, size and time capped); both off in observe-only mode and in the audit log. CVE matching was deliberately not built: the docs explain why (no reliable versions, a database to maintain, false positives and false negatives).
 
 **PT-BR** — Ferramentas (M5.3): traceroute sem privilégios (UDP com TTL baixo, respostas ICMP lidas da fila de erros do socket; testado no loopback e na internet) e teste de velocidade de download (opt-in com confirmação a cada uso, porque informa seu IP público a speed.cloudflare.com; redirecionamentos recusados, tamanho e tempo limitados); ambos desligados no modo somente observação e no registro de auditoria. A verificação de CVEs foi deliberadamente não implementada: a documentação explica o motivo (sem versões confiáveis, banco para manter, falsos positivos e negativos).
