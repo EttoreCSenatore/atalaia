@@ -213,7 +213,7 @@ func ParseGateway(r io.Reader) (netip.Addr, bool) {
 		if err != nil || v == 0 {
 			continue
 		}
-		return netip.AddrFrom4([4]byte{byte(v), byte(v >> 8), byte(v >> 16), byte(v >> 24)}), true
+		return netip.AddrFrom4([4]byte{byte(v & 0xff), byte(v >> 8 & 0xff), byte(v >> 16 & 0xff), byte(v >> 24 & 0xff)}), true
 	}
 	return netip.Addr{}, false
 }

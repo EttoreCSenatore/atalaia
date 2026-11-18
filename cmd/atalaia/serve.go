@@ -36,6 +36,7 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 	tlsCert := fs.String("tls-cert", os.Getenv("ATALAIA_TLS_CERT"), "serve HTTPS with this certificate file (PEM; needs --tls-key)")
 	tlsKey := fs.String("tls-key", os.Getenv("ATALAIA_TLS_KEY"), "private key file for --tls-cert (PEM)")
 	tlsSelf := fs.Bool("tls-self-signed", os.Getenv("ATALAIA_TLS_SELF_SIGNED") == "1", "serve HTTPS with a self-signed certificate Atalaia makes and renews (browsers will warn once)")
+	secure := fs.Bool("secure-cookies", os.Getenv("ATALAIA_SECURE_COOKIES") == "1", "mark the session cookie Secure even over plain HTTP (use behind a TLS reverse proxy)")
 	var hosts stringList
 	fs.Var(&hosts, "allow-host", "extra host name the app may be opened with (repeatable)")
 	if err := fs.Parse(args); err != nil {
@@ -63,7 +64,7 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 		OnResult: func(c context.Context, res store.Result, baseline bool) {
 			go svc.Handle(context.WithoutCancel(c), res, baseline)
 		}}
-	srv := &api.Server{Store: st, Monitor: mon, Alerts: svc, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
+	srv := &api.Server{SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
 
 	var tlsConf *tls.Config
 	if *tlsSelf || *tlsCert != "" {

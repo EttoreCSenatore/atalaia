@@ -111,7 +111,7 @@ func WebProbe(ctx context.Context, ip netip.Addr, port int, secure bool, dial Di
 	}
 	cl := &http.Client{Transport: tr, Timeout: 6 * time.Second,
 		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, scheme+"://"+netip.AddrPortFrom(ip, uint16(port)).String()+"/", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, scheme+"://"+dialAddr(ip, port)+"/", nil)
 	if err != nil {
 		return info, false
 	}
@@ -168,7 +168,7 @@ func handshake(ctx context.Context, ip netip.Addr, port int, dial Dialer, min, m
 	}
 	cctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	raw, err := dial(cctx, netip.AddrPortFrom(ip, uint16(port)).String())
+	raw, err := dial(cctx, dialAddr(ip, port))
 	if err != nil {
 		return nil, false
 	}
