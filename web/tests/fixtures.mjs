@@ -22,6 +22,20 @@ export const events = [
   { at: ago(60 * 24 * 9), kind: 'joined', detail: '192.168.1.44', mac: 'ae:66:77:00:00:33', name: 'Joao-laptop.local', vendor: '' },
 ];
 
+export const ports = {
+  at: new Date(Date.now() - 12 * 60_000).toISOString(),
+  ports: [
+    { port: 22, service: 'ssh' },
+    { port: 80, service: 'http' },
+    { port: 8080, service: 'http-proxy' },
+  ],
+  opened: [8080],
+};
+export const audit = [
+  { at: new Date(Date.now() - 12 * 60_000).toISOString(), action: 'portscan', target: 'b8:27:eb:00:00:0a', detail: '192.168.1.10: 3 open' },
+  { at: new Date(Date.now() - 50 * 60_000).toISOString(), action: 'ping', target: '192.168.1.1', detail: '4 sent, 0 lost' },
+  { at: new Date(Date.now() - 26 * 3600_000).toISOString(), action: 'wake', target: 'a8:55:66:00:00:41', detail: 'magic packet to 192.168.1.255' },
+];
 export const settings = { retention_days: 90, scan_interval: '5m0s' };
 export const status = (extra = {}) => ({ version: '0.2.0', setup_required: false, authenticated: true, scan: { scanning: false, last_scan: ago(1), last_error: '', interval: '5m0s' }, ...extra });
 

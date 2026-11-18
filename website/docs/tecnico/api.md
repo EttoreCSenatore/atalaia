@@ -46,6 +46,12 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 | `POST /api/password` | sim | `{current, new}`. |
 | `GET /api/devices` | sim | Dispositivos conhecidos. |
 | `PUT /api/devices/{mac}` | sim | `{label, tags, known}`: nome (até 64 caracteres), até 8 etiquetas (24 caracteres, sem vírgula) e se é conhecido. |
+| `POST /api/devices/{mac}/wake` | sim | Envia o pacote mágico (Wake-on-LAN). Só dispositivos do inventário, no escopo. |
+| `POST /api/devices/{mac}/portscan` | sim | `{confirm: true}` obrigatório. Varre ~65 portas TCP; no máx. uma a cada 10 s; devolve `ports` e, se havia resultado anterior, `opened`/`closed`. |
+| `GET /api/devices/{mac}/ports` | sim | Último resultado da varredura de portas. |
+| `POST /api/tools/ping` | sim | `{host, count}` (1 a 10). ICMP sem privilégios; 501 se o sistema não permitir. |
+| `POST /api/tools/dns` | sim | `{name, type}` (A, AAAA, CNAME, MX, NS, TXT, PTR). |
+| `GET /api/audit` | sim | Registro das ações ativas, do mais novo para o mais antigo. |
 | `GET /api/events?limit=N` | sim | Histórico (1 a 1000), do mais novo para o mais antigo. Tipos: `joined`, `online`, `offline`, `ip_changed`, `gateway_changed`, `multi_ip`. |
 | `POST /api/scan` | sim | Pede uma varredura agora (responde 202). |
 | `GET /api/stream` | sim | Eventos ao vivo (SSE): `hello`, `scan_started`, `scan_finished`, `scan_failed`. |

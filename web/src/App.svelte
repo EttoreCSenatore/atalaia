@@ -8,6 +8,7 @@
   import Dashboard from './components/Dashboard.svelte';
   import DeviceDetail from './components/DeviceDetail.svelte';
   import History from './components/History.svelte';
+  import Tools from './components/Tools.svelte';
   import Settings from './components/Settings.svelte';
 
   onMount(boot);
@@ -38,6 +39,8 @@
       <DeviceDetail mac={current.mac} />
     {:else if current.name === 'history'}
       <History />
+    {:else if current.name === 'tools'}
+      <Tools />
     {:else if current.name === 'settings'}
       <Settings />
     {:else}

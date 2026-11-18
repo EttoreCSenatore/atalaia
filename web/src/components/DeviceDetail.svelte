@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { api } from '../lib/api';
+  import { api, type PortsResult } from '../lib/api';
+  import { toolError } from '../lib/errors';
   import { app, loadData } from '../lib/app.svelte';
   import { t, i18n } from '../lib/i18n.svelte';
   import { dateTime, parseTags, relativeTime } from '../lib/format';
@@ -45,6 +46,45 @@
     }
   }
 
+  let ports = $state<PortsResult | null>(null);
+  let confirmScan = $state(false);
+  let scanBusy = $state(false);
+  let toolMsg = $state<{ kind: 'ok' | 'error'; text: string } | null>(null);
+  let portsFor = '';
+
+  $effect(() => {
+    if (device && portsFor !== device.mac) {
+      portsFor = device.mac;
+      ports = null;
+      confirmScan = false;
+      toolMsg = null;
+      api.ports(device.mac).then((p) => (ports = p), () => (ports = null));
+    }
+  });
+
+  async function wake() {
+    toolMsg = null;
+    try {
+      await api.wake(mac);
+      toolMsg = { kind: 'ok', text: t('detail.wakeSent') };
+    } catch (err) {
+      toolMsg = { kind: 'error', text: toolError(err) };
+    }
+  }
+
+  async function scanPorts() {
+    toolMsg = null;
+    scanBusy = true;
+    try {
+      ports = await api.portScan(mac);
+      confirmScan = false;
+    } catch (err) {
+      toolMsg = { kind: 'error', text: toolError(err) };
+    } finally {
+      scanBusy = false;
+    }
+  }
+
   const when = (iso: string) => dateTime(iso, i18n.lang);
   const rel = (iso: string) => relativeTime(iso, i18n.lang, new Date(), t('common.never'), t('time.justNow'));
 </script>
@@ -83,6 +123,33 @@
     {#if failed}<p class="error" role="alert">{failed}</p>{/if}
     <button class="primary" disabled={busy}>{t('common.save')}</button>
   </form>
+
+  <h2>{t('detail.tools')}</h2>
+  <div class="card">
+    <div class="row">
+      <button type="button" onclick={wake}>{t('detail.wake')}</button>
+      <span class="muted">{t('detail.wakeHelp')}</span>
+    </div>
+    <hr />
+    <label class="check"><input type="checkbox" bind:checked={confirmScan} /> {t('detail.confirmScan')}</label>
+    <button type="button" disabled={!confirmScan || scanBusy} onclick={scanPorts}>{scanBusy ? t('tools.running') : t('detail.scanPorts')}</button>
+    <p class="muted help">{t('detail.scanHelp')}</p>
+    {#if toolMsg}<p class={toolMsg.kind} role="alert">{toolMsg.text}</p>{/if}
+    {#if ports}
+      <p class="muted">{t('detail.scannedAt')}: {when(ports.at)}</p>
+      {#if ports.opened?.length}<p class="warn" role="status">{t('detail.opened')}: {ports.opened.join(', ')}</p>{/if}
+      {#if ports.closed?.length}<p class="muted">{t('detail.closed')}: {ports.closed.join(', ')}</p>{/if}
+      {#if ports.ports.length === 0}
+        <p>{t('detail.noPorts')}</p>
+      {:else}
+        <table>
+          <tbody>
+            {#each ports.ports as p (p.port)}<tr><td class="mono">{p.port}/tcp</td><td>{p.service}</td></tr>{/each}
+          </tbody>
+        </table>
+      {/if}
+    {/if}
+  </div>
 
   <h2>{t('detail.history')}</h2>
   <div class="card table-wrap">
@@ -136,6 +203,21 @@
   .help {
     font-size: 0.85rem;
     margin: 0.3rem 0 0.8rem;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+  hr {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: 1rem 0;
+  }
+  .warn {
+    color: var(--warn);
+    font-weight: 600;
   }
   .check {
     display: flex;

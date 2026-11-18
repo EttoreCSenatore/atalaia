@@ -77,6 +77,19 @@ var migrations = []string{
 	DROP TABLE events;
 	ALTER TABLE events_new RENAME TO events;
 	CREATE INDEX events_at ON events(at DESC);`,
+	`CREATE TABLE audit (
+		id     INTEGER PRIMARY KEY,
+		at     INTEGER NOT NULL,
+		action TEXT    NOT NULL,
+		target TEXT    NOT NULL DEFAULT '',
+		detail TEXT    NOT NULL DEFAULT ''
+	);
+	CREATE INDEX audit_at ON audit(at DESC);
+	CREATE TABLE port_results (
+		device_id INTEGER PRIMARY KEY REFERENCES devices(id) ON DELETE CASCADE,
+		at        INTEGER NOT NULL,
+		ports     TEXT    NOT NULL -- JSON list
+	);`,
 }
 
 // Store is the device inventory.

@@ -46,6 +46,12 @@ The server speaks HTTP. On a trusted local network that is acceptable, but the p
 | `POST /api/password` | yes | `{current, new}`. |
 | `GET /api/devices` | yes | Known devices. |
 | `PUT /api/devices/{mac}` | yes | `{label, tags, known}`: name (up to 64 characters), up to 8 tags (24 characters, no commas) and whether it is known. |
+| `POST /api/devices/{mac}/wake` | yes | Sends the magic packet (Wake-on-LAN). Inventory devices in scope only. |
+| `POST /api/devices/{mac}/portscan` | yes | `{confirm: true}` required. Scans ~65 TCP ports; at most one per 10 s; returns `ports` and, if there was a previous result, `opened`/`closed`. |
+| `GET /api/devices/{mac}/ports` | yes | The device's last port scan. |
+| `POST /api/tools/ping` | yes | `{host, count}` (1 to 10). Unprivileged ICMP; 501 if the system does not allow it. |
+| `POST /api/tools/dns` | yes | `{name, type}` (A, AAAA, CNAME, MX, NS, TXT, PTR). |
+| `GET /api/audit` | yes | Log of active actions, newest first. |
 | `GET /api/events?limit=N` | yes | History (1 to 1000), newest first. Kinds: `joined`, `online`, `offline`, `ip_changed`, `gateway_changed`, `multi_ip`. |
 | `POST /api/scan` | yes | Asks for a scan now (answers 202). |
 | `GET /api/stream` | yes | Live events (SSE): `hello`, `scan_started`, `scan_finished`, `scan_failed`. |

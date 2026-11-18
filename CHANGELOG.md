@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — M5.1 tools: ping (unprivileged ICMP), DNS lookup, Wake-on-LAN and a TCP port scan (~65 ports, handshake only) with a diff against the previous scan. Active actions are fenced: administrator only, one at a time, inventory devices in the local scope only (no free target), explicit confirmation and a 10 s minimum interval for scans, and an audit log purged with the retention. New Tools page, device actions, bilingual docs.
+
+**PT-BR** — Ferramentas (M5.1): ping (ICMP sem privilégios), consulta DNS, Wake-on-LAN e varredura de portas TCP (~65 portas, só o handshake) com comparação com a anterior. As ações ativas têm cercas: só o administrador, uma por vez, só dispositivos do inventário no escopo local (sem alvo livre), confirmação explícita e intervalo mínimo de 10 s nas varreduras, e registro de auditoria apagado junto com a retenção. Nova página Ferramentas, ações no dispositivo, documentação bilíngue.
+
 **EN** — M4.1 passive security: rootless detection of two ARP-spoofing signs on every scan (the default gateway's address answering from a new MAC; one MAC answering for 3+ addresses), shown in red in the history, with a default-on alert rule that also fires on the first scan; known devices are exempt from the multi-address check; one observation per MAC in scans (no more false "address changed" events for multi-address devices); bilingual docs with documented limits.
 
 **PT-BR** — Segurança passiva (M4.1): detecção sem privilégios de dois sinais de ARP spoofing a cada varredura (o endereço do gateway respondendo com outro MAC; um MAC respondendo por 3+ endereços), destacados em vermelho no histórico, com regra de alerta ligada por padrão que vale também na primeira varredura; dispositivos conhecidos ficam isentos da checagem de vários endereços; uma observação por MAC nas varreduras (sem falsos eventos de "mudou de endereço"); documentação bilíngue com os limites.

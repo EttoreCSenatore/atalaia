@@ -60,4 +60,20 @@ describe('api client', () => {
     expect(url).toBe('/api/alerts/test');
     expect(init.body).toBe(JSON.stringify({ id: 'abc' }));
   });
+
+  it('port scan sends an explicit confirmation', async () => {
+    const fn = mockFetch(200, { at: '', ports: [] });
+    await api.portScan('aa:bb:cc:00:00:01');
+    const [url, init] = fn.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/devices/aa%3Abb%3Acc%3A00%3A00%3A01/portscan');
+    expect(init.body).toBe(JSON.stringify({ confirm: true }));
+  });
+
+  it('ping and DNS post their parameters', async () => {
+    const fn = mockFetch(200, {});
+    await api.ping('192.168.1.1', 3);
+    await api.dns('example.com', 'MX');
+    const bodies = fn.mock.calls.map((c) => (c as unknown as [string, RequestInit])[1].body);
+    expect(bodies).toEqual([JSON.stringify({ host: '192.168.1.1', count: 3 }), JSON.stringify({ name: 'example.com', type: 'MX' })]);
+  });
 });
