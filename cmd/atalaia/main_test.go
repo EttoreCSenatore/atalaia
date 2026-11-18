@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"net/http"
 	"net/netip"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -76,5 +78,64 @@ func TestEmptyDatabaseMessages(t *testing.T) {
 		if code := a.run(context.Background(), []string{c, "--db", db}); code != 0 || !strings.Contains(out.String(), "atalaia scan") {
 			t.Fatalf("%s: code=%d out=%q", c, code, out.String())
 		}
+	}
+}
+
+type syncBuf struct {
+	mu sync.Mutex
+	b  bytes.Buffer
+}
+
+func (s *syncBuf) Write(p []byte) (int, error) { s.mu.Lock(); defer s.mu.Unlock(); return s.b.Write(p) }
+func (s *syncBuf) String() string              { s.mu.Lock(); defer s.mu.Unlock(); return s.b.String() }
+
+func TestServeFirstRunAndShutdown(t *testing.T) {
+	var out, errOut syncBuf
+	a := &app{out: &out, err: &errOut, now: time.Now,
+		scan: func(context.Context, bool) ([]store.Observation, error) { return nil, nil }}
+	db := filepath.Join(t.TempDir(), "a.db")
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan int, 1)
+	go func() {
+		done <- a.run(ctx, []string{"serve", "--listen", "127.0.0.1:0", "--interval", "0", "--db", db})
+	}()
+
+	var base string
+	for i := 0; i < 100 && base == ""; i++ {
+		if _, rest, ok := strings.Cut(out.String(), "listening on "); ok {
+			base = strings.Fields(rest)[0]
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	if base == "" {
+		t.Fatalf("server did not start: %q %q", out.String(), errOut.String())
+	}
+	if !strings.Contains(out.String(), "Setup code") {
+		t.Fatalf("first run must print the setup code: %q", out.String())
+	}
+	resp, err := http.Get(base + "/api/status")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	var st struct {
+		SetupRequired bool `json:"setup_required"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&st); err != nil || !st.SetupRequired {
+		t.Fatalf("status: %v %+v", err, st)
+	}
+	if resp2, err := http.Get(base + "/"); err != nil || resp2.StatusCode != 200 {
+		t.Fatalf("app: %v", err)
+	} else {
+		resp2.Body.Close()
+	}
+	cancel()
+	select {
+	case code := <-done:
+		if code != 0 {
+			t.Fatalf("exit code %d", code)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("server did not shut down")
 	}
 }

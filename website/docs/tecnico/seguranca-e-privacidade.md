@@ -8,8 +8,8 @@ sidebar_position: 3
 
 ## Padrões seguros
 
-- Login obrigatório na primeira execução, sem senha padrão.
-- Escuta só na rede local, nunca na internet.
+- Login obrigatório, sem senha padrão: a conta é criada com um código de uso único impresso no console.
+- Escuta em `127.0.0.1` por padrão; com `--listen` o servidor ainda recusa pedidos que não vêm da rede local, e confere o cabeçalho `Host`. Veja [API e servidor](api.md).
 - Varreduras ativas só nas redes privadas do próprio host, limitadas a no máximo uma /16.
 - Verificações ativas são opcionais, limitadas em taxa e registradas em log de auditoria.
 - Execução sem root, com `CAP_NET_RAW`.

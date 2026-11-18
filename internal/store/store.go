@@ -44,6 +44,20 @@ var migrations = []string{
 		at        INTEGER NOT NULL
 	);
 	CREATE INDEX events_at ON events(at DESC);`,
+	`CREATE TABLE users (
+		id            INTEGER PRIMARY KEY CHECK (id = 1), -- one administrator for now
+		password_hash TEXT    NOT NULL,
+		created_at    INTEGER NOT NULL
+	);
+	CREATE TABLE sessions (
+		token_hash TEXT    PRIMARY KEY, -- SHA-256 of the cookie value; the token itself is never stored
+		created_at INTEGER NOT NULL,
+		expires_at INTEGER NOT NULL
+	);
+	CREATE TABLE settings (
+		key   TEXT PRIMARY KEY,
+		value TEXT NOT NULL
+	);`,
 }
 
 // Store is the device inventory.

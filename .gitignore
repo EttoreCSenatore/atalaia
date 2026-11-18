@@ -11,7 +11,11 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .ruff_cache/
-dist/
 /atalaia
 /bin/
 *.db
+
+# web app build output (internal/web/dist/placeholder.txt stays)
+/internal/web/dist/*
+!/internal/web/dist/placeholder.txt
+/web/node_modules/

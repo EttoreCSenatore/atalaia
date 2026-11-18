@@ -24,6 +24,7 @@ docker run --rm -v "$PWD":/src -w /src golang:1-alpine go test ./...
 go run ./cmd/atalaia version   # versão
 go run ./cmd/atalaia scope     # redes que o Atalaia pode sondar
 go run ./cmd/atalaia scan      # descobre e guarda os dispositivos
+go run ./cmd/atalaia serve     # API em http://127.0.0.1:8080
 go vet ./... && go test -race ./...
 ```
 

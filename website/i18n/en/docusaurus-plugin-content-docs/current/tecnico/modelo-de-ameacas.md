@@ -28,7 +28,9 @@ Atalaia is a security tool that is also a target: it knows every device on the n
 | Threat | Mitigation |
 |---|---|
 | Dashboard reachable without login | Login required on first run, no default password |
-| Dashboard exposed to the internet | Listens on the local network only by default; docs warn and recommend a VPN or an authenticated proxy |
+| Dashboard exposed to the internet | Listens on `127.0.0.1` by default; even with `--listen` it refuses non-local sources; docs recommend a VPN or a TLS proxy |
+| DNS rebinding and CSRF against the dashboard | `Host` check, `X-Atalaia` header and `Origin` check, `SameSite=Strict` cookie |
+| Password guessing | argon2id, progressive lockout per address |
 | Used to scan third-party networks | Scope fixed to the host's own private networks (`internal/scope`), no arbitrary target |
 | Active scan without consent | Opt-in, needs an "this is my network" confirmation, rate-limited, written to an audit log |
 | Compromised agent becomes a foothold | Runs without root, only `CAP_NET_RAW`; minimal image with no extra privileges |

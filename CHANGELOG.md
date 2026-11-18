@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — M2.1 server: `atalaia serve` runs scheduled background scans and an HTTP API with one-time-code first-run setup, argon2id login, hashed server-side sessions, lockout, local-network-only + Host + CSRF protections, live events (SSE), event retention.
+
+**PT-BR** — Servidor (M2.1): `atalaia serve` roda varreduras agendadas em segundo plano e uma API HTTP com configuração inicial por código de uso único, login argon2id, sessões com hash no servidor, bloqueio de tentativas, proteções (só rede local, Host, CSRF), eventos ao vivo (SSE) e retenção de eventos.
+
 **EN** — M1 discovery: `atalaia scan|devices|history` (Linux, IPv4): UDP sweep + system ARP table, names by mDNS and reverse DNS, vendor from the embedded IEEE registry (random MACs flagged), SQLite store with joined/online/offline/ip_changed events and a grace period, sanitizing of text from the network, bilingual docs page.
 
 **PT-BR** — Descoberta (M1): `atalaia scan|devices|history` (Linux, IPv4): varredura UDP + tabela ARP do sistema, nomes por mDNS e DNS reverso, fabricante pela lista do IEEE embutida (MAC aleatório sinalizado), banco SQLite com eventos joined/online/offline/ip_changed e prazo de tolerância, limpeza de textos vindos da rede, página de documentação bilíngue.
