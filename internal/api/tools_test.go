@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net"
 	"net/netip"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -22,9 +23,9 @@ func TestPortScanNeedsConfirmationScopeAndKeepsAudit(t *testing.T) {
 	c := f.setup()
 	f.seedDevice() // 192.168.1.10
 	f.withScope("192.168.1.0/24")
-	var asked int
+	var asked atomic.Int32
 	f.srv.Dial = func(ctx context.Context, addr string) (net.Conn, error) {
-		asked++
+		asked.Add(1)
 		if addr == "192.168.1.10:22" {
 			a, _ := net.Pipe()
 			return a, nil
@@ -33,8 +34,8 @@ func TestPortScanNeedsConfirmationScopeAndKeepsAudit(t *testing.T) {
 	}
 	path := "/api/devices/b8:27:eb:00:00:01/portscan"
 
-	if w := f.do("POST", path, map[string]bool{"confirm": false}, c); w.Code != 400 || asked != 0 {
-		t.Fatalf("without confirmation: %d, asked %d", w.Code, asked)
+	if w := f.do("POST", path, map[string]bool{"confirm": false}, c); w.Code != 400 || asked.Load() != 0 {
+		t.Fatalf("without confirmation: %d, asked %d", w.Code, asked.Load())
 	}
 	if w := f.do("POST", path, map[string]bool{"confirm": true}, nil); w.Code != 401 {
 		t.Fatalf("anonymous: %d", w.Code)
