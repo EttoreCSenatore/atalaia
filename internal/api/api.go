@@ -21,8 +21,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/EttoreCSenatore/atalaia/internal/alerts"
 	"github.com/EttoreCSenatore/atalaia/internal/auth"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
+	"github.com/EttoreCSenatore/atalaia/internal/notify"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
 )
 
@@ -32,6 +34,7 @@ const (
 	// CSRFHeader must be present on every state-changing request.
 	CSRFHeader = "X-Atalaia"
 	maxBody    = 4 << 10
+	maxBigBody = 32 << 10 // alert channel list
 	// maxStream bounds a live-update connection; the browser reconnects and
 	// the session is checked again.
 	maxStream = 30 * time.Minute
@@ -41,6 +44,8 @@ const (
 type Server struct {
 	Store   *store.Store
 	Monitor *monitor.Monitor
+	Alerts  *alerts.Service
+	Sender  *notify.Sender
 	Version string
 	// AllowedHosts are extra Host names accepted besides IP addresses,
 	// localhost and the machine's own host name.
@@ -80,6 +85,10 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/logout", s.mutating(s.protected(s.logout)))
 	mux.HandleFunc("POST /api/password", s.mutating(s.protected(s.changePassword)))
 	mux.HandleFunc("GET /api/devices", s.protected(s.devices))
+	mux.HandleFunc("PUT /api/devices/{mac}", s.mutating(s.protected(s.updateDevice)))
+	mux.HandleFunc("GET /api/alerts", s.protected(s.getAlerts))
+	mux.HandleFunc("PUT /api/alerts", s.mutating(s.protected(s.putAlerts)))
+	mux.HandleFunc("POST /api/alerts/test", s.mutating(s.protected(s.testAlert)))
 	mux.HandleFunc("GET /api/events", s.protected(s.events))
 	mux.HandleFunc("POST /api/scan", s.mutating(s.protected(s.scan)))
 	mux.HandleFunc("GET /api/stream", s.protected(s.stream))
@@ -229,11 +238,15 @@ func writeError(w http.ResponseWriter, code int, msg string) {
 }
 
 func decode(w http.ResponseWriter, r *http.Request, v any) bool {
+	return decodeMax(w, r, v, maxBody)
+}
+
+func decodeMax(w http.ResponseWriter, r *http.Request, v any, limit int64) bool {
 	if !strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
 		writeError(w, http.StatusUnsupportedMediaType, "send application/json")
 		return false
 	}
-	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxBody))
+	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, limit))
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(v); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
@@ -437,14 +450,26 @@ func (s *Server) changePassword(w http.ResponseWriter, r *http.Request) {
 // ---- handlers: data ---------------------------------------------------------
 
 type deviceDTO struct {
-	MAC        string `json:"mac"`
-	IP         string `json:"ip"`
-	Name       string `json:"name"`
-	Vendor     string `json:"vendor"`
-	Randomized bool   `json:"randomized_mac"`
-	Online     bool   `json:"online"`
-	FirstSeen  string `json:"first_seen"`
-	LastSeen   string `json:"last_seen"`
+	MAC        string   `json:"mac"`
+	IP         string   `json:"ip"`
+	Name       string   `json:"name"`
+	Vendor     string   `json:"vendor"`
+	Randomized bool     `json:"randomized_mac"`
+	Online     bool     `json:"online"`
+	FirstSeen  string   `json:"first_seen"`
+	LastSeen   string   `json:"last_seen"`
+	Label      string   `json:"label"`
+	Tags       []string `json:"tags"`
+	Known      bool     `json:"known"`
+}
+
+func toDTO(d store.Device) deviceDTO {
+	tags := d.Tags
+	if tags == nil {
+		tags = []string{}
+	}
+	return deviceDTO{d.MAC, d.IP, d.Name, d.Vendor, d.Randomized, d.Online,
+		d.FirstSeen.Format(time.RFC3339), d.LastSeen.Format(time.RFC3339), d.Label, tags, d.Known}
 }
 
 type eventDTO struct {
@@ -464,8 +489,7 @@ func (s *Server) devices(w http.ResponseWriter, r *http.Request) {
 	}
 	out := make([]deviceDTO, 0, len(devs))
 	for _, d := range devs {
-		out = append(out, deviceDTO{d.MAC, d.IP, d.Name, d.Vendor, d.Randomized, d.Online,
-			d.FirstSeen.Format(time.RFC3339), d.LastSeen.Format(time.RFC3339)})
+		out = append(out, toDTO(d))
 	}
 	writeJSON(w, http.StatusOK, out)
 }
@@ -572,4 +596,150 @@ func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.getSettings(w, r)
+}
+
+func (s *Server) updateDevice(w http.ResponseWriter, r *http.Request) {
+	hw, err := net.ParseMAC(r.PathValue("mac"))
+	if err != nil || len(hw) != 6 {
+		writeError(w, http.StatusBadRequest, "invalid MAC address")
+		return
+	}
+	var in struct {
+		Label string   `json:"label"`
+		Tags  []string `json:"tags"`
+		Known bool     `json:"known"`
+	}
+	if !decode(w, r, &in) {
+		return
+	}
+	label, err := store.CleanLabel(in.Label)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	tags, err := store.CleanTags(in.Tags)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	d, found, err := s.Store.UpdateDevice(r.Context(), hw.String(), label, tags, in.Known)
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	if !found {
+		writeError(w, http.StatusNotFound, "unknown device")
+		return
+	}
+	writeJSON(w, http.StatusOK, toDTO(d))
+}
+
+// ---- handlers: alerts -------------------------------------------------------
+
+// channelDTO is a channel as shown to the browser: secrets are never sent
+// back, only whether one is set.
+type channelDTO struct {
+	notify.Channel
+	HasToken    bool `json:"has_token"`
+	HasPassword bool `json:"has_password"`
+}
+
+type alertsDTO struct {
+	Rules    alerts.Rules `json:"rules"`
+	Channels []channelDTO `json:"channels"`
+}
+
+func redact(c notify.Channel) channelDTO {
+	d := channelDTO{Channel: c, HasToken: c.Token != "", HasPassword: c.Password != ""}
+	d.Channel.Token, d.Channel.Password = "", ""
+	return d
+}
+
+func (s *Server) alertsView(w http.ResponseWriter, r *http.Request) {
+	rules, err := s.Alerts.Rules(r.Context())
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	chans, err := s.Alerts.Channels(r.Context())
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	out := alertsDTO{Rules: rules, Channels: make([]channelDTO, 0, len(chans))}
+	for _, c := range chans {
+		out.Channels = append(out.Channels, redact(c))
+	}
+	writeJSON(w, http.StatusOK, out)
+}
+
+func (s *Server) getAlerts(w http.ResponseWriter, r *http.Request) { s.alertsView(w, r) }
+
+func (s *Server) putAlerts(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Rules    alerts.Rules `json:"rules"`
+		Channels []channelDTO `json:"channels"` // the shape GET returns, so a view can be sent back
+	}
+	if !decodeMax(w, r, &in, maxBigBody) {
+		return
+	}
+	old, err := s.Alerts.Channels(r.Context())
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	byID := map[string]notify.Channel{}
+	for _, c := range old {
+		byID[c.ID] = c
+	}
+	// a channel sent without a secret keeps the one already stored
+	chans := make([]notify.Channel, len(in.Channels))
+	for i, d := range in.Channels {
+		c := d.Channel
+		if prev, ok := byID[c.ID]; ok && c.ID != "" {
+			if c.Token == "" {
+				c.Token = prev.Token
+			}
+			if c.Password == "" {
+				c.Password = prev.Password
+			}
+		}
+		chans[i] = c
+	}
+	if err := s.Alerts.SaveChannels(r.Context(), chans); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := s.Alerts.SaveRules(r.Context(), in.Rules); err != nil {
+		serverError(w, err)
+		return
+	}
+	s.alertsView(w, r)
+}
+
+func (s *Server) testAlert(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		ID string `json:"id"`
+	}
+	if !decode(w, r, &in) {
+		return
+	}
+	chans, err := s.Alerts.Channels(r.Context())
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	for _, c := range chans {
+		if c.ID != in.ID {
+			continue
+		}
+		msg := notify.Message{Title: "Atalaia: test", Body: "If you can read this, alerts from Atalaia reach this channel."}
+		if err := s.Sender.Send(r.Context(), c, msg); err != nil {
+			writeError(w, http.StatusBadGateway, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+		return
+	}
+	writeError(w, http.StatusNotFound, "unknown channel")
 }

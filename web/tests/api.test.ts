@@ -43,4 +43,21 @@ describe('api client', () => {
     await expect(api.login('wrong')).rejects.toBeInstanceOf(ApiError);
     expect(handler).toHaveBeenCalledOnce();
   });
+
+  it('edits a device with PUT and encodes the MAC in the path', async () => {
+    const fn = mockFetch(200, {});
+    await api.updateDevice('aa:bb:cc:00:00:01', 'TV', ['media'], true);
+    const [url, init] = fn.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/devices/aa%3Abb%3Acc%3A00%3A00%3A01');
+    expect(init.method).toBe('PUT');
+    expect(init.body).toBe(JSON.stringify({ label: 'TV', tags: ['media'], known: true }));
+  });
+
+  it('tests a channel by id', async () => {
+    const fn = mockFetch(200, { ok: true });
+    await api.testAlert('abc');
+    const [url, init] = fn.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/alerts/test');
+    expect(init.body).toBe(JSON.stringify({ id: 'abc' }));
+  });
 });

@@ -18,8 +18,9 @@ export function dateTime(iso: string, lang: string): string {
   return new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeStyle: 'short' }).format(d);
 }
 
-/** Best label for a device: its name, else vendor + MAC, else the MAC. */
-export function deviceLabel(d: { name: string; vendor: string; mac: string }): string {
+/** Best label for a device: the user's name, else the network name, else vendor + MAC, else the MAC. */
+export function deviceLabel(d: { name: string; vendor: string; mac: string; label?: string }): string {
+  if (d.label) return d.label;
   if (d.name) return d.name;
   return d.vendor ? `${d.vendor} (${d.mac})` : d.mac;
 }
@@ -34,4 +35,14 @@ export function compareIp(a: string, b: string): number {
   const y = ipSortKey(b);
   for (let i = 0; i < 4; i++) if ((x[i] ?? 0) !== (y[i] ?? 0)) return (x[i] ?? 0) - (y[i] ?? 0);
   return 0;
+}
+
+/** "iot, Media ,iot" -> ["iot", "media"]: what the server will keep. */
+export function parseTags(input: string): string[] {
+  const out: string[] = [];
+  for (const raw of input.split(',')) {
+    const t = raw.trim().toLowerCase();
+    if (t && !out.includes(t)) out.push(t);
+  }
+  return out;
 }

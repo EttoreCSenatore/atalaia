@@ -119,3 +119,30 @@ func TestRetentionPurgesOldEvents(t *testing.T) {
 		}
 	}
 }
+
+func TestOnResultFlagsOnlyTheFirstScanAsBaseline(t *testing.T) {
+	var flags []bool
+	var news []int
+	n := 0
+	m := &Monitor{
+		Store: newStore(t),
+		Scan: func(context.Context, bool) ([]store.Observation, error) {
+			n++
+			obs := []store.Observation{{MAC: "a8:00:00:00:00:01", IP: netip.MustParseAddr("192.168.1.2")}}
+			if n == 2 {
+				obs = append(obs, store.Observation{MAC: "a8:00:00:00:00:02", IP: netip.MustParseAddr("192.168.1.3")})
+			}
+			return obs, nil
+		},
+		OnResult: func(_ context.Context, res store.Result, baseline bool) {
+			flags = append(flags, baseline)
+			news = append(news, len(res.New))
+		},
+	}
+	m.init()
+	m.once(context.Background())
+	m.once(context.Background())
+	if len(flags) != 2 || !flags[0] || flags[1] || news[0] != 1 || news[1] != 1 {
+		t.Fatalf("flags %v new %v", flags, news)
+	}
+}

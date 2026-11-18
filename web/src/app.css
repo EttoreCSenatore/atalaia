@@ -186,3 +186,7 @@ tbody tr:last-child td {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.9em;
 }
+
+button.danger {
+  color: var(--danger);
+}

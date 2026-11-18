@@ -37,4 +37,4 @@ Um navegador não consegue enviar ARP, ICMP nem ouvir mDNS: ele só fala HTTP. P
 
 ## Estado atual
 
-A fundação (M0) e a **descoberta de dispositivos** (M1) estão prontas: `atalaia scan` encontra os dispositivos da rede, identifica fabricante e nome e guarda o histórico. `atalaia serve` roda a varredura agendada, a API com login seguro e o **app web** (painel, dispositivos, histórico), também em imagem Docker. Os alertas vêm no M3. Veja [Descoberta](funcionalidades/descoberta.md) e o [roadmap](roadmap.md).
+A fundação (M0) e a **descoberta de dispositivos** (M1) estão prontas: `atalaia scan` encontra os dispositivos da rede, identifica fabricante e nome e guarda o histórico. `atalaia serve` roda a varredura agendada, a API com login seguro e o **app web** (painel, dispositivos, histórico), também em imagem Docker. Os **alertas** (ntfy, Telegram, webhook, e-mail), nomes, etiquetas e dispositivos conhecidos (M3) também estão prontos: veja [Alertas](funcionalidades/alertas.md). Veja [Descoberta](funcionalidades/descoberta.md) e o [roadmap](roadmap.md).

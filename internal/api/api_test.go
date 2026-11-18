@@ -14,7 +14,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/EttoreCSenatore/atalaia/internal/alerts"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
+	"github.com/EttoreCSenatore/atalaia/internal/notify"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
 )
 
@@ -41,7 +43,8 @@ func newFixture(t *testing.T) *fixture {
 	mon := &monitor.Monitor{Store: st, Interval: time.Hour, Scan: func(context.Context, bool) ([]store.Observation, error) {
 		return []store.Observation{{MAC: "b8:27:eb:00:00:01", IP: netip.MustParseAddr("192.168.1.10"), Vendor: "Raspberry Pi", Name: "pi.local"}}, nil
 	}}
-	srv := &Server{Store: st, Monitor: mon, Version: "test"}
+	sender := &notify.Sender{}
+	srv := &Server{Store: st, Monitor: mon, Version: "test", Alerts: &alerts.Service{Store: st, Sender: sender}, Sender: sender}
 	srv.SetSetupCode(code)
 	return &fixture{t: t, srv: srv, h: srv.Handler(), st: st, mon: mon}
 }

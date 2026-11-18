@@ -58,6 +58,9 @@ var migrations = []string{
 		key   TEXT PRIMARY KEY,
 		value TEXT NOT NULL
 	);`,
+	`ALTER TABLE devices ADD COLUMN label TEXT NOT NULL DEFAULT '';
+	ALTER TABLE devices ADD COLUMN tags  TEXT NOT NULL DEFAULT '';
+	ALTER TABLE devices ADD COLUMN known INTEGER NOT NULL DEFAULT 0;`,
 }
 
 // Store is the device inventory.
@@ -74,6 +77,9 @@ type Device struct {
 	Online     bool
 	FirstSeen  time.Time
 	LastSeen   time.Time
+	Label      string   // chosen by the user; never overwritten by scans
+	Tags       []string // chosen by the user
+	Known      bool     // the user recognises this device
 }
 
 // Event is something that happened to a device.
@@ -231,7 +237,7 @@ func (s *Store) Record(ctx context.Context, at time.Time, obs []Observation, off
 
 	// devices that were online but have not been seen for too long
 	cutoff := at.Add(-offlineAfter).Unix()
-	rows, err := tx.QueryContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen
+	rows, err := tx.QueryContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen, label, tags, known
 		FROM devices WHERE online=1 AND last_seen < ?`, cutoff)
 	if err != nil {
 		return res, err
@@ -265,7 +271,7 @@ func (s *Store) Record(ctx context.Context, at time.Time, obs []Observation, off
 
 // Devices returns every known device, online first, then by address.
 func (s *Store) Devices(ctx context.Context) ([]Device, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen
+	rows, err := s.db.QueryContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen, label, tags, known
 		FROM devices ORDER BY online DESC, ip, mac`)
 	if err != nil {
 		return nil, err
@@ -312,7 +318,7 @@ type queryer interface {
 }
 
 func getByMAC(ctx context.Context, q queryer, mac string) (Device, bool, error) {
-	row := q.QueryRowContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen FROM devices WHERE mac=?`, mac)
+	row := q.QueryRowContext(ctx, `SELECT id, mac, vendor, randomized, name, ip, online, first_seen, last_seen, label, tags, known FROM devices WHERE mac=?`, mac)
 	d, err := scanDevice(row)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Device{}, false, nil
@@ -324,11 +330,13 @@ type scanner interface{ Scan(dest ...any) error }
 
 func scanDevice(r scanner) (Device, error) {
 	var d Device
-	var rnd, on, first, last int64
-	if err := r.Scan(&d.ID, &d.MAC, &d.Vendor, &rnd, &d.Name, &d.IP, &on, &first, &last); err != nil {
+	var rnd, on, first, last, known int64
+	var tags string
+	if err := r.Scan(&d.ID, &d.MAC, &d.Vendor, &rnd, &d.Name, &d.IP, &on, &first, &last, &d.Label, &tags, &known); err != nil {
 		return d, err
 	}
-	d.Randomized, d.Online = rnd != 0, on != 0
+	d.Randomized, d.Online, d.Known = rnd != 0, on != 0, known != 0
+	d.Tags = splitTags(tags)
 	d.FirstSeen, d.LastSeen = time.Unix(first, 0).UTC(), time.Unix(last, 0).UTC()
 	return d, nil
 }

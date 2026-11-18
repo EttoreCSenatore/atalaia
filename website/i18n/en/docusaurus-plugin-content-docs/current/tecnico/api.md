@@ -45,10 +45,13 @@ The server speaks HTTP. On a trusted local network that is acceptable, but the p
 | `POST /api/logout` | yes | Ends the session. |
 | `POST /api/password` | yes | `{current, new}`. |
 | `GET /api/devices` | yes | Known devices. |
+| `PUT /api/devices/{mac}` | yes | `{label, tags, known}`: name (up to 64 characters), up to 8 tags (24 characters, no commas) and whether it is known. |
 | `GET /api/events?limit=N` | yes | History (1 to 1000), newest first. |
 | `POST /api/scan` | yes | Asks for a scan now (answers 202). |
 | `GET /api/stream` | yes | Live events (SSE): `hello`, `scan_started`, `scan_finished`, `scan_failed`. |
 | `GET/PUT /api/settings` | yes | `retention_days` (0 to 3650; 0 keeps forever; default 90). |
+| `GET/PUT /api/alerts` | yes | `{rules: {new_device, known_offline}, channels: [...]}`. Secrets (`token`, `password`) are never returned by GET; in PUT, a channel sent without a secret keeps the one already saved. Up to 8 channels, body up to 32 KiB. |
+| `POST /api/alerts/test` | yes | `{id}`: sends a test message through a saved channel. |
 
 Example, with the session in `cookies.txt`:
 

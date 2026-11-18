@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareIp, deviceLabel, relativeTime } from '../src/lib/format';
+import { compareIp, deviceLabel, parseTags, relativeTime } from '../src/lib/format';
 import { match } from '../src/lib/router.svelte';
 
 const now = new Date('2026-11-18T12:00:00Z');
@@ -22,6 +22,7 @@ describe('relativeTime', () => {
 describe('device helpers', () => {
   it('prefers name, then vendor + MAC, then MAC', () => {
     expect(deviceLabel({ name: 'pi.local', vendor: 'Raspberry', mac: 'aa' })).toBe('pi.local');
+    expect(deviceLabel({ label: 'Server', name: 'pi.local', vendor: 'Raspberry', mac: 'aa' })).toBe('Server');
     expect(deviceLabel({ name: '', vendor: 'Raspberry', mac: 'aa' })).toBe('Raspberry (aa)');
     expect(deviceLabel({ name: '', vendor: '', mac: 'aa' })).toBe('aa');
   });
@@ -38,5 +39,12 @@ describe('router', () => {
     expect(match('/devices/B8:27:EB:00:00:01')).toEqual({ name: 'device', mac: 'b8:27:eb:00:00:01' });
     expect(match('/devices/<script>')).toEqual({ name: 'notfound' });
     expect(match('/api/devices')).toEqual({ name: 'notfound' });
+  });
+});
+
+describe('parseTags', () => {
+  it('trims, lower-cases and removes duplicates and empties', () => {
+    expect(parseTags(' IoT, media ,iot,, ')).toEqual(['iot', 'media']);
+    expect(parseTags('')).toEqual([]);
   });
 });

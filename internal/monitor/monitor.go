@@ -52,6 +52,9 @@ type Monitor struct {
 	Interval     time.Duration // time between scans; <= 0 means only on demand
 	OfflineAfter time.Duration
 	Now          func() time.Time
+	// OnResult, when set, is called after each recorded scan. baseline is true
+	// when the inventory was empty before it (the first scan ever).
+	OnResult func(ctx context.Context, res store.Result, baseline bool)
 
 	trigger chan struct{}
 
@@ -153,8 +156,15 @@ func (m *Monitor) once(ctx context.Context) {
 
 	obs, err := m.Scan(ctx, true)
 	var res store.Result
+	baseline := false
 	if err == nil {
+		if n, cerr := m.Store.CountDevices(ctx); cerr == nil {
+			baseline = n == 0
+		}
 		res, err = m.Store.Record(ctx, now, obs, m.OfflineAfter)
+	}
+	if err == nil && m.OnResult != nil {
+		m.OnResult(ctx, res, baseline)
 	}
 	if err == nil {
 		m.purge(ctx, now)

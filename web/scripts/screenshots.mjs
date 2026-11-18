@@ -2,7 +2,7 @@
 // Usage: PLAYWRIGHT=/path/to/playwright/index.mjs node scripts/screenshots.mjs <output-folder>
 // Writes app-<page>.png (Portuguese) and app-<page>-en.png (English). Run `npm run build` first.
 import { spawn } from 'node:child_process';
-import { devices, events, settings, status } from '../tests/fixtures.mjs';
+import { alerts, devices, events, settings, status } from '../tests/fixtures.mjs';
 
 const {chromium} = await import(process.env.PLAYWRIGHT ?? 'playwright');
 const out = process.argv[2];
@@ -31,6 +31,7 @@ try {
         if (p === '/api/status') return route.fulfill(json(status({ authenticated: auth, setup_required: setup, ...(auth ? {} : { scan: undefined }) })));
         if (p === '/api/devices') return route.fulfill(json(devices));
         if (p === '/api/events') return route.fulfill(json(events));
+        if (p === '/api/alerts') return route.fulfill(json(alerts));
         if (p === '/api/settings') return route.fulfill(json(settings));
         if (p === '/api/stream') return route.fulfill({ status: 200, contentType: 'text/event-stream', body: 'event: hello\ndata: {}\n\n' });
         return route.fulfill(json({ error: 'not mocked' }, 404));
@@ -45,6 +46,7 @@ try {
     await shot('dispositivo', '/devices/da:44:55:00:00:14', { height: 800 });
     await shot('historico', '/history', { height: 560 });
     await shot('configuracoes', '/settings', { height: 700 });
+    await shot('alertas', '/settings', { height: 1500 });
     await shot('login', '/', { auth: false, width: 640, height: 460 });
     await shot('configuracao-inicial', '/', { auth: false, setup: true, width: 640, height: 640 });
   }

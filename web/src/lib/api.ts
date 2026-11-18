@@ -7,10 +7,32 @@ export type Device = {
   online: boolean;
   first_seen: string;
   last_seen: string;
+  label: string;
+  tags: string[];
+  known: boolean;
 };
 export type DeviceEvent = { at: string; kind: string; detail: string; mac: string; name: string; vendor: string };
 export type ScanStatus = { scanning: boolean; last_scan: string; last_error: string; interval: string };
 export type Status = { version: string; setup_required: boolean; authenticated: boolean; scan?: ScanStatus };
+export type ChannelType = 'ntfy' | 'telegram' | 'webhook' | 'email';
+export type Channel = {
+  id: string;
+  type: ChannelType;
+  name: string;
+  enabled: boolean;
+  url?: string;
+  token?: string;
+  chat_id?: string;
+  host?: string;
+  username?: string;
+  password?: string;
+  from?: string;
+  to?: string;
+  has_token?: boolean;
+  has_password?: boolean;
+};
+export type AlertRules = { new_device: boolean; known_offline: boolean };
+export type Alerts = { rules: AlertRules; channels: Channel[] };
 export type Settings = { retention_days: number; scan_interval: string };
 
 export class ApiError extends Error {
@@ -62,5 +84,10 @@ export const api = {
   scan: () => request<{ status: string }>('POST', '/api/scan'),
   settings: () => request<Settings>('GET', '/api/settings'),
   saveSettings: (retention_days: number) => request<Settings>('PUT', '/api/settings', { retention_days }),
+  updateDevice: (mac: string, label: string, tags: string[], known: boolean) =>
+    request<Device>('PUT', `/api/devices/${encodeURIComponent(mac)}`, { label, tags, known }),
+  alerts: () => request<Alerts>('GET', '/api/alerts'),
+  saveAlerts: (a: Alerts) => request<Alerts>('PUT', '/api/alerts', a),
+  testAlert: (id: string) => request<{ ok: boolean }>('POST', '/api/alerts/test', { id }),
   changePassword: (current: string, next: string) => request<{ ok: boolean }>('POST', '/api/password', { current, new: next }),
 };

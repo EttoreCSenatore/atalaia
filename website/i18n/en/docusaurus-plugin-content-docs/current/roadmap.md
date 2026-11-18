@@ -14,12 +14,12 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **M1** | Discovery: ARP and mDNS, device list with vendor and name, SQLite, CLI | Done (see [Discovery](funcionalidades/descoberta.md)) |
 | **M2.1** | Server: HTTP API, secure login, scheduled scans, live events, retention | Done (see [API](tecnico/api.md)) |
 | **M2.2** | Embedded web app: dashboard, device detail, timeline and Docker image | Done (see [Web app](funcionalidades/app-web.md) and [Deployment](tecnico/implantacao.md)) |
-| **M3** | Alerts: new device, notification adapters, names, tags and known devices | Planned |
+| **M3** | Alerts: new device, notification adapters (ntfy, Telegram, webhook, e-mail), names, tags and known devices | Done (see [Alerts](funcionalidades/alertas.md)) |
 | **M4** | Passive security: ARP spoofing, rogue DHCP, changed services | Planned |
 | **M5** | Active security and tools: ports, CVEs, exposed panels, TLS, ping, traceroute, DNS, Wake-on-LAN, speed | Planned |
 | **M6** | Hardening, self-review, v0.2 release and packages (Linux, macOS, Windows, ARM) | Planned |
 
-**v0.1** is the end of M3: discovery, history and alerts. The next step is **M3 (alerts)**.
+**v0.1** is the end of M3: discovery, history and alerts. The next step is publishing **v0.1.0** and moving on to **M4**.
 
 ## Later
 
