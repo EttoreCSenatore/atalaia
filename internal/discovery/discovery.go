@@ -217,3 +217,50 @@ func ParseGateway(r io.Reader) (netip.Addr, bool) {
 	}
 	return netip.Addr{}, false
 }
+
+// SelfHosts returns the machine's own address on the main network: the
+// neighbor table never lists the host itself, so without this the device
+// running Atalaia would be missing from its own inventory. Only interfaces that
+// are up and whose network contains the default gateway count (this leaves out
+// Docker bridges and virtual interfaces).
+func SelfHosts(gw netip.Addr, sc *scope.Scope) []Host {
+	if !gw.IsValid() {
+		return nil
+	}
+	ifs, err := net.Interfaces()
+	if err != nil {
+		return nil
+	}
+	return selfHosts(gw, sc, ifs, func(i *net.Interface) ([]net.Addr, error) { return i.Addrs() })
+}
+
+func selfHosts(gw netip.Addr, sc *scope.Scope, ifs []net.Interface, addrs func(*net.Interface) ([]net.Addr, error)) []Host {
+	var out []Host
+	for i := range ifs {
+		ifc := &ifs[i]
+		if ifc.Flags&net.FlagUp == 0 || ifc.Flags&net.FlagLoopback != 0 || len(ifc.HardwareAddr) != 6 || isZero(ifc.HardwareAddr) {
+			continue
+		}
+		as, err := addrs(ifc)
+		if err != nil {
+			continue
+		}
+		for _, a := range as {
+			ipn, ok := a.(*net.IPNet)
+			if !ok {
+				continue
+			}
+			ip, ok := netip.AddrFromSlice(ipn.IP)
+			if !ok {
+				continue
+			}
+			ip = ip.Unmap()
+			ones, _ := ipn.Mask.Size()
+			if !ip.Is4() || !netip.PrefixFrom(ip, ones).Contains(gw) || !sc.Allows(ip) {
+				continue
+			}
+			out = append(out, Host{IP: ip, MAC: ifc.HardwareAddr, Iface: ifc.Name})
+		}
+	}
+	return out
+}

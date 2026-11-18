@@ -50,4 +50,4 @@ Eventos: `joined` (visto pela primeira vez), `online` (voltou), `offline` (sumiu
 
 - Só Linux e IPv4. macOS e Windows ficam para depois.
 - Dispositivos que não respondem a ARP (raro) não aparecem; os que estão dormindo podem faltar em uma varredura, daí o prazo de offline.
-- O próprio computador onde o Atalaia roda ainda não aparece na lista.
+- O próprio computador onde o Atalaia roda aparece na lista (a tabela ARP nunca lista a própria máquina, então ele é incluído à parte, só pela interface da rede principal, a que contém o roteador).

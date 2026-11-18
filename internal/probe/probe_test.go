@@ -46,3 +46,12 @@ func TestCollapseShowsTheGatewayAddressWhenAMACClaimsIt(t *testing.T) {
 		t.Fatalf("%+v", obs)
 	}
 }
+
+func TestAppendSelfAddsOnceAndKeepsOrder(t *testing.T) {
+	hosts := []discovery.Host{host("192.168.1.1", "aa:00:00:00:00:01"), host("192.168.1.30", "aa:00:00:00:00:03")}
+	self := []discovery.Host{host("192.168.1.20", "aa:00:00:00:00:02"), host("192.168.1.30", "aa:00:00:00:00:03")}
+	got := appendSelf(hosts, self)
+	if len(got) != 3 || got[1].IP.String() != "192.168.1.20" {
+		t.Fatalf("%+v", got)
+	}
+}
