@@ -15,11 +15,12 @@ Cada etapa vira um pull request, revisado e integrado antes da próxima. Documen
 | **M2.1** | Servidor: API HTTP, login seguro, varredura agendada, eventos ao vivo, retenção | Concluído (ver [API](tecnico/api.md)) |
 | **M2.2** | App web embutido: painel, detalhe do dispositivo, linha do tempo e imagem Docker | Concluído (ver [App web](funcionalidades/app-web.md) e [Implantação](tecnico/implantacao.md)) |
 | **M3** | Alertas: dispositivo novo, adaptadores de notificação (ntfy, Telegram, webhook, e-mail), nomes, etiquetas e dispositivos conhecidos | Concluído (ver [Alertas](funcionalidades/alertas.md)) |
-| **M4** | Segurança passiva: ARP spoofing, DHCP falso, serviços alterados | Planejado |
+| **M4.1** | Segurança passiva: sinais de ARP spoofing (MAC do roteador mudou, um MAC com vários IPs) | Concluído (ver [Segurança passiva](funcionalidades/seguranca-passiva.md)) |
+| **M4.2** | Segurança passiva: servidor DHCP falso e serviços alterados (opcional, exige capacidades extras) | Planejado |
 | **M5** | Segurança ativa e ferramentas: portas, CVEs, painéis expostos, TLS, ping, traceroute, DNS, Wake-on-LAN, velocidade | Planejado |
 | **M6** | Endurecimento, autorrevisão, versão v0.2 e pacotes (Linux, macOS, Windows, ARM) | Planejado |
 
-A **v0.1** é o fim do M3: descoberta, histórico e alertas. O próximo passo é publicar a **v0.1.0** e seguir para o **M4**.
+A **v0.1** é o fim do M3: descoberta, histórico e alertas. A v0.1.0 foi publicada. O próximo passo é o **M4.2**.
 
 ## Depois
 

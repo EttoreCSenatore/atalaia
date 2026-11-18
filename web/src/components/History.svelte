@@ -45,6 +45,12 @@
     background: var(--ok-bg);
     color: var(--ok);
   }
+  .kind.gateway_changed,
+  .kind.multi_ip {
+    background: var(--danger-bg);
+    color: var(--danger);
+    font-weight: 600;
+  }
   .kind.ip_changed {
     background: var(--warn-bg);
     color: var(--warn);

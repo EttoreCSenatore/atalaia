@@ -67,6 +67,7 @@
     <form onsubmit={save}>
       <label class="check"><input type="checkbox" bind:checked={data.rules.new_device} /> {t('alerts.ruleNew')}</label>
       <label class="check"><input type="checkbox" bind:checked={data.rules.known_offline} /> {t('alerts.ruleOffline')}</label>
+      <label class="check"><input type="checkbox" bind:checked={data.rules.arp_anomaly} /> {t('alerts.ruleArp')}</label>
       <p class="muted help">{t('alerts.firstScan')}</p>
 
       {#each data.channels as c, i (c.id || i)}

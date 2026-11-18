@@ -46,11 +46,11 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 | `POST /api/password` | sim | `{current, new}`. |
 | `GET /api/devices` | sim | Dispositivos conhecidos. |
 | `PUT /api/devices/{mac}` | sim | `{label, tags, known}`: nome (até 64 caracteres), até 8 etiquetas (24 caracteres, sem vírgula) e se é conhecido. |
-| `GET /api/events?limit=N` | sim | Histórico (1 a 1000), do mais novo para o mais antigo. |
+| `GET /api/events?limit=N` | sim | Histórico (1 a 1000), do mais novo para o mais antigo. Tipos: `joined`, `online`, `offline`, `ip_changed`, `gateway_changed`, `multi_ip`. |
 | `POST /api/scan` | sim | Pede uma varredura agora (responde 202). |
 | `GET /api/stream` | sim | Eventos ao vivo (SSE): `hello`, `scan_started`, `scan_finished`, `scan_failed`. |
 | `GET/PUT /api/settings` | sim | `retention_days` (0 a 3650; 0 guarda para sempre; padrão 90). |
-| `GET/PUT /api/alerts` | sim | `{rules: {new_device, known_offline}, channels: [...]}`. Os segredos (`token`, `password`) nunca voltam no GET; no PUT, um canal enviado sem segredo mantém o que já está salvo. Até 8 canais, corpo de até 32 KiB. |
+| `GET/PUT /api/alerts` | sim | `{rules: {new_device, known_offline, arp_anomaly}, channels: [...]}`. Os segredos (`token`, `password`) nunca voltam no GET; no PUT, um canal enviado sem segredo mantém o que já está salvo. Até 8 canais, corpo de até 32 KiB. |
 | `POST /api/alerts/test` | sim | `{id}`: envia uma mensagem de teste por um canal salvo. |
 
 Exemplo, com a sessão em `cookies.txt`:

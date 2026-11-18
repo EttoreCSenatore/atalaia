@@ -22,6 +22,10 @@ const (
 	EventOnline    = "online"     // back after being offline
 	EventOffline   = "offline"    // not seen for longer than the grace period
 	EventIPChanged = "ip_changed" // same device, new address
+
+	// Security events (see arp.go).
+	EventGatewayChanged = "gateway_changed" // the default gateway's address now belongs to another MAC
+	EventMultiIP        = "multi_ip"        // one MAC answers for several addresses (a spoofing sign)
 )
 
 var migrations = []string{
@@ -61,6 +65,18 @@ var migrations = []string{
 	`ALTER TABLE devices ADD COLUMN label TEXT NOT NULL DEFAULT '';
 	ALTER TABLE devices ADD COLUMN tags  TEXT NOT NULL DEFAULT '';
 	ALTER TABLE devices ADD COLUMN known INTEGER NOT NULL DEFAULT 0;`,
+	// SQLite cannot change a CHECK constraint: rebuild events to allow the security kinds.
+	`CREATE TABLE events_new (
+		id        INTEGER PRIMARY KEY,
+		device_id INTEGER NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+		kind      TEXT    NOT NULL CHECK (kind IN ('joined','online','offline','ip_changed','gateway_changed','multi_ip')),
+		detail    TEXT    NOT NULL DEFAULT '',
+		at        INTEGER NOT NULL
+	);
+	INSERT INTO events_new (id, device_id, kind, detail, at) SELECT id, device_id, kind, detail, at FROM events;
+	DROP TABLE events;
+	ALTER TABLE events_new RENAME TO events;
+	CREATE INDEX events_at ON events(at DESC);`,
 }
 
 // Store is the device inventory.
@@ -99,6 +115,10 @@ type Observation struct {
 	Vendor     string
 	Randomized bool
 	Name       string
+	// IPs are all the addresses this MAC answered for in the scan (IP is the
+	// one shown). Gateway is true when IP is the default gateway's address.
+	IPs     []netip.Addr
+	Gateway bool
 }
 
 // Result summarizes what a scan changed.
@@ -107,6 +127,8 @@ type Result struct {
 	CameOnline  []Device
 	WentOffline []Device
 	IPChanged   []Device
+	// Security findings of this scan (see arp.go).
+	Findings []Finding
 }
 
 // Open opens (creating it if needed) the database at path. The directory is
@@ -233,6 +255,10 @@ func (s *Store) Record(ctx context.Context, at time.Time, obs []Observation, off
 			}
 			res.IPChanged = append(res.IPChanged, d)
 		}
+	}
+
+	if err := detectARP(ctx, tx, obs, at, &res); err != nil {
+		return res, err
 	}
 
 	// devices that were online but have not been seen for too long

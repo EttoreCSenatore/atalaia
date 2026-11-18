@@ -21,6 +21,7 @@ const (
 	ChannelsKey = "alert_channels" // JSON list of notify.Channel
 	NewKey      = "alert_new"      // "1"/"0": alert when an unknown device joins (default on)
 	OfflineKey  = "alert_offline"  // "1"/"0": alert when a known device goes offline (default off)
+	ARPKey      = "alert_arp"      // "1"/"0": alert on signs of ARP spoofing (default on)
 	MaxChannels = 8
 )
 
@@ -28,6 +29,7 @@ const (
 type Rules struct {
 	NewDevice    bool `json:"new_device"`
 	KnownOffline bool `json:"known_offline"`
+	ARPAnomaly   bool `json:"arp_anomaly"`
 }
 
 // Deliverer sends one message through one channel.
@@ -111,7 +113,11 @@ func (s *Service) Rules(ctx context.Context) (Rules, error) {
 	if err != nil {
 		return Rules{}, err
 	}
-	return Rules{NewDevice: n != 0, KnownOffline: o != 0}, nil
+	a, err := s.Store.SettingInt(ctx, ARPKey, 1)
+	if err != nil {
+		return Rules{}, err
+	}
+	return Rules{NewDevice: n != 0, KnownOffline: o != 0, ARPAnomaly: a != 0}, nil
 }
 
 // SaveRules stores the rules.
@@ -119,7 +125,10 @@ func (s *Service) SaveRules(ctx context.Context, r Rules) error {
 	if err := s.Store.SetSetting(ctx, NewKey, b2s(r.NewDevice)); err != nil {
 		return err
 	}
-	return s.Store.SetSetting(ctx, OfflineKey, b2s(r.KnownOffline))
+	if err := s.Store.SetSetting(ctx, OfflineKey, b2s(r.KnownOffline)); err != nil {
+		return err
+	}
+	return s.Store.SetSetting(ctx, ARPKey, b2s(r.ARPAnomaly))
 }
 
 func b2s(b bool) string {
@@ -150,6 +159,24 @@ func Compose(res store.Result, rules Rules, baseline bool) []notify.Message {
 		}
 		if len(gone) > 0 {
 			out = append(out, notify.Message{Title: "Atalaia: known device went offline", Body: describe(gone)})
+		}
+	}
+	if rules.ARPAnomaly {
+		for _, f := range res.Findings {
+			switch f.Kind {
+			case store.EventGatewayChanged:
+				out = append(out, notify.Message{
+					Title: "Atalaia: the gateway's MAC address changed",
+					Body: "The router's address now answers from a different device. This can be a router replacement, or someone intercepting traffic (ARP spoofing).\n" +
+						f.Detail + "\n" + describe([]store.Device{f.Device}),
+				})
+			case store.EventMultiIP:
+				out = append(out, notify.Message{
+					Title: "Atalaia: one device answers for several addresses",
+					Body: "A single device claims many addresses at once, a common sign of ARP spoofing (it can also be a router or a host with virtual addresses; mark it as known to silence this).\n" +
+						f.Detail + "\n" + describe([]store.Device{f.Device}),
+				})
+			}
 		}
 	}
 	return out

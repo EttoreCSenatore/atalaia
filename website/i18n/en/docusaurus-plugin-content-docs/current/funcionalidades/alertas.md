@@ -18,8 +18,9 @@ On each device's page you can give it a **name** (it wins over the name discover
 |---|---|---|
 | New device | on | A device that was never seen before joins the network. |
 | Known device went offline | off | A device marked as known disappeared (after the grace period). |
+| Signs of ARP spoofing | on | The router's MAC changed, or a device answers for many addresses. See [Passive security](seguranca-passiva.md). |
 
-The **first scan** of an empty database only builds the inventory and **never** triggers alerts; otherwise you would get one message for every gadget in the house. When one scan finds several devices at once, **a single message** is sent with the list (at most 10 lines).
+The **first scan** of an empty database only builds the inventory and **never** triggers new-device alerts; otherwise you would get one message for every gadget in the house. When one scan finds several devices at once, **a single message** is sent with the list (at most 10 lines).
 
 ## Channels
 

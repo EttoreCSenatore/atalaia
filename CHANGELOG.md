@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — M4.1 passive security: rootless detection of two ARP-spoofing signs on every scan (the default gateway's address answering from a new MAC; one MAC answering for 3+ addresses), shown in red in the history, with a default-on alert rule that also fires on the first scan; known devices are exempt from the multi-address check; one observation per MAC in scans (no more false "address changed" events for multi-address devices); bilingual docs with documented limits.
+
+**PT-BR** — Segurança passiva (M4.1): detecção sem privilégios de dois sinais de ARP spoofing a cada varredura (o endereço do gateway respondendo com outro MAC; um MAC respondendo por 3+ endereços), destacados em vermelho no histórico, com regra de alerta ligada por padrão que vale também na primeira varredura; dispositivos conhecidos ficam isentos da checagem de vários endereços; uma observação por MAC nas varreduras (sem falsos eventos de "mudou de endereço"); documentação bilíngue com os limites.
+
 **EN** — Release automation: pushing a `vX.Y.Z` tag builds Linux binaries (amd64, arm64, armv7) with checksums, publishes a multi-arch image to GHCR (SBOM + provenance) and creates the GitHub release.
 
 **PT-BR** — Automação de versões: ao enviar uma tag `vX.Y.Z`, o CI gera binários Linux (amd64, arm64, armv7) com checksums, publica uma imagem multi-arquitetura no GHCR (SBOM + proveniência) e cria a release no GitHub.
