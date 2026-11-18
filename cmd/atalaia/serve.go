@@ -15,6 +15,8 @@ import (
 	"github.com/EttoreCSenatore/atalaia/internal/alerts"
 	"github.com/EttoreCSenatore/atalaia/internal/api"
 	"github.com/EttoreCSenatore/atalaia/internal/auth"
+	"github.com/EttoreCSenatore/atalaia/internal/dhcpprobe"
+	"github.com/EttoreCSenatore/atalaia/internal/dhcpwatch"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
 	"github.com/EttoreCSenatore/atalaia/internal/notify"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
@@ -65,11 +67,12 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 	}
 	sender := &notify.Sender{}
 	svc := &alerts.Service{Store: st, Sender: sender}
+	watcher := &dhcpwatch.Watcher{Store: st, Alerts: svc, Now: a.now, Probe: dhcpProbe}
 	mon := &monitor.Monitor{Store: st, Scan: monitor.ScanFunc(a.scan), Interval: *interval, OfflineAfter: offlineAfter, Now: a.now,
 		OnResult: func(c context.Context, res store.Result, baseline bool) {
 			go svc.Handle(context.WithoutCancel(c), res, baseline)
 		}}
-	srv := &api.Server{NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
+	srv := &api.Server{NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, DHCP: watcher, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
 
 	var tlsConf *tls.Config
 	if *tlsSelf || *tlsCert != "" {
@@ -163,4 +166,18 @@ func certNames(extra []string) []string {
 		}
 	}
 	return append(names, extra...)
+}
+
+// dhcpProbe is the real DHCP check: it needs UDP port 68, a privileged port.
+func dhcpProbe(ctx context.Context) ([]dhcpprobe.Offer, error) {
+	conn, err := dhcpprobe.Listen(dhcpprobe.ClientPort)
+	if err != nil {
+		if dhcpprobe.IsPermission(err) {
+			return nil, errors.New("binding UDP port 68 needs root or CAP_NET_BIND_SERVICE; see the DHCP section of the docs")
+		}
+		return nil, errors.New("could not open UDP port 68 (is another DHCP client using it?)")
+	}
+	defer conn.Close()
+	dest := &net.UDPAddr{IP: net.IPv4bcast, Port: dhcpprobe.ServerPort}
+	return dhcpprobe.Probe(ctx, conn, dest, 4*time.Second)
 }

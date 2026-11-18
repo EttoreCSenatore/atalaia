@@ -12,6 +12,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/EttoreCSenatore/atalaia/internal/dhcpprobe"
 	"github.com/EttoreCSenatore/atalaia/internal/notify"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
 )
@@ -22,6 +23,8 @@ const (
 	NewKey      = "alert_new"      // "1"/"0": alert when an unknown device joins (default on)
 	OfflineKey  = "alert_offline"  // "1"/"0": alert when a known device goes offline (default off)
 	ARPKey      = "alert_arp"      // "1"/"0": alert on signs of ARP spoofing (default on)
+	DHCPKey     = "alert_dhcp"     // "1"/"0": alert when a new DHCP server answers (default on)
+	PortsKey    = "alert_ports"    // "1"/"0": alert when a port scan finds newly opened ports (default on)
 	MaxChannels = 8
 )
 
@@ -30,6 +33,8 @@ type Rules struct {
 	NewDevice    bool `json:"new_device"`
 	KnownOffline bool `json:"known_offline"`
 	ARPAnomaly   bool `json:"arp_anomaly"`
+	RogueDHCP    bool `json:"rogue_dhcp"`
+	NewPorts     bool `json:"new_ports"`
 }
 
 // Deliverer sends one message through one channel.
@@ -117,7 +122,15 @@ func (s *Service) Rules(ctx context.Context) (Rules, error) {
 	if err != nil {
 		return Rules{}, err
 	}
-	return Rules{NewDevice: n != 0, KnownOffline: o != 0, ARPAnomaly: a != 0}, nil
+	d, err := s.Store.SettingInt(ctx, DHCPKey, 1)
+	if err != nil {
+		return Rules{}, err
+	}
+	p, err := s.Store.SettingInt(ctx, PortsKey, 1)
+	if err != nil {
+		return Rules{}, err
+	}
+	return Rules{NewDevice: n != 0, KnownOffline: o != 0, ARPAnomaly: a != 0, RogueDHCP: d != 0, NewPorts: p != 0}, nil
 }
 
 // SaveRules stores the rules.
@@ -128,7 +141,13 @@ func (s *Service) SaveRules(ctx context.Context, r Rules) error {
 	if err := s.Store.SetSetting(ctx, OfflineKey, b2s(r.KnownOffline)); err != nil {
 		return err
 	}
-	return s.Store.SetSetting(ctx, ARPKey, b2s(r.ARPAnomaly))
+	if err := s.Store.SetSetting(ctx, ARPKey, b2s(r.ARPAnomaly)); err != nil {
+		return err
+	}
+	if err := s.Store.SetSetting(ctx, DHCPKey, b2s(r.RogueDHCP)); err != nil {
+		return err
+	}
+	return s.Store.SetSetting(ctx, PortsKey, b2s(r.NewPorts))
 }
 
 func b2s(b bool) string {
@@ -216,7 +235,30 @@ func (s *Service) Handle(ctx context.Context, res store.Result, baseline bool) {
 		s.logf("alerts: %v", err)
 		return
 	}
-	msgs := Compose(res, rules, baseline)
+	s.send(ctx, Compose(res, rules, baseline))
+}
+
+// HandleDHCP alerts about DHCP servers that were not there before.
+func (s *Service) HandleDHCP(ctx context.Context, servers []store.DHCPServer) {
+	rules, err := s.Rules(ctx)
+	if err != nil {
+		s.logf("alerts: %v", err)
+		return
+	}
+	s.send(ctx, ComposeDHCP(servers, rules))
+}
+
+// HandlePorts alerts about ports that a port scan found open and were not before.
+func (s *Service) HandlePorts(ctx context.Context, d store.Device, opened []int) {
+	rules, err := s.Rules(ctx)
+	if err != nil {
+		s.logf("alerts: %v", err)
+		return
+	}
+	s.send(ctx, ComposePorts(d, opened, rules))
+}
+
+func (s *Service) send(ctx context.Context, msgs []notify.Message) {
 	if len(msgs) == 0 {
 		return
 	}
@@ -235,4 +277,51 @@ func (s *Service) Handle(ctx context.Context, res store.Result, baseline bool) {
 			}
 		}
 	}
+}
+
+// ComposeDHCP builds the alert for newly seen DHCP servers.
+func ComposeDHCP(servers []store.DHCPServer, rules Rules) []notify.Message {
+	if !rules.RogueDHCP || len(servers) == 0 {
+		return nil
+	}
+	var b strings.Builder
+	for i, sv := range servers {
+		if i == 10 {
+			fmt.Fprintf(&b, "… and %d more\n", len(servers)-10)
+			break
+		}
+		var o dhcpprobe.Offer
+		_ = json.Unmarshal([]byte(sv.Detail), &o)
+		fmt.Fprintf(&b, "DHCP server %s", sv.IP)
+		if o.Router.IsValid() {
+			fmt.Fprintf(&b, " — would hand out gateway %s", o.Router)
+		}
+		if len(o.DNS) > 0 {
+			dns := make([]string, 0, len(o.DNS))
+			for _, d := range o.DNS {
+				dns = append(dns, d.String())
+			}
+			fmt.Fprintf(&b, " and DNS %s", strings.Join(dns, ", "))
+		}
+		b.WriteByte('\n')
+	}
+	return []notify.Message{{
+		Title: "Atalaia: a new DHCP server answered on the network",
+		Body:  "A DHCP server that was not there before is offering addresses. If you did not add it (a second router, an access point in router mode), it may be a rogue server redirecting your traffic.\n" + b.String(),
+	}}
+}
+
+// ComposePorts builds the alert for newly opened ports on a device.
+func ComposePorts(d store.Device, opened []int, rules Rules) []notify.Message {
+	if !rules.NewPorts || len(opened) == 0 {
+		return nil
+	}
+	ports := make([]string, 0, len(opened))
+	for _, p := range opened {
+		ports = append(ports, fmt.Sprint(p))
+	}
+	return []notify.Message{{
+		Title: "Atalaia: new open port on a device",
+		Body:  "A port scan found ports that were closed before: " + strings.Join(ports, ", ") + "\n" + describe([]store.Device{d}),
+	}}
 }

@@ -193,6 +193,9 @@ func (s *Server) portScan(w http.ResponseWriter, r *http.Request) {
 	out := newPortsDTO(store.PortResult{At: now, Ports: open})
 	if hadPrev {
 		out.Opened, out.Closed = diffPorts(prev.Ports, open)
+		if len(out.Opened) > 0 && s.Alerts != nil {
+			go s.Alerts.HandlePorts(context.WithoutCancel(r.Context()), d, out.Opened)
+		}
 	}
 	writeJSON(w, http.StatusOK, out)
 }
