@@ -23,7 +23,16 @@ docker run --rm -v "$PWD":/src -w /src golang:1-alpine go test ./...
 ```bash
 go run ./cmd/atalaia version   # versão
 go run ./cmd/atalaia scope     # redes que o Atalaia pode sondar
+go run ./cmd/atalaia scan      # descobre e guarda os dispositivos
 go vet ./... && go test -race ./...
+```
+
+## Lista de fabricantes (IEEE)
+
+O arquivo `internal/identity/oui.tsv.gz` é gerado a partir das listas públicas do IEEE. Para atualizar:
+
+```bash
+python3 -I scripts/atualizar-oui.py
 ```
 
 ## Documentação

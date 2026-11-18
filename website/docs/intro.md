@@ -37,4 +37,4 @@ Um navegador não consegue enviar ARP, ICMP nem ouvir mDNS: ele só fala HTTP. P
 
 ## Estado atual
 
-A fundação (M0) está pronta: repositório, licença, documentação bilíngue, CI e o esqueleto em Go com o primeiro guarda de segurança (o escopo de varredura). A descoberta de dispositivos vem no M1. Veja o [roadmap](roadmap.md).
+A fundação (M0) e a **descoberta de dispositivos** (M1) estão prontas: `atalaia scan` encontra os dispositivos da rede, identifica fabricante e nome e guarda o histórico. O app web e o login vêm no M2. Veja [Descoberta](funcionalidades/descoberta.md) e o [roadmap](roadmap.md).

@@ -59,6 +59,8 @@ jobs:
       - run: go build -trimpath -o /tmp/atalaia ./cmd/atalaia
       - name: Fumaça do binário
         run: /tmp/atalaia version
+      - name: Licenças das dependências Go (compatíveis com a AGPL)
+        run: go run github.com/google/go-licenses@v1.6.0 check ./... --allowed_licenses=MIT,BSD-3-Clause,BSD-2-Clause,Apache-2.0,ISC,MPL-2.0 --ignore modernc.org/mathutil --ignore github.com/EttoreCSenatore/atalaia
       - name: govulncheck
         run: go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 ./...
 

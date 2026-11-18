@@ -37,4 +37,4 @@ A browser cannot send ARP or ICMP, nor listen for mDNS: it only speaks HTTP. So 
 
 ## Current state
 
-The foundation (M0) is done: repository, license, bilingual documentation, CI and the Go skeleton with the first safety guardrail (the scan scope). Device discovery comes in M1. See the [roadmap](roadmap.md).
+The foundation (M0) and **device discovery** (M1) are done: `atalaia scan` finds the devices on the network, identifies vendor and name and keeps the history. The web app and login come in M2. See [Discovery](funcionalidades/descoberta.md) and the [roadmap](roadmap.md).

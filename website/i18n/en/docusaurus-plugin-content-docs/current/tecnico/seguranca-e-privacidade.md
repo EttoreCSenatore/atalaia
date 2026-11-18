@@ -14,6 +14,8 @@ sidebar_position: 3
 - Active checks are opt-in, rate-limited and written to an audit log.
 - Runs without root, with `CAP_NET_RAW`.
 - No telemetry and no cloud accounts.
+- The SQLite database is created with `0600` permissions (folder `0700`).
+- Everything that comes from the network (names, vendors) is treated as untrusted and sanitized before it is stored or shown.
 
 ## Privacy and data protection
 

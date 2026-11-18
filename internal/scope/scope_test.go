@@ -71,3 +71,21 @@ func TestFromAddrs(t *testing.T) {
 		t.Fatalf("got %v", got)
 	}
 }
+
+func TestSweepTargets(t *testing.T) {
+	s := New([]netip.Prefix{pfx("192.168.1.20/24")})
+	got := s.SweepTargets()
+	if len(got) != 253 { // 254 hosts minus the host itself
+		t.Fatalf("got %d targets, want 253", len(got))
+	}
+	for _, a := range got {
+		if a == ip("192.168.1.20") || !s.Allows(a) {
+			t.Fatalf("bad target %s", a)
+		}
+	}
+	big := New([]netip.Prefix{pfx("10.1.2.3/16")})
+	targets := big.SweepTargets()
+	if len(targets) != 253 || targets[0] != ip("10.1.2.1") || targets[252] != ip("10.1.2.254") {
+		t.Fatalf("large network must sweep only the local /24, got %d (%v..)", len(targets), targets[:1])
+	}
+}
