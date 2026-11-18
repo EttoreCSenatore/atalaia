@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.2.0 — 2026-11-18
+
 **EN** — M5.1 tools: ping (unprivileged ICMP), DNS lookup, Wake-on-LAN and a TCP port scan (~65 ports, handshake only) with a diff against the previous scan. Active actions are fenced: administrator only, one at a time, inventory devices in the local scope only (no free target), explicit confirmation and a 10 s minimum interval for scans, and an audit log purged with the retention. New Tools page, device actions, bilingual docs.
 
 **PT-BR** — Ferramentas (M5.1): ping (ICMP sem privilégios), consulta DNS, Wake-on-LAN e varredura de portas TCP (~65 portas, só o handshake) com comparação com a anterior. As ações ativas têm cercas: só o administrador, uma por vez, só dispositivos do inventário no escopo local (sem alvo livre), confirmação explícita e intervalo mínimo de 10 s nas varreduras, e registro de auditoria apagado junto com a retenção. Nova página Ferramentas, ações no dispositivo, documentação bilíngue.
