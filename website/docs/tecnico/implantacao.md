@@ -26,7 +26,7 @@ Por padrão o servidor escuta só em `127.0.0.1:8080`. Para abrir pelo celular o
 ATALAIA_LISTEN=0.0.0.0:8080 docker compose up -d
 ```
 
-O servidor continua recusando pedidos que não vêm da rede local, mas o tráfego é HTTP puro. Para uso além de uma rede confiável, coloque na frente um proxy reverso com TLS (por exemplo, Caddy) ou use uma VPN, e informe o nome com `--allow-host`.
+O servidor continua recusando pedidos que não vêm da rede local, mas o tráfego é HTTP puro. Ligue o [HTTPS embutido](#https-embutido) (`--tls-self-signed`), coloque na frente um proxy reverso com TLS (por exemplo, Caddy) ou use uma VPN, e informe o nome com `--allow-host`.
 
 ## Versões prontas
 
@@ -40,6 +40,21 @@ docker run -d --name atalaia --network host --read-only --cap-drop ALL \
   -v atalaia-data:/data ghcr.io/ettorecsenatore/atalaia:latest
 docker logs atalaia                  # procure o "Setup code"
 ```
+
+## HTTPS embutido
+
+O Atalaia pode servir HTTPS sozinho, sem proxy (TLS 1.2 ou superior; o cookie de sessão passa a ser `Secure`):
+
+| Opção | Quando usar |
+|---|---|
+| `--tls-self-signed` (ou `ATALAIA_TLS_SELF_SIGNED=1`) | Rede doméstica. O Atalaia cria em `<pasta do banco>/tls/` um certificado autoassinado (ECDSA P-256, 1 ano, chave `0600`) que cobre `localhost`, o nome da máquina, os endereços locais e os `--allow-host`, e o **renova sozinho** 30 dias antes de vencer. O navegador avisará uma vez: confira a **impressão digital SHA-256** impressa no console antes de aceitar. |
+| `--tls-cert arquivo.pem --tls-key chave.pem` (ou `ATALAIA_TLS_CERT` / `ATALAIA_TLS_KEY`) | Você já tem um certificado (por exemplo, de uma CA interna ou do Let's Encrypt via DNS). Troca de arquivo é percebida sem reiniciar. Com esta opção o servidor também envia `Strict-Transport-Security`. |
+
+```bash
+atalaia serve --listen 0.0.0.0:8443 --tls-self-signed
+```
+
+O HSTS **não** é enviado com o certificado autoassinado: ele impediria o navegador de deixar você aceitar o aviso. Atrás de um proxy que termina o TLS, o Atalaia enxerga HTTP puro; nesse caso prefira o HTTPS embutido, ou garanta que o proxy fale com ele só pela máquina local.
 
 ## Binário
 

@@ -28,6 +28,7 @@ Atalaia is a security tool that is also a target: it knows every device on the n
 | Threat | Mitigation |
 |---|---|
 | Dashboard reachable without login | Login required on first run, no default password |
+| Password and session read on the local network (plain HTTP) | Optional built-in HTTPS (TLS 1.2+, `Secure` cookie, HSTS with your own certificate); without it, the plain-HTTP warning on the console |
 | Dashboard exposed to the internet | Listens on `127.0.0.1` by default; even with `--listen` it refuses non-local sources; docs recommend a VPN or a TLS proxy |
 | DNS rebinding and CSRF against the dashboard | `Host` check, `X-Atalaia` header and `Origin` check, `SameSite=Strict` cookie |
 | Password guessing | argon2id, progressive lockout per address |

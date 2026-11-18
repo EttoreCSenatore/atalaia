@@ -56,6 +56,8 @@ type Server struct {
 	// AllowedHosts are extra Host names accepted besides IP addresses,
 	// localhost and the machine's own host name.
 	AllowedHosts []string
+	// HSTS adds Strict-Transport-Security on HTTPS responses (only for a certificate the user chose).
+	HSTS bool
 	// Static serves the web app for every path outside /api/ (may be nil).
 	Static http.Handler
 	Now    func() time.Time
@@ -129,6 +131,9 @@ func (s *Server) securityHeaders(next http.Handler) http.Handler {
 		h.Set("Referrer-Policy", "no-referrer")
 		h.Set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()")
 		h.Set("Cross-Origin-Resource-Policy", "same-origin")
+		if s.HSTS && r.TLS != nil {
+			h.Set("Strict-Transport-Security", "max-age=15552000")
+		}
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			h.Set("Cache-Control", "no-store")
 		}
