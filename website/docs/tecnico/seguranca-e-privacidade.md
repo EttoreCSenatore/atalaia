@@ -14,6 +14,8 @@ sidebar_position: 3
 - Verificações ativas são opcionais, limitadas em taxa e registradas em log de auditoria.
 - Execução sem root, com `CAP_NET_RAW`.
 - Sem telemetria e sem contas em nuvem.
+- O banco SQLite é criado com permissão `0600` (pasta `0700`).
+- Tudo o que vem da rede (nomes, fabricantes) é tratado como dado não confiável e limpo antes de ser guardado ou mostrado.
 
 ## Privacidade e LGPD
 

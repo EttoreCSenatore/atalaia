@@ -7,6 +7,12 @@ const sidebars: SidebarsConfig = {
     'roadmap',
     {
       type: 'category',
+      label: 'Funcionalidades',
+      collapsed: false,
+      items: ['funcionalidades/descoberta'],
+    },
+    {
+      type: 'category',
       label: 'Técnico',
       collapsed: false,
       items: ['tecnico/arquitetura', 'tecnico/modelo-de-ameacas', 'tecnico/seguranca-e-privacidade', 'tecnico/desenvolvimento'],

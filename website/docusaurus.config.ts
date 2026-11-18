@@ -93,6 +93,10 @@ const config: Config = {
           ],
         },
         {
+          title: 'Funcionalidades',
+          items: [{label: 'Descoberta de dispositivos', to: '/docs/funcionalidades/descoberta'}],
+        },
+        {
           title: 'Técnico',
           items: [
             {label: 'Arquitetura', to: '/docs/tecnico/arquitetura'},

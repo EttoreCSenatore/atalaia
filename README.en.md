@@ -8,7 +8,15 @@
 
 **Watch your network.** A free, open-source, self-hosted network watchtower: discover the devices on your network, track history, get alerts and run **defensive** security checks. A Go agent with the web app embedded.
 
-> **State: M0 (foundation).** The skeleton, documentation and CI are ready. Device discovery comes in M1. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
+> **State: M1 (discovery).** `atalaia scan` already finds the devices on the network and keeps the history (CLI, Linux). The web app comes in M2. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
+
+## Try it (Linux)
+
+```bash
+go run ./cmd/atalaia scan      # discover the devices on your network
+go run ./cmd/atalaia devices   # list them
+go run ./cmd/atalaia history   # what changed
+```
 
 ## What it will do
 

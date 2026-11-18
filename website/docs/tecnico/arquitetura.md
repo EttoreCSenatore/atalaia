@@ -33,9 +33,11 @@ O navegador não tem sockets brutos, ARP, ICMP nem mDNS. O agente roda com a per
 | Pacote | Responsabilidade | Etapa |
 |---|---|---|
 | `internal/scope` | Quais endereços podem ser sondados (só redes privadas do próprio host) | M0 |
-| `internal/discovery` | ARP, mDNS, SSDP, NetBIOS | M1 |
-| `internal/identity` | Fabricante por MAC, nome, tipo e sistema | M1 |
-| `internal/store` | SQLite, migrações, retenção | M1 |
+| `internal/discovery` | Varredura UDP + tabela ARP do sistema (sem root) | M1 |
+| `internal/names` | Nome do dispositivo: mDNS e DNS reverso | M1 |
+| `internal/identity` | Fabricante por MAC (IEEE) e limpeza de textos vindos da rede | M1 |
+| `internal/store` | SQLite, migrações, histórico de eventos | M1 |
+| `internal/discovery` (SSDP, NetBIOS) | Mais fontes de descoberta | M2+ |
 | `internal/api` | API HTTP, autenticação, SSE | M2 |
 | `internal/notify` | Adaptadores de notificação | M3 |
 | `internal/detect` | Detecções passivas de segurança | M4 |
@@ -52,7 +54,7 @@ O navegador não tem sockets brutos, ARP, ICMP nem mDNS. O agente roda com a per
 
 | Fonte | Uso | Licença |
 |---|---|---|
-| Lista de OUI do IEEE | Fabricante pelo MAC | Pública, uso livre |
+| Listas de OUI do IEEE (MA-L, MA-M, MA-S) | Fabricante pelo MAC (`scripts/atualizar-oui.py` gera `oui.tsv.gz`) | Registro público do IEEE |
 | Tipos de serviço mDNS/DNS-SD | Tipo do dispositivo | Pública |
 | Rapid7 Recog | Impressão digital de banners | BSD-2-Clause |
 | NVD e OSV | CVEs | Dados públicos |

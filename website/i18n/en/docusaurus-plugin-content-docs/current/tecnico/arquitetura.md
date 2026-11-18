@@ -33,9 +33,11 @@ A browser has no raw sockets, ARP, ICMP or mDNS. The agent runs with minimal per
 | Package | Responsibility | Step |
 |---|---|---|
 | `internal/scope` | Which addresses may be probed (only the host's own private networks) | M0 |
-| `internal/discovery` | ARP, mDNS, SSDP, NetBIOS | M1 |
-| `internal/identity` | Vendor by MAC, name, type and OS | M1 |
-| `internal/store` | SQLite, migrations, retention | M1 |
+| `internal/discovery` | UDP sweep + the system ARP table (no root) | M1 |
+| `internal/names` | Device name: mDNS and reverse DNS | M1 |
+| `internal/identity` | Vendor by MAC (IEEE) and sanitizing of text from the network | M1 |
+| `internal/store` | SQLite, migrations, event history | M1 |
+| `internal/discovery` (SSDP, NetBIOS) | More discovery sources | M2+ |
 | `internal/api` | HTTP API, authentication, SSE | M2 |
 | `internal/notify` | Notification adapters | M3 |
 | `internal/detect` | Passive security detections | M4 |
@@ -52,7 +54,7 @@ A browser has no raw sockets, ARP, ICMP or mDNS. The agent runs with minimal per
 
 | Source | Use | License |
 |---|---|---|
-| IEEE OUI list | Vendor from MAC | Public, free use |
+| IEEE OUI lists (MA-L, MA-M, MA-S) | Vendor from MAC (`scripts/atualizar-oui.py` builds `oui.tsv.gz`) | Public IEEE registry |
 | mDNS/DNS-SD service types | Device type | Public |
 | Rapid7 Recog | Banner fingerprints | BSD-2-Clause |
 | NVD and OSV | CVEs | Public data |

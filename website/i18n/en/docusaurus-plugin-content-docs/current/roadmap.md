@@ -11,7 +11,7 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | Step | Deliverable | State |
 |---|---|---|
 | **M0** | Foundation: repository, license, bilingual documentation on GitHub Pages, CI, Go skeleton and the scan-scope guard | Done |
-| **M1** | Discovery: ARP and mDNS, device list with vendor and name, SQLite, CLI | Planned |
+| **M1** | Discovery: ARP and mDNS, device list with vendor and name, SQLite, CLI | Done (see [Discovery](funcionalidades/descoberta.md)) |
 | **M2** | Embedded web app: dashboard, device detail, timeline, login and Docker image | Planned |
 | **M3** | Alerts: new device, notification adapters, names, tags and known devices | Planned |
 | **M4** | Passive security: ARP spoofing, rogue DHCP, changed services | Planned |

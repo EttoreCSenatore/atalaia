@@ -8,7 +8,15 @@
 
 **Vigia da sua rede.** Vigia de rede livre, de código aberto e auto-hospedado: descubra os dispositivos da sua rede, acompanhe o histórico, receba alertas e faça verificações de segurança **defensivas**. Um agente em Go com o app web embutido.
 
-> **Estado: M0 (fundação).** O esqueleto, a documentação e a CI estão prontos. A descoberta de dispositivos vem no M1. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
+> **Estado: M1 (descoberta).** `atalaia scan` já encontra os dispositivos da rede e guarda o histórico (CLI, Linux). O app web vem no M2. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
+
+## Experimente (Linux)
+
+```bash
+go run ./cmd/atalaia scan      # descobre os dispositivos da sua rede
+go run ./cmd/atalaia devices   # lista
+go run ./cmd/atalaia history   # o que mudou
+```
 
 ## O que vai fazer
 

@@ -19,12 +19,13 @@ const MaxPrefixBits = 16
 // Scope is the set of networks that may be probed.
 type Scope struct {
 	prefixes []netip.Prefix
+	local    map[netip.Prefix]netip.Addr // the host's own address in each network
 }
 
 // New builds a Scope from candidate prefixes, keeping only private IPv4
 // networks (RFC 1918), clamped to MaxPrefixBits, without duplicates.
 func New(candidates []netip.Prefix) *Scope {
-	seen := map[netip.Prefix]bool{}
+	local := map[netip.Prefix]netip.Addr{}
 	var kept []netip.Prefix
 	for _, p := range candidates {
 		addr := p.Addr().Unmap()
@@ -37,13 +38,13 @@ func New(candidates []netip.Prefix) *Scope {
 			p = netip.PrefixFrom(addr, p.Bits())
 		}
 		p = p.Masked()
-		if !seen[p] {
-			seen[p] = true
+		if _, dup := local[p]; !dup {
+			local[p] = addr
 			kept = append(kept, p)
 		}
 	}
 	sort.Slice(kept, func(i, j int) bool { return kept[i].String() < kept[j].String() })
-	return &Scope{prefixes: kept}
+	return &Scope{prefixes: kept, local: local}
 }
 
 // FromAddrs builds a Scope from interface addresses (as returned by
@@ -89,6 +90,31 @@ func Local() (*Scope, error) {
 // Prefixes returns the networks in scope.
 func (s *Scope) Prefixes() []netip.Prefix {
 	return append([]netip.Prefix(nil), s.prefixes...)
+}
+
+// MaxSweepBits is the shortest prefix that is actively swept for devices: in
+// a network larger than a /24, only the /24 around the host's own address is
+// probed (the rest is still in scope for passive observation).
+const MaxSweepBits = 24
+
+// SweepTargets lists the addresses to probe for device discovery: every host
+// of each network, limited to the /24 around the host's own address, without
+// the host's own address.
+func (s *Scope) SweepTargets() []netip.Addr {
+	var out []netip.Addr
+	for _, p := range s.prefixes {
+		self := s.local[p]
+		sweep := p
+		if p.Bits() < MaxSweepBits {
+			sweep = netip.PrefixFrom(self, MaxSweepBits).Masked()
+		}
+		for a := sweep.Addr(); sweep.Contains(a); a = a.Next() {
+			if a != self && s.Allows(a) && (sweep.Bits() >= 31 || (a != sweep.Addr() && a != broadcast(sweep))) {
+				out = append(out, a)
+			}
+		}
+	}
+	return out
 }
 
 // Allows reports whether addr may be probed: it must be inside one of the
