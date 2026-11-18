@@ -2,6 +2,7 @@
   import { app, startScan } from '../lib/app.svelte';
   import { t, i18n } from '../lib/i18n.svelte';
   import { compareIp, deviceLabel, relativeTime } from '../lib/format';
+  import { kindIcon } from '../lib/kinds';
   import StateBadge from './StateBadge.svelte';
 
   let query = $state('');
@@ -14,7 +15,7 @@
       .filter((d) => (filter === 'all' ? true : filter === 'online' ? d.online : !d.online))
       .filter((d) => {
         const q = query.trim().toLowerCase();
-        return !q || [d.label, d.name, d.vendor, d.ip, d.mac, ...d.tags].some((v) => v.toLowerCase().includes(q));
+        return !q || [d.label, d.name, d.vendor, d.model, d.kind, d.ip, d.mac, ...d.tags].some((v) => v.toLowerCase().includes(q));
       })
       .toSorted((a, b) => Number(b.online) - Number(a.online) || compareIp(a.ip, b.ip)),
   );
@@ -70,11 +71,12 @@
             <td><StateBadge online={d.online} /></td>
             <td class="mono">{d.ip || t('common.none')}</td>
             <td>
+              <span class="icon" title={d.kind ? t(`kinds.${d.kind}`) : t('kinds.unknown')} aria-label={d.kind ? t(`kinds.${d.kind}`) : t('kinds.unknown')}>{kindIcon(d.kind)}</span>
               <a href={`/devices/${d.mac}`} data-link>{d.label || d.name || (d.randomized_mac ? t('common.randomMac') : d.vendor) || d.mac}</a>
               {#if d.known}<span class="chip known" title={t('detail.knownHelp')}>✓ {t('detail.known')}</span>{/if}
               {#each d.tags as tag (tag)}<span class="chip">{tag}</span>{/each}
             </td>
-            <td>{d.randomized_mac ? t('common.randomMac') : d.vendor || t('common.none')}</td>
+            <td>{[d.randomized_mac ? t('common.randomMac') : d.vendor, d.model].filter(Boolean).join(' · ') || t('common.none')}</td>
             <td class="mono">{d.mac}</td>
             <td class="muted">{rel(d.last_seen)}</td>
           </tr>
@@ -85,6 +87,9 @@
 </div>
 
 <style>
+  .icon {
+    margin-right: 0.4rem;
+  }
   .chip {
     display: inline-block;
     font-size: 0.75rem;

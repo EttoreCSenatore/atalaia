@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/EttoreCSenatore/atalaia/internal/discovery"
+	"github.com/EttoreCSenatore/atalaia/internal/fingerprint"
 	"github.com/EttoreCSenatore/atalaia/internal/identity"
 )
 
@@ -21,7 +22,7 @@ func TestCollapseKeepsEveryAddressOfOneMAC(t *testing.T) {
 		host("192.168.1.6", "aa:00:00:00:00:02"),
 		host("192.168.1.7", "aa:00:00:00:00:02"),
 	}
-	obs := Collapse(hosts, netip.MustParseAddr("192.168.1.1"), map[string]string{"192.168.1.6": "evil\x1b[31m.lan"}, identity.Default())
+	obs := Collapse(hosts, netip.MustParseAddr("192.168.1.1"), map[string]string{"192.168.1.6": "evil\x1b[31m.lan"}, nil, identity.Default())
 	if len(obs) != 2 {
 		t.Fatalf("want 2 observations, got %d", len(obs))
 	}
@@ -41,7 +42,7 @@ func TestCollapseShowsTheGatewayAddressWhenAMACClaimsIt(t *testing.T) {
 		host("192.168.1.1", "aa:00:00:00:00:09"),
 		host("192.168.1.2", "aa:00:00:00:00:09"),
 	}
-	obs := Collapse(hosts, netip.MustParseAddr("192.168.1.2"), nil, identity.Default())
+	obs := Collapse(hosts, netip.MustParseAddr("192.168.1.2"), nil, nil, identity.Default())
 	if len(obs) != 1 || !obs[0].Gateway || obs[0].IP.String() != "192.168.1.2" {
 		t.Fatalf("%+v", obs)
 	}
@@ -53,5 +54,25 @@ func TestAppendSelfAddsOnceAndKeepsOrder(t *testing.T) {
 	got := appendSelf(hosts, self)
 	if len(got) != 3 || got[1].IP.String() != "192.168.1.20" {
 		t.Fatalf("%+v", got)
+	}
+}
+
+func TestCollapseMergesWhatTheDeviceAnnounced(t *testing.T) {
+	hosts := []discovery.Host{host("192.168.1.40", "da:00:00:00:00:01"), host("192.168.1.41", "a8:00:00:00:00:02")}
+	learned := map[netip.Addr]fingerprint.Result{
+		netip.MustParseAddr("192.168.1.40"): {Services: []string{"_googlecast._tcp"}, Model: "Chromecast", Friendly: "Sala"},
+		netip.MustParseAddr("192.168.1.41"): {HasNetBIOS: true, NetBIOS: fingerprint.NetBIOSInfo{Name: "DESKTOP-1"}, Manufacturer: "Acme PC"},
+	}
+	obs := Collapse(hosts, netip.Addr{}, nil, learned, identity.Default())
+	if obs[0].Kind != "tv" || obs[0].Model != "Chromecast" || obs[0].Name != "Sala" || len(obs[0].Services) != 1 {
+		t.Fatalf("%+v", obs[0])
+	}
+	if obs[1].Kind != "computer" || obs[1].Name != "DESKTOP-1" || obs[1].Vendor == "" {
+		t.Fatalf("%+v", obs[1])
+	}
+	// a name found by mDNS/reverse DNS is not replaced by a weaker source
+	obs = Collapse(hosts[:1], netip.Addr{}, map[string]string{"192.168.1.40": "living-room-tv"}, learned, identity.Default())
+	if obs[0].Name != "living-room-tv" {
+		t.Fatalf("%q", obs[0].Name)
 	}
 }

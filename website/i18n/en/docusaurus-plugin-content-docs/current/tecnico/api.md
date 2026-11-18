@@ -44,7 +44,7 @@ The server speaks HTTP. On a trusted local network that is acceptable, but the p
 | `POST /api/login` | no | `{password}`. |
 | `POST /api/logout` | yes | Ends the session. |
 | `POST /api/password` | yes | `{current, new}`. |
-| `GET /api/devices` | yes | Known devices. |
+| `GET /api/devices` | yes | Known devices, with `model`, `kind` (the guessed type) and `services` (advertised mDNS services). |
 | `PUT /api/devices/{mac}` | yes | `{label, tags, known}`: name (up to 64 characters), up to 8 tags (24 characters, no commas) and whether it is known. |
 | `POST /api/devices/{mac}/wake` | yes | Sends the magic packet (Wake-on-LAN). Inventory devices in scope only. |
 | `POST /api/devices/{mac}/portscan` | yes | `{confirm: true}` required. Scans ~65 TCP ports; at most one per 10 s; returns `ports` and, if there was a previous result, `opened`/`closed`. |

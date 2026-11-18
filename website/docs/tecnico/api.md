@@ -44,7 +44,7 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 | `POST /api/login` | não | `{password}`. |
 | `POST /api/logout` | sim | Encerra a sessão. |
 | `POST /api/password` | sim | `{current, new}`. |
-| `GET /api/devices` | sim | Dispositivos conhecidos. |
+| `GET /api/devices` | sim | Dispositivos conhecidos, com `model`, `kind` (tipo adivinhado) e `services` (serviços mDNS anunciados). |
 | `PUT /api/devices/{mac}` | sim | `{label, tags, known}`: nome (até 64 caracteres), até 8 etiquetas (24 caracteres, sem vírgula) e se é conhecido. |
 | `POST /api/devices/{mac}/wake` | sim | Envia o pacote mágico (Wake-on-LAN). Só dispositivos do inventário, no escopo. |
 | `POST /api/devices/{mac}/portscan` | sim | `{confirm: true}` obrigatório. Varre ~65 portas TCP; no máx. uma a cada 10 s; devolve `ports` e, se havia resultado anterior, `opened`/`closed`. |

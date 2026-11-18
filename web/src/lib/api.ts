@@ -10,6 +10,9 @@ export type Device = {
   label: string;
   tags: string[];
   known: boolean;
+  model: string;
+  kind: string;
+  services: string[];
 };
 export type DeviceEvent = { at: string; kind: string; detail: string; mac: string; name: string; vendor: string };
 export type ScanStatus = { scanning: boolean; last_scan: string; last_error: string; interval: string };

@@ -145,3 +145,21 @@ func TestAlertChannelValidation(t *testing.T) {
 		t.Errorf("anonymous: %d", w.Code)
 	}
 }
+
+func TestDevicesExposeWhatTheyAnnounced(t *testing.T) {
+	f := newFixture(t)
+	c := f.setup()
+	obs := []store.Observation{{MAC: "da:00:00:00:00:01", IP: netip.MustParseAddr("192.168.1.40"), Model: "Chromecast", Kind: "tv", Services: []string{"_googlecast._tcp"}}}
+	if _, err := f.st.Record(context.Background(), time.Now(), obs, time.Hour); err != nil {
+		t.Fatal(err)
+	}
+	var list []deviceDTO
+	_ = json.Unmarshal(f.do("GET", "/api/devices", nil, c).Body.Bytes(), &list)
+	if len(list) != 1 || list[0].Kind != "tv" || list[0].Model != "Chromecast" || len(list[0].Services) != 1 {
+		t.Fatalf("%+v", list)
+	}
+	raw := f.do("GET", "/api/devices", nil, c).Body.String()
+	if !strings.Contains(raw, `"services":["_googlecast._tcp"]`) || !strings.Contains(raw, `"kind":"tv"`) {
+		t.Fatal(raw)
+	}
+}

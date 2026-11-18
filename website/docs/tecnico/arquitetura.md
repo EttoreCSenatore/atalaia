@@ -34,6 +34,7 @@ O navegador não tem sockets brutos, ARP, ICMP nem mDNS. O agente roda **sem roo
 |---|---|
 | `internal/scope` | Quais endereços podem ser sondados (só redes privadas do próprio host) |
 | `internal/discovery` | Varredura UDP + tabela ARP do sistema, rotas, o próprio host |
+| `internal/fingerprint` | O que o dispositivo diz que é: serviços e modelo mDNS, UPnP (SSDP), NetBIOS, e o palpite de tipo |
 | `internal/names`, `internal/identity` | Nomes (mDNS, DNS reverso), fabricante por MAC (IEEE) e limpeza de textos vindos da rede |
 | `internal/probe` | Uma passada de descoberta completa, uma observação por MAC |
 | `internal/store` | SQLite, migrações, histórico, detecção de sinais de ARP spoofing, auditoria |

@@ -38,6 +38,7 @@ Atalaia is a security tool that is also a target: it knows every device on the n
 | A compromised administrator triggering active actions | Observe-only mode (`--no-active-tools`) turns them off entirely; the systemd unit runs unprivileged with a system-call filter |
 | Atalaia used as an attack tool (scanning third-party networks or machines) | Active actions only on inventory devices in the local scope, no free target; confirmation, one at a time, minimum interval and an audit log; the scan only connects, it sends no data |
 | A rogue DHCP server redirecting traffic | Optional DHCP discovery (takes no lease) that records the servers and alerts on a new one; needs port 68 and is off in observe-only mode |
+| A malicious device using discovery answers (mDNS, SSDP, NetBIOS) to attack Atalaia | Text stripped and truncated; UPnP XML read without expanding entities; the description is only fetched from the answering address, over plain HTTP and inside the scope; out-of-scope answers are ignored |
 | Another device impersonates the router (ARP spoofing) | Passive detection of two signs (gateway MAC changed; one MAC with many IPs) with an alert; a heuristic, with documented limits |
 | An alert channel's secret leaks (Telegram token, e-mail password) | Stored only in the local `0600` database, never returned by the API nor repeated in errors; e-mail refuses to send a password without TLS |
 | A malicious device name used to attack the alert | Sent as plain text, no markup; line breaks removed from titles |
