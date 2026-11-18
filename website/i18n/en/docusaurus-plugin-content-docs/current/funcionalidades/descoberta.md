@@ -78,6 +78,6 @@ Phones and laptops **announce their name** (and, on Android, a "vendor class" su
 
 - Linux and IPv4 only. macOS and Windows come later. **IPv6**: we decided not to cover it for now (it would mean reading the neighbor table over netlink and probing the ND multicast group; almost every device on a home network also has an IPv4 address, which is already discovered).
 - Devices that announce nothing (many phones with a random MAC) show no name or model.
-- VPN addresses in CGNAT (for example Tailscale, `100.64.0.0/10`) are not accepted as "local network" by the server.
+- VPN addresses in CGNAT (Tailscale, `100.64.0.0/10`) are only accepted with `--allow-cidr` (see [Deployment](../tecnico/implantacao.md#access-over-a-vpn-tailscale-and-similar)).
 - Devices that do not answer ARP (rare) do not show up; sleeping ones may be missing from one sweep, hence the offline grace period.
 - The computer running Atalaia is in the list (the ARP table never lists the machine itself, so it is added separately, using only the main network interface, the one that contains the router).

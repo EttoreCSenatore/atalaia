@@ -13,6 +13,7 @@ export type Device = {
   model: string;
   kind: string;
   services: string[];
+  this_machine: boolean;
 };
 export type DeviceEvent = { at: string; kind: string; detail: string; mac: string; name: string; vendor: string };
 export type ScanStatus = { scanning: boolean; last_scan: string; last_error: string; interval: string };
@@ -40,7 +41,7 @@ export type OpenPort = { port: number; service: string };
 export type PortsResult = { at: string; ports: OpenPort[]; opened?: number[]; closed?: number[] };
 export type PingResult = { address: string; sent: number; lost: number; replies: { seq: number; ok: boolean; rtt_ms: number }[] };
 export type Risk = { port: number; service: string; severity: 'critical' | 'high' | 'medium' };
-export type WebInfo = { port: number; tls: boolean; status: number; server: string; title: string; auth: boolean };
+export type WebInfo = { redirect?: string; port: number; tls: boolean; status: number; server: string; title: string; auth: boolean };
 export type TlsInfo = {
   port: number;
   version: string;
@@ -63,7 +64,7 @@ export type DhcpServer = { ip: string; first_seen: string; last_seen: string; ro
 export type DhcpReport = { at: string; offers: unknown[]; baseline: boolean; new: string[]; error?: string };
 export type DhcpNames = { enabled: boolean; active: boolean; error?: string; learned: number };
 export type Dhcp = { names: DhcpNames; enabled: boolean; servers: DhcpServer[]; last: DhcpReport | null };
-export type Settings = { retention_days: number; scan_interval: string };
+export type Settings = { retention_days: number; scan_interval: string; port_scan_hours: number; active_tools: boolean };
 
 export class ApiError extends Error {
   constructor(
@@ -114,6 +115,7 @@ export const api = {
   scan: () => request<{ status: string }>('POST', '/api/scan'),
   settings: () => request<Settings>('GET', '/api/settings'),
   saveSettings: (retention_days: number) => request<Settings>('PUT', '/api/settings', { retention_days }),
+  savePortScanHours: (port_scan_hours: number) => request<Settings>('PUT', '/api/settings', { port_scan_hours }),
   updateDevice: (mac: string, label: string, tags: string[], known: boolean) =>
     request<Device>('PUT', `/api/devices/${encodeURIComponent(mac)}`, { label, tags, known }),
   alerts: () => request<Alerts>('GET', '/api/alerts'),

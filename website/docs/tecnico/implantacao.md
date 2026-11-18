@@ -41,6 +41,17 @@ docker run -d --name atalaia --network host --read-only --cap-drop ALL \
 docker logs atalaia                  # procure o "Setup code"
 ```
 
+## Acesso por VPN (Tailscale e similares)
+
+Por padrão o servidor só responde a endereços "locais" (loopback, privados e link-local). Os endereços de VPNs como o **Tailscale** (`100.64.0.0/10`, a faixa CGNAT) **não** entram nessa lista e recebem 403. Para aceitá-los, diga ao Atalaia qual rede é de confiança:
+
+```bash
+atalaia serve --listen 0.0.0.0:8443 --tls-self-signed --allow-cidr 100.64.0.0/10
+# ou: ATALAIA_ALLOW_CIDR=100.64.0.0/10   (várias, separadas por vírgula)
+```
+
+Redes largas demais são recusadas (qualquer coisa menor que /8 em IPv4). Use junto com [HTTPS](#https-embutido) e informe o nome da máquina com `--allow-host`.
+
 ## HTTPS embutido
 
 O Atalaia pode servir HTTPS sozinho, sem proxy (TLS 1.2 ou superior; o cookie de sessão passa a ser `Secure`):

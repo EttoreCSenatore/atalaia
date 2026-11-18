@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/EttoreCSenatore/atalaia/internal/alerts"
@@ -45,6 +46,8 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 	tlsSelf := fs.Bool("tls-self-signed", os.Getenv("ATALAIA_TLS_SELF_SIGNED") == "1", "serve HTTPS with a self-signed certificate Atalaia makes and renews (browsers will warn once)")
 	secure := fs.Bool("secure-cookies", os.Getenv("ATALAIA_SECURE_COOKIES") == "1", "mark the session cookie Secure even over plain HTTP (use behind a TLS reverse proxy)")
 	noActive := fs.Bool("no-active-tools", os.Getenv("ATALAIA_NO_ACTIVE_TOOLS") == "1", "observe only: disable ping, Wake-on-LAN, port scan and the exposure check")
+	var cidrs stringList
+	fs.Var(&cidrs, "allow-cidr", "extra client network to treat as local, e.g. 100.64.0.0/10 for Tailscale (repeatable; env ATALAIA_ALLOW_CIDR, comma separated)")
 	var hosts stringList
 	fs.Var(&hosts, "allow-host", "extra host name the app may be opened with (repeatable)")
 	if err := fs.Parse(args); err != nil {
@@ -55,6 +58,13 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 	}
 	if *tlsSelf && *tlsCert != "" {
 		return a.fail(errors.New("use either --tls-self-signed or --tls-cert/--tls-key, not both"))
+	}
+	if env := os.Getenv("ATALAIA_ALLOW_CIDR"); env != "" {
+		cidrs = append(cidrs, strings.Split(env, ",")...)
+	}
+	nets, err := api.ParseAllowedNets(cidrs)
+	if err != nil {
+		return a.fail(err)
 	}
 	st, err := store.Open(*db)
 	if err != nil {
@@ -77,12 +87,14 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 		return c, nil
 	}}
 	watcher := &dhcpwatch.Watcher{Store: st, Alerts: svc, Now: a.now, Probe: dhcpProbe}
+	var srv *api.Server // set below; the scan hook runs only after the server exists
 	mon := &monitor.Monitor{Store: st, Scan: monitor.ScanFunc(a.scan), Interval: *interval, OfflineAfter: offlineAfter, Now: a.now,
 		OnResult: func(c context.Context, res store.Result, baseline bool) {
 			go svc.Handle(context.WithoutCancel(c), res, baseline)
 			go learner.Flush(context.WithoutCancel(c))
+			go srv.RunScheduledPortScans(context.WithoutCancel(c))
 		}}
-	srv := &api.Server{NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, DHCP: watcher, Sniff: sniffer, Learner: learner, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
+	srv = &api.Server{AllowedNets: nets, NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, DHCP: watcher, Sniff: sniffer, Learner: learner, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
 
 	var tlsConf *tls.Config
 	if *tlsSelf || *tlsCert != "" {
@@ -105,6 +117,9 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 
 	ln, err := net.Listen("tcp", *listen)
 	if err != nil {
+		if errors.Is(err, syscall.EADDRINUSE) {
+			return a.fail(fmt.Errorf("%s is already in use by another program; pick another with --listen (for example 127.0.0.1:8090)", *listen))
+		}
 		return a.fail(err)
 	}
 	defer ln.Close()

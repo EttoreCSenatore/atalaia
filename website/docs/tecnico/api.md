@@ -64,7 +64,7 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 | `GET /api/events?limit=N` | sim | Histórico (1 a 1000), do mais novo para o mais antigo. Tipos: `joined`, `online`, `offline`, `ip_changed`, `gateway_changed`, `multi_ip`, `rogue_dhcp`. |
 | `POST /api/scan` | sim | Pede uma varredura agora (responde 202). |
 | `GET /api/stream` | sim | Eventos ao vivo (SSE): `hello`, `scan_started`, `scan_finished`, `scan_failed`. |
-| `GET/PUT /api/settings` | sim | `retention_days` (0 a 3650; 0 guarda para sempre; padrão 90). |
+| `GET/PUT /api/settings` | sim | `retention_days` (0 a 3650; 0 guarda para sempre; padrão 90) e `port_scan_hours` (0 = desligado, até 720; só com ferramentas ativas). Pode enviar um ou outro. |
 | `GET/PUT /api/alerts` | sim | `{rules: {new_device, known_offline, arp_anomaly, rogue_dhcp, new_ports}, channels: [...]}`. Os segredos (`token`, `password`) nunca voltam no GET; no PUT, um canal enviado sem segredo mantém o que já está salvo. Até 8 canais, corpo de até 32 KiB. |
 | `POST /api/alerts/test` | sim | `{id}`: envia uma mensagem de teste por um canal salvo. |
 

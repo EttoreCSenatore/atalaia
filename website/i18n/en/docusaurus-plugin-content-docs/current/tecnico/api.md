@@ -64,7 +64,7 @@ The server speaks HTTP. On a trusted local network that is acceptable, but the p
 | `GET /api/events?limit=N` | yes | History (1 to 1000), newest first. Kinds: `joined`, `online`, `offline`, `ip_changed`, `gateway_changed`, `multi_ip`, `rogue_dhcp`. |
 | `POST /api/scan` | yes | Asks for a scan now (answers 202). |
 | `GET /api/stream` | yes | Live events (SSE): `hello`, `scan_started`, `scan_finished`, `scan_failed`. |
-| `GET/PUT /api/settings` | yes | `retention_days` (0 to 3650; 0 keeps forever; default 90). |
+| `GET/PUT /api/settings` | yes | `retention_days` (0 to 3650; 0 keeps forever; default 90) and `port_scan_hours` (0 = off, up to 720; only with active tools). You can send either. |
 | `GET/PUT /api/alerts` | yes | `{rules: {new_device, known_offline, arp_anomaly, rogue_dhcp, new_ports}, channels: [...]}`. Secrets (`token`, `password`) are never returned by GET; in PUT, a channel sent without a secret keeps the one already saved. Up to 8 channels, body up to 32 KiB. |
 | `POST /api/alerts/test` | yes | `{id}`: sends a test message through a saved channel. |
 

@@ -169,34 +169,16 @@ func (s *Server) portScan(w http.ResponseWriter, r *http.Request) {
 	s.lastScan = now
 	s.mu.Unlock()
 
-	prev, hadPrev, err := s.Store.Ports(r.Context(), d.MAC)
+	out, err := s.runPortScan(r.Context(), d, ip, now)
+	if errors.Is(err, errScanInterrupted) {
+		writeError(w, http.StatusGatewayTimeout, "the scan was interrupted")
+		return
+	}
 	if err != nil {
 		serverError(w, err)
 		return
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), portScanLimit)
-	defer cancel()
-	found := tools.PortScan(ctx, ip, s.Dial, 32, 700*time.Millisecond)
-	if ctx.Err() != nil {
-		writeError(w, http.StatusGatewayTimeout, "the scan was interrupted")
-		return
-	}
-	open := make([]store.OpenPort, 0, len(found))
-	for _, p := range found {
-		open = append(open, store.OpenPort{Port: p.Port, Service: p.Service})
-	}
-	if err := s.Store.SavePorts(r.Context(), d.MAC, now, open); err != nil {
-		serverError(w, err)
-		return
-	}
-	s.audited(r, "portscan", d.MAC, fmt.Sprintf("%s: %d open", ip, len(open)))
-	out := newPortsDTO(store.PortResult{At: now, Ports: open})
-	if hadPrev {
-		out.Opened, out.Closed = diffPorts(prev.Ports, open)
-		if len(out.Opened) > 0 && s.Alerts != nil {
-			go s.Alerts.HandlePorts(context.WithoutCancel(r.Context()), d, out.Opened)
-		}
-	}
+	s.audited(r, "portscan", d.MAC, fmt.Sprintf("%s: %d open", ip, len(out.Ports)))
 	writeJSON(w, http.StatusOK, out)
 }
 
@@ -355,4 +337,97 @@ func (s *Server) speedTest(w http.ResponseWriter, r *http.Request) {
 	}
 	s.audited(r, "speedtest", res.Server, fmt.Sprintf("%.0f Mbit/s", res.Mbps))
 	writeJSON(w, http.StatusOK, res)
+}
+
+var errScanInterrupted = errors.New("the scan was interrupted")
+
+// runPortScan scans one device, stores the result, compares it with the
+// previous one and alerts about ports that opened. The caller has already
+// checked scope, holds the active-tool gate and writes the audit entry.
+func (s *Server) runPortScan(parent context.Context, d store.Device, ip netip.Addr, now time.Time) (portsDTO, error) {
+	prev, hadPrev, err := s.Store.Ports(parent, d.MAC)
+	if err != nil {
+		return portsDTO{}, err
+	}
+	ctx, cancel := context.WithTimeout(parent, portScanLimit)
+	defer cancel()
+	found := tools.PortScan(ctx, ip, s.Dial, 32, 700*time.Millisecond)
+	if ctx.Err() != nil {
+		return portsDTO{}, errScanInterrupted
+	}
+	open := make([]store.OpenPort, 0, len(found))
+	for _, p := range found {
+		open = append(open, store.OpenPort{Port: p.Port, Service: p.Service})
+	}
+	if err := s.Store.SavePorts(parent, d.MAC, now, open); err != nil {
+		return portsDTO{}, err
+	}
+	out := newPortsDTO(store.PortResult{At: now, Ports: open})
+	if hadPrev {
+		out.Opened, out.Closed = diffPorts(prev.Ports, open)
+		if len(out.Opened) > 0 && s.Alerts != nil {
+			go s.Alerts.HandlePorts(context.WithoutCancel(parent), d, out.Opened)
+		}
+	}
+	return out, nil
+}
+
+// Settings for the optional scheduled port scans.
+const (
+	portScanHoursKey = "portscan_hours" // 0 = off
+	portScanLastKey  = "portscan_last"  // unix time of the last scheduled round
+	maxScheduled     = 10               // devices scanned per round
+)
+
+// RunScheduledPortScans scans, at most once per configured interval, the
+// devices you marked as known that are online and in scope (up to ten per
+// round, one at a time, only when no other active tool is running). It is off
+// until the interval is set: enabling it is the confirmation. Every scan is in
+// the audit log and ports that opened raise the usual alert.
+func (s *Server) RunScheduledPortScans(ctx context.Context) {
+	if s.NoActiveTools {
+		return
+	}
+	hours, err := s.Store.SettingInt(ctx, portScanHoursKey, 0)
+	if err != nil || hours <= 0 {
+		return
+	}
+	now := s.now()
+	last, _ := s.Store.SettingInt(ctx, portScanLastKey, 0)
+	if now.Unix()-int64(last) < int64(hours)*3600 {
+		return
+	}
+	if !s.active.TryLock() {
+		return // another tool is running: try again after the next scan
+	}
+	defer s.active.Unlock()
+	if err := s.Store.SetSetting(ctx, portScanLastKey, fmt.Sprint(now.Unix())); err != nil {
+		return
+	}
+	sc, err := s.scopeNow()
+	if err != nil {
+		return
+	}
+	devs, err := s.Store.Devices(ctx)
+	if err != nil {
+		return
+	}
+	done := 0
+	for _, d := range devs {
+		if done >= maxScheduled || ctx.Err() != nil {
+			break
+		}
+		ip, perr := netip.ParseAddr(d.IP)
+		if perr != nil || !d.Known || !d.Online || !sc.Allows(ip.Unmap()) {
+			continue
+		}
+		done++
+		out, err := s.runPortScan(ctx, d, ip.Unmap(), s.now())
+		detail := "failed"
+		if err == nil {
+			detail = fmt.Sprintf("%s: %d open (scheduled)", ip, len(out.Ports))
+		}
+		_ = s.Store.Audit(context.WithoutCancel(ctx), s.now(), "portscan-scheduled", d.MAC, detail)
+		time.Sleep(time.Second) // never hammer the network
+	}
 }

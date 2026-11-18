@@ -8,6 +8,7 @@
 
   let settings = $state<Settings | null>(null);
   let days = $state(90);
+  let scanHours = $state(0);
   let saved = $state(false);
   let current = $state('');
   let next = $state('');
@@ -18,6 +19,7 @@
     try {
       settings = await api.settings();
       days = settings.retention_days;
+      scanHours = settings.port_scan_hours;
     } catch {
       /* the page still shows the language and password sections */
     }
@@ -28,6 +30,18 @@
     saved = false;
     try {
       settings = await api.saveSettings(Number(days));
+      saved = true;
+    } catch {
+      saved = false;
+    }
+  }
+
+  async function saveScanHours(e: Event) {
+    e.preventDefault();
+    saved = false;
+    try {
+      settings = await api.savePortScanHours(Number(scanHours));
+      scanHours = settings.port_scan_hours;
       saved = true;
     } catch {
       saved = false;
@@ -73,6 +87,24 @@
       <button class="primary">{t('common.save')}</button>
     </form>
   </section>
+
+  {#if settings && settings.active_tools}
+    <section class="card">
+      <h2>{t('settings.scanTitle')}</h2>
+      <form onsubmit={saveScanHours}>
+        <label for="scanh">{t('settings.scanEvery')}</label>
+        <select id="scanh" bind:value={scanHours}>
+          <option value={0}>{t('settings.scanOff')}</option>
+          <option value={6}>6 h</option>
+          <option value={12}>12 h</option>
+          <option value={24}>24 h</option>
+          <option value={168}>7 {t('settings.days')}</option>
+        </select>
+        <p class="muted help">{t('settings.scanHelp')}</p>
+        <button class="primary">{t('common.save')}</button>
+      </form>
+    </section>
+  {/if}
 
   <section class="card">
     <h2>{t('settings.passwordTitle')}</h2>

@@ -74,6 +74,8 @@ type WebInfo struct {
 	Server string `json:"server"`
 	Title  string `json:"title"`
 	Auth   bool   `json:"auth"` // asks for a login (401 / WWW-Authenticate)
+	// Redirect is where a 3xx answer points (cleaned text; never followed).
+	Redirect string `json:"redirect,omitempty"`
 }
 
 var titleRe = regexp.MustCompile(`(?is)<title[^>]*>(.*?)</title>`)
@@ -123,6 +125,9 @@ func WebProbe(ctx context.Context, ip netip.Addr, port int, secure bool, dial Di
 	defer res.Body.Close()
 	info.Status = res.StatusCode
 	info.Server = clean(res.Header.Get("Server"), 100)
+	if res.StatusCode >= 300 && res.StatusCode < 400 {
+		info.Redirect = clean(res.Header.Get("Location"), 200)
+	}
 	info.Auth = res.StatusCode == http.StatusUnauthorized || res.Header.Get("WWW-Authenticate") != ""
 	body, _ := io.ReadAll(io.LimitReader(res.Body, 64<<10))
 	if m := titleRe.FindSubmatch(body); m != nil {

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Usability fixes: `--allow-cidr` (env `ATALAIA_ALLOW_CIDR`) to accept a VPN such as Tailscale (over-wide networks refused); a clear "port already in use" error that suggests `--listen`; opt-in scheduled port scans of known, online, in-scope devices (off by default, audited, one at a time, off in observe-only mode); the redirect target in the exposure report; a "This machine" marker.
+
+**PT-BR** — Correções de usabilidade: `--allow-cidr` (env `ATALAIA_ALLOW_CIDR`) para aceitar uma VPN como o Tailscale (redes largas demais são recusadas); erro claro de "porta já em uso" que sugere `--listen`; varreduras de portas agendadas opcionais de dispositivos conhecidos, online e no escopo (desligadas por padrão, auditadas, uma de cada vez, desativadas no modo somente observação); destino do redirecionamento no relatório de exposição; marca "Esta máquina".
+
 **EN** — Opt-in learning of device names from DHCP requests (listen-only on UDP 67; hostname and Android vendor class; never replaces a name that is already set; announcements from devices not yet in the inventory wait for the next scan); a decision on IPv6 (not covered, reasons documented). Verified against the real network environment: the socket binds next to the system's DHCP client and parses a real UDP packet on the LAN address.
 
 **PT-BR** — Aprendizado opcional de nomes pelos pedidos DHCP (só escuta a porta UDP 67; nome e classe de fabricante do Android; nunca troca um nome já definido; anúncios de dispositivos ainda fora do inventário esperam a próxima varredura); decisão sobre IPv6 (não coberto, motivos documentados). Verificado no ambiente de rede real: o socket abre ao lado do cliente DHCP do sistema e interpreta um pacote UDP real no endereço da LAN.
