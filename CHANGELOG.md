@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.5.0 — 2026-11-18
+
 **EN** — Usability fixes: `--allow-cidr` (env `ATALAIA_ALLOW_CIDR`) to accept a VPN such as Tailscale (over-wide networks refused); a clear "port already in use" error that suggests `--listen`; opt-in scheduled port scans of known, online, in-scope devices (off by default, audited, one at a time, off in observe-only mode); the redirect target in the exposure report; a "This machine" marker.
 
 **PT-BR** — Correções de usabilidade: `--allow-cidr` (env `ATALAIA_ALLOW_CIDR`) para aceitar uma VPN como o Tailscale (redes largas demais são recusadas); erro claro de "porta já em uso" que sugere `--listen`; varreduras de portas agendadas opcionais de dispositivos conhecidos, online e no escopo (desligadas por padrão, auditadas, uma de cada vez, desativadas no modo somente observação); destino do redirecionamento no relatório de exposição; marca "Esta máquina".
