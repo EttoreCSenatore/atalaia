@@ -37,4 +37,4 @@ A browser cannot send ARP or ICMP, nor listen for mDNS: it only speaks HTTP. So 
 
 ## Current state
 
-The foundation (M0) and **device discovery** (M1) are done: `atalaia scan` finds the devices on the network, identifies vendor and name and keeps the history. `atalaia serve` already runs the API with secure login and scheduled scans; the web app comes in M2.2. See [Discovery](funcionalidades/descoberta.md) and the [roadmap](roadmap.md).
+The foundation (M0) and **device discovery** (M1) are done: `atalaia scan` finds the devices on the network, identifies vendor and name and keeps the history. `atalaia serve` runs scheduled scans, the API with secure login and the **web app** (dashboard, devices, history), also as a Docker image. Alerts come in M3. See [Discovery](funcionalidades/descoberta.md) and the [roadmap](roadmap.md).

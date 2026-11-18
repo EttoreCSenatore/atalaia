@@ -28,6 +28,17 @@ go run ./cmd/atalaia serve     # API em http://127.0.0.1:8080
 go vet ./... && go test -race ./...
 ```
 
+## App web
+
+```bash
+cd web && npm ci
+npm run dev          # http://localhost:5173, usa a API de `atalaia serve` na porta 8080
+npm run check && npm test
+npm run build        # gera internal/web/dist, que o Go embute
+```
+
+Para refazer as imagens da documentação (dados fictícios): `PLAYWRIGHT=/caminho/playwright/index.mjs npm run screenshots -- ../website/static/img/screenshots`.
+
 ## Lista de fabricantes (IEEE)
 
 O arquivo `internal/identity/oui.tsv.gz` é gerado a partir das listas públicas do IEEE. Para atualizar:

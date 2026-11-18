@@ -41,7 +41,7 @@ O navegador não tem sockets brutos, ARP, ICMP nem mDNS. O agente roda com a per
 | `internal/api` | API HTTP, autenticação, SSE, proteções do servidor | M2.1 |
 | `internal/auth` | Senha (argon2id), sessões, limite de tentativas | M2.1 |
 | `internal/monitor` | Varredura agendada e eventos ao vivo | M2.1 |
-| `internal/web` | App web embutido no binário | M2.2 |
+| `internal/web` + `web/` | App web (Svelte) embutido no binário | M2.2 |
 | `internal/notify` | Adaptadores de notificação | M3 |
 | `internal/detect` | Detecções passivas de segurança | M4 |
 | `internal/scan` | Portas, serviços, CVEs, TLS | M5 |
@@ -50,7 +50,7 @@ O navegador não tem sockets brutos, ARP, ICMP nem mDNS. O agente roda com a per
 
 - **Go** (um binário estático, compila para ARM).
 - **SQLite** embutido.
-- **Interface**: SvelteKit ou React compilado, decisão no M2.
+- **Interface**: Svelte 5 + Vite + TypeScript (cerca de 25 KB comprimido), compilada para dentro do binário (`go:embed`).
 - **Empacotamento**: binário por sistema, imagem Docker (`--network host`, necessário para a descoberta na camada 2) e unidade systemd.
 
 ## Fontes de dados abertas

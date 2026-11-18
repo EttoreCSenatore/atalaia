@@ -8,7 +8,7 @@
 
 **Watch your network.** A free, open-source, self-hosted network watchtower: discover the devices on your network, track history, get alerts and run **defensive** security checks. A Go agent with the web app embedded.
 
-> **State: M1 (discovery).** `atalaia scan` already finds the devices on the network and keeps the history (CLI, Linux). The web app comes in M2. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
+> **State: M2 (web app).** `atalaia serve` discovers the devices, keeps the history and serves a web app with login (Linux, Docker). Alerts come in M3. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
 
 ## Try it (Linux)
 
@@ -16,8 +16,12 @@
 go run ./cmd/atalaia scan      # discover the devices on your network
 go run ./cmd/atalaia devices   # list them
 go run ./cmd/atalaia history   # what changed
-go run ./cmd/atalaia serve     # API with login at http://127.0.0.1:8080
+go run ./cmd/atalaia serve     # web app with login at http://127.0.0.1:8080
 ```
+
+With Docker: `cd deploy && docker compose up -d --build` (the setup code shows in `docker compose logs atalaia`).
+
+![Atalaia dashboard (fictitious data)](website/static/img/screenshots/app-painel-en.png)
 
 ## What it will do
 
