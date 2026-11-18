@@ -34,6 +34,8 @@ O Atalaia é uma ferramenta de segurança que também é um alvo: ele conhece to
 | Uso para varrer redes de terceiros | Escopo fixo nas redes privadas do host (`internal/scope`), sem alvo arbitrário |
 | Varredura ativa sem consentimento | Opcional, exige confirmação "esta é a minha rede", limitada em taxa, registrada em log de auditoria |
 | Agente comprometido virar porta de entrada | Roda sem root, só com `CAP_NET_RAW`; imagem mínima sem privilégios extras |
+| Segredo de um canal de alerta vazar (token do Telegram, senha de e-mail) | Guardado só no banco local `0600`, nunca devolvido pela API nem repetido em erros; e-mail recusa enviar senha sem TLS |
+| Nome de dispositivo malicioso usado para atacar o alerta | Enviado como texto simples, sem marcação; quebras de linha removidas dos títulos |
 | Dados vazarem | Armazenamento local, sem telemetria, retenção configurável |
 | Entrada maliciosa vinda da rede (nomes, banners) | Tratada como dado não confiável: escapada na interface, nunca executada |
 | Dependência ou imagem comprometida | CI com auditoria de vulnerabilidades e de licenças, SBOM e Dependabot |

@@ -9,7 +9,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Funcionalidades',
       collapsed: false,
-      items: ['funcionalidades/descoberta', 'funcionalidades/app-web'],
+      items: ['funcionalidades/descoberta', 'funcionalidades/app-web', 'funcionalidades/alertas'],
     },
     {
       type: 'category',

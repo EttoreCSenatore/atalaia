@@ -13,7 +13,7 @@ sidebar_position: 3
 - Varreduras ativas só nas redes privadas do próprio host, limitadas a no máximo uma /16.
 - Verificações ativas são opcionais, limitadas em taxa e registradas em log de auditoria.
 - Execução sem root, com `CAP_NET_RAW`.
-- Sem telemetria e sem contas em nuvem.
+- Sem telemetria e sem contas em nuvem. **Exceção que você liga:** se configurar um canal de alerta (ntfy, Telegram, e-mail, webhook), o texto do alerta (nome, fabricante, IP e MAC do dispositivo) é enviado a esse serviço. Com ntfy.sh ou Telegram isso significa um terceiro; para manter tudo em casa, use um servidor ntfy ou um webhook seu. Veja [Alertas](../funcionalidades/alertas.md).
 - O banco SQLite é criado com permissão `0600` (pasta `0700`).
 - Tudo o que vem da rede (nomes, fabricantes) é tratado como dado não confiável e limpo antes de ser guardado ou mostrado.
 

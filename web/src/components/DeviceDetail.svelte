@@ -1,13 +1,50 @@
 <script lang="ts">
-  import { app } from '../lib/app.svelte';
+  import { api } from '../lib/api';
+  import { app, loadData } from '../lib/app.svelte';
   import { t, i18n } from '../lib/i18n.svelte';
-  import { dateTime, relativeTime } from '../lib/format';
+  import { dateTime, parseTags, relativeTime } from '../lib/format';
   import StateBadge from './StateBadge.svelte';
 
   let { mac }: { mac: string } = $props();
 
   const device = $derived(app.devices.find((d) => d.mac === mac));
   const events = $derived(app.events.filter((e) => e.mac === mac).slice(0, 50));
+  let label = $state('');
+  let tagText = $state('');
+  let known = $state(false);
+  let loadedFor = '';
+  let saved = $state(false);
+  let failed = $state('');
+  let busy = $state(false);
+
+  // fill the form once per device, never while the user is typing
+  $effect(() => {
+    if (device && loadedFor !== device.mac) {
+      loadedFor = device.mac;
+      label = device.label;
+      tagText = device.tags.join(', ');
+      known = device.known;
+      saved = false;
+      failed = '';
+    }
+  });
+
+  async function save(e: SubmitEvent) {
+    e.preventDefault();
+    saved = false;
+    failed = '';
+    busy = true;
+    try {
+      await api.updateDevice(mac, label, parseTags(tagText), known);
+      await loadData();
+      saved = true;
+    } catch (err) {
+      failed = err instanceof Error && err.message && err.message !== 'network' ? err.message : t('common.errorGeneric');
+    } finally {
+      busy = false;
+    }
+  }
+
   const when = (iso: string) => dateTime(iso, i18n.lang);
   const rel = (iso: string) => relativeTime(iso, i18n.lang, new Date(), t('common.never'), t('time.justNow'));
 </script>
@@ -18,7 +55,7 @@
   <p class="muted">{t('detail.notFound')}</p>
 {:else}
   <div class="title">
-    <h1>{device.name || device.vendor || device.mac}</h1>
+    <h1>{device.label || device.name || device.vendor || device.mac}</h1>
     <StateBadge online={device.online} />
   </div>
 
@@ -32,6 +69,20 @@
     </dl>
     {#if device.randomized_mac}<p class="note">{t('detail.randomNote')}</p>{/if}
   </div>
+
+  <h2>{t('detail.edit')}</h2>
+  <form class="card" onsubmit={save}>
+    <label for="label">{t('detail.label')}</label>
+    <input id="label" bind:value={label} maxlength="64" placeholder={device.name || ''} />
+    <label for="tags">{t('detail.tags')}</label>
+    <input id="tags" bind:value={tagText} placeholder="iot, media" />
+    <p class="muted help">{t('detail.tagsHelp')}</p>
+    <label class="check"><input type="checkbox" bind:checked={known} /> {t('detail.known')}</label>
+    <p class="muted help">{t('detail.knownHelp')}</p>
+    {#if saved}<p class="ok" role="status">{t('settings.saved')}</p>{/if}
+    {#if failed}<p class="error" role="alert">{failed}</p>{/if}
+    <button class="primary" disabled={busy}>{t('common.save')}</button>
+  </form>
 
   <h2>{t('detail.history')}</h2>
   <div class="card table-wrap">
@@ -81,5 +132,17 @@
   }
   h2 {
     margin-top: 1.5rem;
+  }
+  .help {
+    font-size: 0.85rem;
+    margin: 0.3rem 0 0.8rem;
+  }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .check input {
+    width: auto;
   }
 </style>

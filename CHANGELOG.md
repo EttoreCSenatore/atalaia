@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — M3 alerts: new-device and known-device-offline alerts through ntfy, Telegram, webhook and e-mail (STARTTLS, never sends a password without TLS); per-device name, tags and "known" flag; alert settings and a send-test button in the web app; the first scan never alerts; secrets stay server-side and are never returned by the API; bilingual docs with screenshots.
+
+**PT-BR** — Alertas (M3): avisos de dispositivo novo e de dispositivo conhecido offline por ntfy, Telegram, webhook e e-mail (STARTTLS, nunca envia senha sem TLS); nome, etiquetas e marca "conhecido" por dispositivo; configuração de alertas e botão de teste no app web; a primeira varredura nunca alerta; segredos ficam no servidor e a API nunca os devolve; documentação bilíngue com capturas de tela.
+
 **EN** — M2.2 web app: Svelte 5 UI embedded in the binary (setup, login, dashboard with search and live updates, device page, history, settings; pt-BR and English; light/dark), hardened ~26 MB Docker image + compose (host network, read-only, no capabilities), CI jobs for the app and the image (Trivy, smoke test), bilingual docs with screenshots.
 
 **PT-BR** — App web (M2.2): interface Svelte 5 embutida no binário (configuração inicial, login, painel com busca e atualização ao vivo, página do dispositivo, histórico, configurações; pt-BR e inglês; claro/escuro), imagem Docker de ~26 MB e compose endurecidos (rede do host, somente leitura, sem capabilities), jobs de CI do app e da imagem (Trivy, teste de fumaça), documentação bilíngue com capturas de tela.

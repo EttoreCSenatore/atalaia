@@ -8,7 +8,7 @@
 
 **Vigia da sua rede.** Vigia de rede livre, de código aberto e auto-hospedado: descubra os dispositivos da sua rede, acompanhe o histórico, receba alertas e faça verificações de segurança **defensivas**. Um agente em Go com o app web embutido.
 
-> **Estado: M2 (app web).** `atalaia serve` descobre os dispositivos, guarda o histórico e serve um app web com login (Linux, Docker). Os alertas vêm no M3. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
+> **Estado: M3 (alertas).** `atalaia serve` descobre os dispositivos, guarda o histórico, serve um app web com login (Linux, Docker) e avisa por ntfy, Telegram, webhook ou e-mail quando surge um dispositivo novo. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
 
 ## Experimente (Linux)
 

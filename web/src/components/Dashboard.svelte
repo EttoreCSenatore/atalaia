@@ -14,7 +14,7 @@
       .filter((d) => (filter === 'all' ? true : filter === 'online' ? d.online : !d.online))
       .filter((d) => {
         const q = query.trim().toLowerCase();
-        return !q || [d.name, d.vendor, d.ip, d.mac].some((v) => v.toLowerCase().includes(q));
+        return !q || [d.label, d.name, d.vendor, d.ip, d.mac, ...d.tags].some((v) => v.toLowerCase().includes(q));
       })
       .toSorted((a, b) => Number(b.online) - Number(a.online) || compareIp(a.ip, b.ip)),
   );
@@ -69,7 +69,11 @@
           <tr>
             <td><StateBadge online={d.online} /></td>
             <td class="mono">{d.ip || t('common.none')}</td>
-            <td><a href={`/devices/${d.mac}`} data-link>{d.name || (d.randomized_mac ? t('common.randomMac') : d.vendor) || d.mac}</a></td>
+            <td>
+              <a href={`/devices/${d.mac}`} data-link>{d.label || d.name || (d.randomized_mac ? t('common.randomMac') : d.vendor) || d.mac}</a>
+              {#if d.known}<span class="chip known" title={t('detail.knownHelp')}>✓ {t('detail.known')}</span>{/if}
+              {#each d.tags as tag (tag)}<span class="chip">{tag}</span>{/each}
+            </td>
             <td>{d.randomized_mac ? t('common.randomMac') : d.vendor || t('common.none')}</td>
             <td class="mono">{d.mac}</td>
             <td class="muted">{rel(d.last_seen)}</td>
@@ -81,6 +85,18 @@
 </div>
 
 <style>
+  .chip {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.05rem 0.5rem;
+    margin-left: 0.35rem;
+    border-radius: 999px;
+    background: var(--off-bg);
+    color: var(--muted);
+  }
+  .chip.known {
+    color: var(--ok);
+  }
   .head {
     display: flex;
     justify-content: space-between;

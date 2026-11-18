@@ -9,9 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/EttoreCSenatore/atalaia/internal/alerts"
 	"github.com/EttoreCSenatore/atalaia/internal/api"
 	"github.com/EttoreCSenatore/atalaia/internal/auth"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
+	"github.com/EttoreCSenatore/atalaia/internal/notify"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
 	"github.com/EttoreCSenatore/atalaia/internal/version"
 	"github.com/EttoreCSenatore/atalaia/internal/web"
@@ -42,8 +44,13 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 	if 3**interval > offlineAfter {
 		offlineAfter = 3 * *interval
 	}
-	mon := &monitor.Monitor{Store: st, Scan: monitor.ScanFunc(a.scan), Interval: *interval, OfflineAfter: offlineAfter, Now: a.now}
-	srv := &api.Server{Store: st, Monitor: mon, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
+	sender := &notify.Sender{}
+	svc := &alerts.Service{Store: st, Sender: sender}
+	mon := &monitor.Monitor{Store: st, Scan: monitor.ScanFunc(a.scan), Interval: *interval, OfflineAfter: offlineAfter, Now: a.now,
+		OnResult: func(c context.Context, res store.Result, baseline bool) {
+			go svc.Handle(context.WithoutCancel(c), res, baseline)
+		}}
+	srv := &api.Server{Store: st, Monitor: mon, Alerts: svc, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
 
 	ln, err := net.Listen("tcp", *listen)
 	if err != nil {

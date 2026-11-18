@@ -13,7 +13,7 @@ sidebar_position: 3
 - Active scans only on the host's own private networks, capped at a /16.
 - Active checks are opt-in, rate-limited and written to an audit log.
 - Runs without root, with `CAP_NET_RAW`.
-- No telemetry and no cloud accounts.
+- No telemetry and no cloud accounts. **The exception you turn on:** if you configure an alert channel (ntfy, Telegram, e-mail, webhook), the alert text (the device's name, vendor, IP and MAC) is sent to that service. With ntfy.sh or Telegram that means a third party; to keep everything at home, use your own ntfy server or webhook. See [Alerts](../funcionalidades/alertas.md).
 - The SQLite database is created with `0600` permissions (folder `0700`).
 - Everything that comes from the network (names, vendors) is treated as untrusted and sanitized before it is stored or shown.
 
