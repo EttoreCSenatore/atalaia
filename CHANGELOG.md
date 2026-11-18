@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.3.0 — 2026-11-18
+
 **EN** — M5.2 exposure check: from a device's last port scan, flags risky open services (rule table, 3 levels), reads what web ports answer (status, Server, title, login) with one non-redirecting GET, and audits TLS (version, certificate validity, self-signed, legacy TLS 1.0/1.1, weak RSA). Same fences as the port scan (confirmation, local scope, one at a time, interval, audit log). Bilingual docs.
 
 **PT-BR** — Verificação de exposição (M5.2): a partir da última varredura de portas do dispositivo, aponta serviços arriscados abertos (tabela de regras, 3 níveis), lê o que as portas web respondem (status, Server, título, login) com um GET sem seguir redirecionamentos, e audita o TLS (versão, validade do certificado, autoassinado, TLS 1.0/1.1, RSA fraco). Mesmas cercas da varredura de portas (confirmação, escopo local, uma por vez, intervalo, auditoria). Documentação bilíngue.
