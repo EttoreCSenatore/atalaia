@@ -28,6 +28,19 @@ ATALAIA_LISTEN=0.0.0.0:8080 docker compose up -d
 
 O servidor continua recusando pedidos que não vêm da rede local, mas o tráfego é HTTP puro. Para uso além de uma rede confiável, coloque na frente um proxy reverso com TLS (por exemplo, Caddy) ou use uma VPN, e informe o nome com `--allow-host`.
 
+## Versões prontas
+
+Cada versão (a partir da v0.1.0) publica, na página de [Releases](https://github.com/EttoreCSenatore/atalaia/releases):
+
+- binários Linux (`amd64`, `arm64`, `armv7`) com o app web dentro, e um arquivo `SHA256SUMS` (confira com `sha256sum -c SHA256SUMS`);
+- a imagem `ghcr.io/ettorecsenatore/atalaia:0.1.0` (e `latest`), para `amd64` e `arm64`, com SBOM e proveniência.
+
+```bash
+docker run -d --name atalaia --network host --read-only --cap-drop ALL \
+  -v atalaia-data:/data ghcr.io/ettorecsenatore/atalaia:latest
+docker logs atalaia                  # procure o "Setup code"
+```
+
 ## Binário
 
 ```bash

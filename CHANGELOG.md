@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Release automation: pushing a `vX.Y.Z` tag builds Linux binaries (amd64, arm64, armv7) with checksums, publishes a multi-arch image to GHCR (SBOM + provenance) and creates the GitHub release.
+
+**PT-BR** — Automação de versões: ao enviar uma tag `vX.Y.Z`, o CI gera binários Linux (amd64, arm64, armv7) com checksums, publica uma imagem multi-arquitetura no GHCR (SBOM + proveniência) e cria a release no GitHub.
+
 **EN** — M3 alerts: new-device and known-device-offline alerts through ntfy, Telegram, webhook and e-mail (STARTTLS, never sends a password without TLS); per-device name, tags and "known" flag; alert settings and a send-test button in the web app; the first scan never alerts; secrets stay server-side and are never returned by the API; bilingual docs with screenshots.
 
 **PT-BR** — Alertas (M3): avisos de dispositivo novo e de dispositivo conhecido offline por ntfy, Telegram, webhook e e-mail (STARTTLS, nunca envia senha sem TLS); nome, etiquetas e marca "conhecido" por dispositivo; configuração de alertas e botão de teste no app web; a primeira varredura nunca alerta; segredos ficam no servidor e a API nunca os devolve; documentação bilíngue com capturas de tela.
