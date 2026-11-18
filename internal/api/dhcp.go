@@ -18,7 +18,15 @@ type dhcpServerDTO struct {
 	DNS       []string `json:"dns"`
 }
 
+type sniffDTO struct {
+	Enabled bool   `json:"enabled"`
+	Active  bool   `json:"active"`
+	Error   string `json:"error,omitempty"`
+	Learned int    `json:"learned"`
+}
+
 type dhcpDTO struct {
+	Names   sniffDTO          `json:"names"`
 	Enabled bool              `json:"enabled"`
 	Servers []dhcpServerDTO   `json:"servers"`
 	Last    *dhcpwatch.Report `json:"last"`
@@ -30,7 +38,7 @@ func (s *Server) dhcpView(w http.ResponseWriter, r *http.Request) {
 		serverError(w, err)
 		return
 	}
-	out := dhcpDTO{Enabled: s.DHCP.Enabled(r.Context()), Servers: make([]dhcpServerDTO, 0, len(list)), Last: s.DHCP.Last()}
+	out := dhcpDTO{Names: s.sniffView(r), Enabled: s.DHCP.Enabled(r.Context()), Servers: make([]dhcpServerDTO, 0, len(list)), Last: s.DHCP.Last()}
 	for _, sv := range list {
 		var o dhcpprobe.Offer
 		_ = json.Unmarshal([]byte(sv.Detail), &o)
@@ -123,5 +131,41 @@ func (s *Server) resetDHCP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.audited(r, "dhcp-reset", "", "known servers forgotten")
+	s.dhcpView(w, r)
+}
+
+// SniffKey is the setting that turns on learning names from DHCP requests.
+const SniffKey = "dhcp_sniff"
+
+func (s *Server) sniffView(r *http.Request) sniffDTO {
+	n, _ := s.Store.SettingInt(r.Context(), SniffKey, 0)
+	out := sniffDTO{Enabled: n != 0}
+	if s.Sniff != nil {
+		out.Active, out.Error = s.Sniff.Status()
+	}
+	if s.Learner != nil {
+		out.Learned = s.Learner.Learned
+	}
+	return out
+}
+
+// putSniff turns the passive listener on or off. It only listens (no packet is
+// sent), so it is not an active tool; it does need to bind UDP port 67.
+func (s *Server) putSniff(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Enabled bool `json:"enabled"`
+	}
+	if !decode(w, r, &in) {
+		return
+	}
+	v := "0"
+	if in.Enabled {
+		v = "1"
+	}
+	if err := s.Store.SetSetting(r.Context(), SniffKey, v); err != nil {
+		serverError(w, err)
+		return
+	}
+	s.audited(r, "dhcp-names", "", "listening "+map[bool]string{true: "on", false: "off"}[in.Enabled])
 	s.dhcpView(w, r)
 }

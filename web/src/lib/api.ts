@@ -61,7 +61,8 @@ export type DnsResult = { name: string; type: string; answers: string[] };
 export type AuditEntry = { at: string; action: string; target: string; detail: string };
 export type DhcpServer = { ip: string; first_seen: string; last_seen: string; router: string; dns: string[] };
 export type DhcpReport = { at: string; offers: unknown[]; baseline: boolean; new: string[]; error?: string };
-export type Dhcp = { enabled: boolean; servers: DhcpServer[]; last: DhcpReport | null };
+export type DhcpNames = { enabled: boolean; active: boolean; error?: string; learned: number };
+export type Dhcp = { names: DhcpNames; enabled: boolean; servers: DhcpServer[]; last: DhcpReport | null };
 export type Settings = { retention_days: number; scan_interval: string };
 
 export class ApiError extends Error {
@@ -129,6 +130,7 @@ export const api = {
   dns: (name: string, type: string) => request<DnsResult>('POST', '/api/tools/dns', { name, type }),
   audit: () => request<AuditEntry[]>('GET', '/api/audit'),
   dhcp: () => request<Dhcp>('GET', '/api/dhcp'),
+  setDhcpNames: (enabled: boolean) => request<Dhcp>('PUT', '/api/dhcp/names', { enabled }),
   setDhcp: (enabled: boolean) => request<Dhcp>('PUT', '/api/dhcp', { enabled }),
   checkDhcp: () => request<Dhcp>('POST', '/api/dhcp/check', { confirm: true }),
   resetDhcp: () => request<Dhcp>('POST', '/api/dhcp/reset', { confirm: true }),

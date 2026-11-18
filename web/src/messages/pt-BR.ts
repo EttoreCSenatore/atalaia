@@ -191,6 +191,9 @@ export const ptBR: Messages = {
   dhcp: {
     title: 'Servidores DHCP',
     intro: 'O seu roteador distribui endereços (DHCP). Um segundo servidor que você não configurou pode mandar aos dispositivos um gateway ou DNS errado e desviar o tráfego. O Atalaia envia uma descoberta em broadcast, escuta as ofertas e nunca pega um endereço emprestado.',
+    names: 'Aprender o nome dos dispositivos pelos pedidos DHCP deles (desligado por padrão)',
+    namesHelp: 'Celulares e notebooks anunciam o nome quando entram ou renovam o endereço. O Atalaia só escuta, nunca responde. Precisa da porta UDP 67 (root ou CAP_NET_BIND_SERVICE) e só aprende sobre um dispositivo na próxima renovação dele, o que pode levar horas.',
+    namesActive: 'Escutando. Nomes aprendidos até agora',
     scheduled: 'Verificar depois de cada varredura (desligado por padrão)',
     privilege: 'Precisa escutar a porta UDP 68, que é privilegiada: rode o Atalaia como root ou dê a ele CAP_NET_BIND_SERVICE. A primeira verificação só registra quais servidores são seus.',
     none: 'Nenhum servidor DHCP registrado ainda.',

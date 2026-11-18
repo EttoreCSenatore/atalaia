@@ -44,6 +44,7 @@ export const exposure = {
   tls: [{ port: 8443, version: 'TLS 1.3', subject: 'CN=pi.local', issuer: 'CN=pi.local', not_after: '2027-03-01T00:00:00Z', days_left: 102, expired: false, self_signed: true, legacy_tls: false }],
 };
 export const dhcp = {
+  names: { enabled: true, active: true, learned: 3 },
   enabled: true,
   servers: [{ ip: '192.168.1.1', first_seen: new Date(Date.now() - 3 * 86400_000).toISOString(), last_seen: new Date(Date.now() - 4 * 60_000).toISOString(), router: '192.168.1.1', dns: ['192.168.1.1', '1.1.1.1'] }],
   last: { at: new Date(Date.now() - 4 * 60_000).toISOString(), offers: [], baseline: false, new: [] },

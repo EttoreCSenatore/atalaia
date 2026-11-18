@@ -59,6 +59,15 @@ What a device announces **never erases** what you wrote (the name and tags are y
 
 Everything that comes from the network is treated as **untrusted**: text is stripped of control characters and truncated, UPnP XML is read without expanding entities, and a device cannot make Atalaia download anything from another address.
 
+### Names from DHCP (optional)
+
+Phones and laptops **announce their name** (and, on Android, a "vendor class" such as `android-dhcp-14`) in the DHCP request they broadcast when they join the network or renew their address, even with a random MAC. In **Settings → DHCP servers** you can turn on **Learn device names from their DHCP requests**: Atalaia only **listens** (it sends and answers nothing) and uses what it hears to give a name and type to devices that have none.
+
+- **Off by default**: it needs to listen on UDP port 67, a privileged port (root or `CAP_NET_BIND_SERVICE`, like the [rogue DHCP check](seguranca-passiva.md)). Without the capability the app explains the error.
+- It only learns **when the device renews or reconnects**, which can take hours; names show up over time.
+- It never replaces a name that you or another source already set, and a learned name does not erase yours.
+- It is not an active tool: it stays available in [observe-only mode](../tecnico/implantacao.md).
+
 ## Security and privacy
 
 - The database holds the network inventory, which is personal data. The file is created with `0600` permissions and its folder with `0700`, and nothing leaves the machine.
@@ -67,7 +76,7 @@ Everything that comes from the network is treated as **untrusted**: text is stri
 
 ## Current limits
 
-- Linux and IPv4 only. macOS and Windows come later.
+- Linux and IPv4 only. macOS and Windows come later. **IPv6**: we decided not to cover it for now (it would mean reading the neighbor table over netlink and probing the ND multicast group; almost every device on a home network also has an IPv4 address, which is already discovered).
 - Devices that announce nothing (many phones with a random MAC) show no name or model.
 - VPN addresses in CGNAT (for example Tailscale, `100.64.0.0/10`) are not accepted as "local network" by the server.
 - Devices that do not answer ARP (rare) do not show up; sleeping ones may be missing from one sweep, hence the offline grace period.

@@ -82,3 +82,24 @@ func (s *Store) CountDevices(ctx context.Context) (int, error) {
 	err := s.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM devices`).Scan(&n)
 	return n, err
 }
+
+// DeviceByMAC returns the device with that MAC, if it is in the inventory.
+func (s *Store) DeviceByMAC(ctx context.Context, mac string) (Device, bool, error) {
+	return getByMAC(ctx, s.db, mac)
+}
+
+// UpdateIdentity fills in what a device announced: the name only when it has
+// none, the kind only when it has none or only the generic "mobile" guess. It
+// reports whether anything changed. Names and kinds already known are kept.
+func (s *Store) UpdateIdentity(ctx context.Context, mac, name, kind string) (bool, error) {
+	r, err := s.db.ExecContext(ctx, `UPDATE devices SET
+		name = CASE WHEN name = '' THEN ? ELSE name END,
+		kind = CASE WHEN kind IN ('', 'mobile') AND ? != '' THEN ? ELSE kind END
+		WHERE mac = ? AND ((name = '' AND ? != '') OR (kind IN ('', 'mobile') AND ? != '' AND kind != ?))`,
+		name, kind, kind, mac, name, kind, kind)
+	if err != nil {
+		return false, err
+	}
+	n, _ := r.RowsAffected()
+	return n > 0, nil
+}

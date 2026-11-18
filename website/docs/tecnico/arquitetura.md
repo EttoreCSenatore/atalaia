@@ -44,6 +44,7 @@ O navegador não tem sockets brutos, ARP, ICMP nem mDNS. O agente roda **sem roo
 | `internal/alerts`, `internal/notify` | Regras de alerta e adaptadores (ntfy, Telegram, webhook, e-mail) |
 | `internal/tools` | Ping, DNS, Wake-on-LAN, varredura de portas, exposição, traceroute, teste de velocidade |
 | `internal/dhcpprobe`, `internal/dhcpwatch` | Verificação opcional de servidor DHCP falso |
+| `internal/dhcpsniff` | Escuta opcional dos pedidos DHCP para aprender nomes |
 | `internal/web` + `web/` | App web (Svelte) embutido no binário |
 
 ## Pilha

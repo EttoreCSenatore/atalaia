@@ -34,6 +34,7 @@
   }
 
   const check = () => run(() => api.checkDhcp(), t('dhcp.checked'));
+  const toggleNames = (e: Event) => run(() => api.setDhcpNames((e.currentTarget as HTMLInputElement).checked));
   const toggle = (e: Event) => run(() => api.setDhcp((e.currentTarget as HTMLInputElement).checked));
   const reset = () => run(() => api.resetDhcp(), t('dhcp.forgotten'));
 </script>
@@ -41,6 +42,13 @@
 <section class="card wide">
   <h2>{t('dhcp.title')}</h2>
   <p class="muted">{t('dhcp.intro')}</p>
+  {#if dhcp}
+    <label class="check"><input type="checkbox" checked={dhcp.names.enabled} disabled={busy} onchange={toggleNames} /> {t('dhcp.names')}</label>
+    <p class="muted help">{t('dhcp.namesHelp')}</p>
+    {#if dhcp.names.enabled && dhcp.names.error}<p class="error" role="alert">{dhcp.names.error}</p>{/if}
+    {#if dhcp.names.enabled && dhcp.names.active}<p class="ok" role="status">{t('dhcp.namesActive')} ({dhcp.names.learned})</p>{/if}
+    <hr />
+  {/if}
   {#if observeOnly}
     <p class="muted">{t('detail.observeOnly')}</p>
   {:else if dhcp}
@@ -96,5 +104,10 @@
   }
   .help {
     font-size: 0.85rem;
+  }
+  hr {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: 1rem 0;
   }
 </style>
