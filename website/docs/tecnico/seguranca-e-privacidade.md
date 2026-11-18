@@ -1,0 +1,34 @@
+---
+id: seguranca-e-privacidade
+title: Segurança e privacidade
+sidebar_position: 3
+---
+
+# Segurança e privacidade
+
+## Padrões seguros
+
+- Login obrigatório na primeira execução, sem senha padrão.
+- Escuta só na rede local, nunca na internet.
+- Varreduras ativas só nas redes privadas do próprio host, limitadas a no máximo uma /16.
+- Verificações ativas são opcionais, limitadas em taxa e registradas em log de auditoria.
+- Execução sem root, com `CAP_NET_RAW`.
+- Sem telemetria e sem contas em nuvem.
+
+## Privacidade e LGPD
+
+Endereços MAC, nomes de dispositivos e horários de conexão podem identificar pessoas (por exemplo, o celular de um morador). Por isso:
+
+- Os dados ficam num arquivo local do usuário. O projeto não recebe nada.
+- A retenção do histórico será configurável (M2).
+- Quem opera o Atalaia numa rede de terceiros (uma empresa, um condomínio) é o controlador desses dados e deve informar as pessoas.
+
+A documentação de conformidade do projeto é feita com **revisão assistida por IA** e **não é aconselhamento jurídico**.
+
+## Como relatar uma vulnerabilidade
+
+Use o [relato privado de vulnerabilidades do GitHub](https://github.com/EttoreCSenatore/atalaia/security/advisories/new). Não abra uma issue pública com detalhes e não envie dados pessoais reais. O arquivo `SECURITY.md` do repositório tem o mesmo texto.
+
+## Cadeia de suprimentos
+
+A CI audita vulnerabilidades e licenças das dependências, e o Dependabot mantém as dependências e as ações do GitHub atualizadas.
