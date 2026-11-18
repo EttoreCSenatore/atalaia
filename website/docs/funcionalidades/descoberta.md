@@ -59,6 +59,15 @@ O que o aparelho anuncia **nunca apaga** o que você escreveu (o nome e as etiqu
 
 Tudo o que vem da rede é tratado como **não confiável**: texto é limpo de caracteres de controle e cortado, o XML do UPnP é lido sem expandir entidades, e um aparelho não consegue fazer o Atalaia baixar nada de outro endereço.
 
+### Nomes pelo DHCP (opcional)
+
+Celulares e notebooks **anunciam o nome** (e, no Android, uma "classe de fabricante" como `android-dhcp-14`) no pedido DHCP que enviam em broadcast quando entram na rede ou renovam o endereço, mesmo com MAC aleatório. Em **Configurações → Servidores DHCP** dá para ligar **Aprender o nome dos dispositivos pelos pedidos DHCP deles**: o Atalaia só **escuta** (não envia nem responde nada) e usa o que ouvir para dar nome e tipo a dispositivos que estão sem nome.
+
+- **Desligado por padrão**: precisa escutar a porta UDP 67, que é privilegiada (root ou `CAP_NET_BIND_SERVICE`, como a [verificação de DHCP falso](seguranca-passiva.md)). Sem a capacidade, o app explica o erro.
+- Só aprende **quando o aparelho renova ou reconecta**, o que pode levar horas; por isso os nomes vão aparecendo ao longo do tempo.
+- Nunca troca um nome que você ou outra fonte já definiu, e um nome aprendido não apaga o seu.
+- Não é uma ferramenta ativa: continua disponível no [modo somente observação](../tecnico/implantacao.md).
+
 ## Segurança e privacidade
 
 - O banco guarda o inventário da rede, que é dado pessoal. O arquivo é criado com permissão `0600` e a pasta com `0700`, e nada sai da máquina.
@@ -67,7 +76,7 @@ Tudo o que vem da rede é tratado como **não confiável**: texto é limpo de ca
 
 ## Limites atuais
 
-- Só Linux e IPv4. macOS e Windows ficam para depois.
+- Só Linux e IPv4. macOS e Windows ficam para depois. **IPv6**: decidimos não cobrir por ora (exigiria ler a tabela de vizinhos por netlink e sondar o grupo multicast ND; quase todo dispositivo de uma rede doméstica também tem um endereço IPv4, que já é descoberto).
 - Aparelhos que não anunciam nada (muitos celulares com MAC aleatório) aparecem sem nome nem modelo.
 - Endereços de VPN em CGNAT (por exemplo Tailscale, `100.64.0.0/10`) não são aceitos como "rede local" pelo servidor.
 - Dispositivos que não respondem a ARP (raro) não aparecem; os que estão dormindo podem faltar em uma varredura, daí o prazo de offline.

@@ -189,6 +189,9 @@ export const en = {
   dhcp: {
     title: 'DHCP servers',
     intro: 'Your router hands out addresses (DHCP). A second server that you did not set up can send your devices a wrong gateway or DNS and redirect their traffic. Atalaia sends one discovery broadcast, listens for offers and never takes a lease.',
+    names: 'Learn device names from their DHCP requests (off by default)',
+    namesHelp: 'Phones and laptops announce their name when they join or renew. Atalaia only listens, it never answers. Needs UDP port 67 (root or CAP_NET_BIND_SERVICE) and only learns about a device when it next renews, which can take hours.',
+    namesActive: 'Listening. Names learned so far',
     scheduled: 'Check after every scan (off by default)',
     privilege: 'Needs to listen on UDP port 68, a privileged port: run Atalaia as root or give it CAP_NET_BIND_SERVICE. The first check only records which servers are yours.',
     none: 'No DHCP server recorded yet.',

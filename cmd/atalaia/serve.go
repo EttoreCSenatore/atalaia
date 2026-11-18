@@ -16,6 +16,7 @@ import (
 	"github.com/EttoreCSenatore/atalaia/internal/api"
 	"github.com/EttoreCSenatore/atalaia/internal/auth"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpprobe"
+	"github.com/EttoreCSenatore/atalaia/internal/dhcpsniff"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpwatch"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
 	"github.com/EttoreCSenatore/atalaia/internal/notify"
@@ -67,12 +68,21 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 	}
 	sender := &notify.Sender{}
 	svc := &alerts.Service{Store: st, Sender: sender}
+	learner := &dhcpsniff.Learner{Store: st}
+	sniffer := &dhcpsniff.Sniffer{Handle: learner.Handle, Listen: func() (net.PacketConn, error) {
+		c, err := dhcpprobe.Listen(dhcpprobe.ServerPort)
+		if err != nil {
+			return nil, err
+		}
+		return c, nil
+	}}
 	watcher := &dhcpwatch.Watcher{Store: st, Alerts: svc, Now: a.now, Probe: dhcpProbe}
 	mon := &monitor.Monitor{Store: st, Scan: monitor.ScanFunc(a.scan), Interval: *interval, OfflineAfter: offlineAfter, Now: a.now,
 		OnResult: func(c context.Context, res store.Result, baseline bool) {
 			go svc.Handle(context.WithoutCancel(c), res, baseline)
+			go learner.Flush(context.WithoutCancel(c))
 		}}
-	srv := &api.Server{NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, DHCP: watcher, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
+	srv := &api.Server{NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, DHCP: watcher, Sniff: sniffer, Learner: learner, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
 
 	var tlsConf *tls.Config
 	if *tlsSelf || *tlsCert != "" {
@@ -130,6 +140,15 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 		// no WriteTimeout: live updates (SSE) keep the response open
 	}
 	go mon.Run(ctx)
+	go sniffer.Run(ctx, func() bool {
+		n, err := st.SettingInt(ctx, api.SniffKey, 0)
+		return err == nil && n != 0
+	}, 20*time.Second, func(err error) string {
+		if dhcpprobe.IsPermission(err) {
+			return "binding UDP port 67 needs root or CAP_NET_BIND_SERVICE; see the docs"
+		}
+		return "could not open UDP port 67 (is a DHCP server running on this machine?)"
+	})
 	errc := make(chan error, 1)
 	go func() {
 		if tlsConf != nil {

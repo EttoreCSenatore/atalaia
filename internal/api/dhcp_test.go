@@ -155,3 +155,29 @@ func TestPortScanAlertsOnNewlyOpenedPorts(t *testing.T) {
 		t.Fatalf("expected one alert for port 23, got %v", bodies)
 	}
 }
+
+func TestLearningNamesFromDHCPIsOptInAndNotAnActiveTool(t *testing.T) {
+	f := newFixture(t)
+	f.srv.NoActiveTools = true // listening is passive: it must stay available in observe-only mode
+	f.h = f.srv.Handler()
+	c := f.setup()
+	var v dhcpDTO
+	_ = json.Unmarshal(f.do("GET", "/api/dhcp", nil, c).Body.Bytes(), &v)
+	if v.Names.Enabled {
+		t.Fatal("must be off by default (it needs a privileged port)")
+	}
+	w := f.do("PUT", "/api/dhcp/names", map[string]bool{"enabled": true}, c)
+	if w.Code != 200 {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	_ = json.Unmarshal(w.Body.Bytes(), &v)
+	if !v.Names.Enabled {
+		t.Fatalf("%+v", v.Names)
+	}
+	if n, _ := f.st.SettingInt(context.Background(), SniffKey, 0); n != 1 {
+		t.Fatal("setting not stored")
+	}
+	if w := f.do("PUT", "/api/dhcp/names", map[string]bool{"enabled": true}, nil); w.Code != 401 {
+		t.Fatalf("anonymous: %d", w.Code)
+	}
+}

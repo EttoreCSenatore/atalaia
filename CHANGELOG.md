@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Opt-in learning of device names from DHCP requests (listen-only on UDP 67; hostname and Android vendor class; never replaces a name that is already set; announcements from devices not yet in the inventory wait for the next scan); a decision on IPv6 (not covered, reasons documented). Verified against the real network environment: the socket binds next to the system's DHCP client and parses a real UDP packet on the LAN address.
+
+**PT-BR** — Aprendizado opcional de nomes pelos pedidos DHCP (só escuta a porta UDP 67; nome e classe de fabricante do Android; nunca troca um nome já definido; anúncios de dispositivos ainda fora do inventário esperam a próxima varredura); decisão sobre IPv6 (não coberto, motivos documentados). Verificado no ambiente de rede real: o socket abre ao lado do cliente DHCP do sistema e interpreta um pacote UDP real no endereço da LAN.
+
 **EN** — Richer device identification: mDNS service types and model (direct query to each device), SSDP/UPnP (multicast search, description fetched only from the answering address, XML without entity expansion), NetBIOS names; a type guess (router, printer, TV, speaker, camera, NAS, computer, phone, smart-home…) with icons on the dashboard; model/type/services in the API and device page; what a device announces never erases user names and silence never erases what was known. Tested on a real LAN, where most devices were random-MAC phones that announce nothing (documented as the honest limit).
 
 **PT-BR** — Identificação mais rica dos dispositivos: tipos de serviço e modelo mDNS (consulta direta a cada aparelho), SSDP/UPnP (busca em multicast, descrição baixada só do endereço que respondeu, XML sem expansão de entidades), nomes NetBIOS; palpite de tipo (roteador, impressora, TV, caixa de som, câmera, NAS, computador, celular, casa inteligente…) com ícones no painel; modelo/tipo/serviços na API e na página do dispositivo; o que o aparelho anuncia nunca apaga nomes do usuário e o silêncio nunca apaga o que já se sabia. Testado numa rede real, onde a maioria eram celulares com MAC aleatório que não anunciam nada (documentado como limite honesto).

@@ -23,6 +23,7 @@ import (
 
 	"github.com/EttoreCSenatore/atalaia/internal/alerts"
 	"github.com/EttoreCSenatore/atalaia/internal/auth"
+	"github.com/EttoreCSenatore/atalaia/internal/dhcpsniff"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpwatch"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
 	"github.com/EttoreCSenatore/atalaia/internal/notify"
@@ -49,6 +50,8 @@ type Server struct {
 	Monitor *monitor.Monitor
 	Alerts  *alerts.Service
 	DHCP    *dhcpwatch.Watcher
+	Sniff   *dhcpsniff.Sniffer
+	Learner *dhcpsniff.Learner
 	// Scope returns the networks active tools may touch (default: the host's own private networks).
 	Scope func() (*scope.Scope, error)
 	// SpeedURL and SpeedClient replace the speed test file and HTTP client (tests).
@@ -119,6 +122,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/tools/dns", s.mutating(s.protected(s.dnsLookup)))
 	mux.HandleFunc("GET /api/dhcp", s.protected(s.getDHCP))
 	mux.HandleFunc("PUT /api/dhcp", s.mutating(s.protected(s.activeOnly(s.putDHCP))))
+	mux.HandleFunc("PUT /api/dhcp/names", s.mutating(s.protected(s.putSniff)))
 	mux.HandleFunc("POST /api/dhcp/check", s.mutating(s.protected(s.activeOnly(s.checkDHCP))))
 	mux.HandleFunc("POST /api/dhcp/reset", s.mutating(s.protected(s.activeOnly(s.resetDHCP))))
 	mux.HandleFunc("GET /api/audit", s.protected(s.audit))

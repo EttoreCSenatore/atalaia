@@ -57,6 +57,7 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 | `POST /api/tools/speedtest` | sim | `{confirm: true}`: baixa um arquivo de teste de um servidor de terceiros e devolve Mbit/s e latência. |
 | `GET /api/dhcp` | sim | Servidores DHCP conhecidos, se a verificação agendada está ligada e o último resultado. |
 | `PUT /api/dhcp` | sim | `{enabled}`: liga ou desliga a verificação depois de cada varredura. Desativado no modo somente observação. |
+| `PUT /api/dhcp/names` | sim | `{enabled}`: liga ou desliga o aprendizado de nomes pelos pedidos DHCP (só escuta; porta 67). |
 | `POST /api/dhcp/check` | sim | `{confirm: true}`: uma descoberta DHCP agora (precisa da porta 68). |
 | `POST /api/dhcp/reset` | sim | `{confirm: true}`: esquece os servidores conhecidos. |
 | `GET /api/audit` | sim | Registro das ações ativas, do mais novo para o mais antigo. |

@@ -57,6 +57,7 @@ The server speaks HTTP. On a trusted local network that is acceptable, but the p
 | `POST /api/tools/speedtest` | yes | `{confirm: true}`: downloads a test file from a third-party server and returns Mbit/s and latency. |
 | `GET /api/dhcp` | yes | Known DHCP servers, whether the scheduled check is on, and the last result. |
 | `PUT /api/dhcp` | yes | `{enabled}`: turns the check after every scan on or off. Disabled in observe-only mode. |
+| `PUT /api/dhcp/names` | yes | `{enabled}`: turns learning names from DHCP requests on or off (listen-only; port 67). |
 | `POST /api/dhcp/check` | yes | `{confirm: true}`: one DHCP discovery now (needs port 68). |
 | `POST /api/dhcp/reset` | yes | `{confirm: true}`: forgets the known servers. |
 | `GET /api/audit` | yes | Log of active actions, newest first. |
