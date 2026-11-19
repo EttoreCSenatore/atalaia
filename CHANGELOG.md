@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Security review fixes: parallel password guesses could all pass the lockout check (attempts are now counted before the password is checked); a global limit across all addresses (about 30 a minute, at most a 1-minute lockout); at most 2 concurrent argon2id checks (memory exhaustion); a data race on the DHCP-names counter; SSDP answers capped at 256 per round; staticcheck added to CI.
+
+**PT-BR** — Correções da revisão de segurança: tentativas de senha em paralelo podiam todas passar pela checagem do bloqueio (agora a tentativa é contada antes de conferir a senha); limite global para todos os endereços (cerca de 30 por minuto, bloqueio de no máximo 1 minuto); no máximo 2 verificações argon2id simultâneas (esgotamento de memória); condição de corrida no contador de nomes por DHCP; respostas SSDP limitadas a 256 por rodada; staticcheck na CI.
+
 ## v0.5.0 — 2026-11-18
 
 **EN** — Usability fixes: `--allow-cidr` (env `ATALAIA_ALLOW_CIDR`) to accept a VPN such as Tailscale (over-wide networks refused); a clear "port already in use" error that suggests `--listen`; opt-in scheduled port scans of known, online, in-scope devices (off by default, audited, one at a time, off in observe-only mode); the redirect target in the exposure report; a "This machine" marker.

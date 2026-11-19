@@ -33,6 +33,10 @@ The code went through a manual review of the critical parts (login, sessions, lo
 
 | Finding | Decision |
 |---|---|
+| Parallel password attempts all passed the lockout check before any failure was counted (review of 2026-11-19) | Fixed: the attempt is counted **before** the password is checked |
+| Changing IP address on the LAN multiplied the attempts | Fixed: besides the per-address limit, a limit for **all of them together** (about 30 a minute, a lockout of at most 1 minute, so an attacker cannot lock the owner out) |
+| Many logins at once could exhaust memory (each argon2id uses ~19 MiB) | Fixed: at most 2 password checks at the same time |
+| Mass spoofed SSDP answers | Fixed: at most 256 devices per discovery round |
 | `int` to `uint16`/`uint32`/`byte` conversions flagged (G115) | Fixed: a port outside 1-65535 becomes port 0 (refused); the argon2 key size is capped at 128 bytes; explicit masks when reading the routing table |
 | Logout cookie without `Secure` (G124) | Fixed; new `--secure-cookies` (`ATALAIA_SECURE_COOKIES=1`) marks the cookie `Secure` behind a TLS-terminating proxy |
 | `Secure` cookie only when there is HTTPS (G124) | **Accepted**: a `Secure` cookie over plain HTTP would be dropped by the browser |

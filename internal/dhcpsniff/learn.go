@@ -16,7 +16,7 @@ type Learner struct {
 
 	mu      sync.Mutex
 	pending map[string]Client
-	Learned int // how many devices got a name or a type from DHCP
+	learned int // how many devices got a name or a type from DHCP
 }
 
 const maxPending = 256
@@ -75,7 +75,14 @@ func (l *Learner) apply(ctx context.Context, d store.Device, c Client) {
 	}
 	if changed, err := l.Store.UpdateIdentity(ctx, c.MAC, c.Hostname, kind); err == nil && changed {
 		l.mu.Lock()
-		l.Learned++
+		l.learned++
 		l.mu.Unlock()
 	}
+}
+
+// Learned reports how many devices got a name or a type from DHCP.
+func (l *Learner) Learned() int {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.learned
 }

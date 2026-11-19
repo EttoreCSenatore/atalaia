@@ -68,7 +68,7 @@ func TestWebProbeReadsTitleServerAndAuth(t *testing.T) {
 
 func TestWebProbeDoesNotFollowRedirects(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "http://169.254.169.254/", 302)
+		http.Redirect(w, r, "http://169.254.169.254/", http.StatusFound)
 	}))
 	defer ts.Close()
 	ip, port := hostPort(t, ts.URL)

@@ -79,6 +79,9 @@ type Server struct {
 	Now    func() time.Time
 
 	limiter auth.Limiter
+	// global counts failures from every address together, so rotating
+	// addresses on the LAN does not multiply the guesses an attacker gets.
+	global auth.Limiter
 
 	active   sync.Mutex // one active tool at a time
 	lastScan time.Time  // last port scan, for the minimum interval
@@ -107,6 +110,9 @@ func (s *Server) now() time.Time {
 
 // Handler returns the full handler with all protections applied.
 func (s *Server) Handler() http.Handler {
+	// all clients together: at most about 30 guesses a minute, and never a long
+	// lockout (an attacker must not be able to lock the owner out for long)
+	s.global.MaxFails, s.global.MaxWait = 30, time.Minute
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/status", s.status)
 	mux.HandleFunc("POST /api/setup", s.mutating(s.setup))
@@ -412,15 +418,13 @@ func (s *Server) setup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := "setup|" + clientKey(r)
-	if ok, wait := s.limiter.Allow(key, s.now()); !ok {
-		tooMany(w, wait)
+	if !s.attempt(w, key) {
 		return
 	}
 	s.mu.Lock()
 	code := s.setupCode
 	s.mu.Unlock()
 	if code == "" || !auth.EqualToken(strings.ToUpper(strings.TrimSpace(in.Code)), code) {
-		s.limiter.Fail(key, s.now())
 		writeError(w, http.StatusForbidden, "wrong setup code (it is printed in the server's console)")
 		return
 	}
@@ -443,11 +447,29 @@ func (s *Server) setup(w http.ResponseWriter, r *http.Request) {
 	}
 	s.SetSetupCode("")
 	s.limiter.Reset(key)
+	s.global.Reset("all")
 	if err := s.startSession(w, r); err != nil {
 		serverError(w, err)
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+}
+
+// attempt counts a password or setup-code attempt for the client and for all
+// clients together, before anything is checked. It answers 429 when either
+// limit is reached.
+func (s *Server) attempt(w http.ResponseWriter, key string) bool {
+	now := s.now()
+	if ok, wait := s.global.Allow("all", now); !ok {
+		tooMany(w, wait)
+		return false
+	}
+	if ok, wait := s.limiter.Attempt(key, now); !ok {
+		tooMany(w, wait)
+		return false
+	}
+	s.global.Fail("all", now)
+	return true
 }
 
 func tooMany(w http.ResponseWriter, wait time.Duration) {
@@ -463,8 +485,7 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := "login|" + clientKey(r)
-	if ok, wait := s.limiter.Allow(key, s.now()); !ok {
-		tooMany(w, wait)
+	if !s.attempt(w, key) {
 		return
 	}
 	hash, err := s.Store.PasswordHash(r.Context())
@@ -476,12 +497,12 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusConflict, "setup required")
 		return
 	}
-	if len(in.Password) > 1024 || !auth.VerifyPassword(hash, in.Password) {
-		s.limiter.Fail(key, s.now())
+	if len(in.Password) > 1024 || !auth.VerifyPasswordLimited(r.Context(), hash, in.Password) {
 		writeError(w, http.StatusUnauthorized, "wrong password")
 		return
 	}
 	s.limiter.Reset(key)
+	s.global.Reset("all")
 	if err := s.startSession(w, r); err != nil {
 		serverError(w, err)
 		return
@@ -505,8 +526,7 @@ func (s *Server) changePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := "login|" + clientKey(r)
-	if ok, wait := s.limiter.Allow(key, s.now()); !ok {
-		tooMany(w, wait)
+	if !s.attempt(w, key) {
 		return
 	}
 	hash, err := s.Store.PasswordHash(r.Context())
@@ -514,8 +534,7 @@ func (s *Server) changePassword(w http.ResponseWriter, r *http.Request) {
 		serverError(w, err)
 		return
 	}
-	if len(in.Current) > 1024 || !auth.VerifyPassword(hash, in.Current) {
-		s.limiter.Fail(key, s.now())
+	if len(in.Current) > 1024 || !auth.VerifyPasswordLimited(r.Context(), hash, in.Current) {
 		writeError(w, http.StatusForbidden, "wrong current password")
 		return
 	}
@@ -533,6 +552,7 @@ func (s *Server) changePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.limiter.Reset(key)
+	s.global.Reset("all")
 	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 }
 

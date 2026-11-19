@@ -110,7 +110,8 @@ func EqualToken(a, b string) bool {
 // for a key (the client address), further attempts are refused for an
 // exponentially growing time (1 min, 2, 4... up to 15 min). In memory only.
 type Limiter struct {
-	MaxFails int // default 5
+	MaxFails int           // default 5
+	MaxWait  time.Duration // longest lockout, default 15 min
 	mu       sync.Mutex
 	state    map[string]*entry
 }
@@ -159,12 +160,27 @@ func (l *Limiter) Fail(key string, now time.Time) {
 		if shift > 4 {
 			shift = 4
 		}
+		maxWait := l.MaxWait
+		if maxWait == 0 {
+			maxWait = 15 * time.Minute
+		}
 		wait := time.Minute << shift
-		if wait > 15*time.Minute {
-			wait = 15 * time.Minute
+		if wait > maxWait {
+			wait = maxWait
 		}
 		e.until = now.Add(wait)
 	}
+}
+
+// Attempt counts an attempt before the password is checked and reports whether
+// it may go ahead. Counting first means parallel guesses cannot all slip past
+// the limit while the (slow) check runs; a successful login calls Reset.
+func (l *Limiter) Attempt(key string, now time.Time) (bool, time.Duration) {
+	if ok, wait := l.Allow(key, now); !ok {
+		return false, wait
+	}
+	l.Fail(key, now)
+	return true, 0
 }
 
 // Reset forgets a key after a successful login.
@@ -191,4 +207,21 @@ func NewSetupCode() (string, error) {
 		out = append(out, alphabet[int(x)%len(alphabet)])
 	}
 	return string(out), nil
+}
+
+// verifySlots bounds how many argon2id computations run at once. Each one uses
+// about 19 MiB, so an unauthenticated flood of logins could otherwise exhaust
+// the memory of a small machine such as a Raspberry Pi.
+var verifySlots = make(chan struct{}, 2)
+
+// VerifyPasswordLimited is VerifyPassword with at most two computations at a
+// time; it gives up (false) if ctx ends while waiting for a slot.
+func VerifyPasswordLimited(ctx interface{ Done() <-chan struct{} }, hash, password string) bool {
+	select {
+	case verifySlots <- struct{}{}:
+	case <-ctx.Done():
+		return false
+	}
+	defer func() { <-verifySlots }()
+	return VerifyPassword(hash, password)
 }
