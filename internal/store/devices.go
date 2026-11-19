@@ -3,7 +3,10 @@ package store
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -102,4 +105,45 @@ func (s *Store) UpdateIdentity(ctx context.Context, mac, name, kind string) (boo
 	}
 	n, _ := r.RowsAffected()
 	return n > 0, nil
+}
+
+// DeleteDevice forgets a device and everything about it (history, port and
+// exposure results). It reports false when no device has that MAC.
+func (s *Store) DeleteDevice(ctx context.Context, mac string) (bool, error) {
+	r, err := s.db.ExecContext(ctx, `DELETE FROM devices WHERE mac=?`, mac)
+	if err != nil {
+		return false, err
+	}
+	n, _ := r.RowsAffected()
+	return n > 0, nil
+}
+
+// PruneDevices forgets devices that have been offline since before `before`
+// and that the user never touched (not known, no name, no tags): phones that
+// rotate their random MAC otherwise pile up forever. It returns how many.
+func (s *Store) PruneDevices(ctx context.Context, before time.Time) (int64, error) {
+	r, err := s.db.ExecContext(ctx, `DELETE FROM devices
+		WHERE online=0 AND known=0 AND label='' AND tags='' AND last_seen < ?`, before.Unix())
+	if err != nil {
+		return 0, err
+	}
+	return r.RowsAffected()
+}
+
+// Backup writes a consistent copy of the database to path (it must not exist
+// yet). The copy is created with mode 0600: it holds personal data and secrets.
+func (s *Store) Backup(ctx context.Context, path string) error {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+	if _, err := os.Stat(abs); err == nil {
+		return fmt.Errorf("%s already exists; choose a new file name", abs)
+	}
+	old := syscallUmask(0o077) // the copy is never readable by others, not even for an instant
+	defer syscallUmask(old)
+	if _, err := s.db.ExecContext(ctx, `VACUUM INTO ?`, abs); err != nil {
+		return err
+	}
+	return os.Chmod(abs, 0o600)
 }

@@ -45,6 +45,8 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 | `POST /api/logout` | sim | Encerra a sessão. |
 | `POST /api/password` | sim | `{current, new}`. |
 | `GET /api/devices` | sim | Dispositivos conhecidos, com `model`, `kind` (tipo adivinhado) e `services` (serviços mDNS anunciados). |
+| `DELETE /api/devices/{mac}` | sim | Esquece o dispositivo e o histórico dele (auditado). |
+| `GET /api/devices/export?format=csv\|json` | sim | Baixa a lista (CSV com fórmulas neutralizadas). |
 | `PUT /api/devices/{mac}` | sim | `{label, tags, known}`: nome (até 64 caracteres), até 8 etiquetas (24 caracteres, sem vírgula) e se é conhecido. |
 | `POST /api/devices/{mac}/wake` | sim | Envia o pacote mágico (Wake-on-LAN). Só dispositivos do inventário, no escopo. |
 | `POST /api/devices/{mac}/portscan` | sim | `{confirm: true}` obrigatório. Varre ~65 portas TCP; no máx. uma a cada 10 s; devolve `ports` e, se havia resultado anterior, `opened`/`closed`. |
@@ -64,7 +66,7 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 | `GET /api/events?limit=N` | sim | Histórico (1 a 1000), do mais novo para o mais antigo. Tipos: `joined`, `online`, `offline`, `ip_changed`, `gateway_changed`, `multi_ip`, `rogue_dhcp`. |
 | `POST /api/scan` | sim | Pede uma varredura agora (responde 202). |
 | `GET /api/stream` | sim | Eventos ao vivo (SSE): `hello`, `scan_started`, `scan_finished`, `scan_failed`. |
-| `GET/PUT /api/settings` | sim | `retention_days` (0 a 3650; 0 guarda para sempre; padrão 90) e `port_scan_hours` (0 = desligado, até 720; só com ferramentas ativas). Pode enviar um ou outro. |
+| `GET/PUT /api/settings` | sim | `retention_days` (0 a 3650; 0 guarda para sempre; padrão 90) `port_scan_hours` (0 = desligado, até 720; só com ferramentas ativas) e `prune_days` (0 = nunca, até 3650). Pode enviar qualquer combinação. |
 | `GET/PUT /api/alerts` | sim | `{rules: {new_device, known_offline, arp_anomaly, rogue_dhcp, new_ports}, channels: [...]}`. Os segredos (`token`, `password`) nunca voltam no GET; no PUT, um canal enviado sem segredo mantém o que já está salvo. Até 8 canais, corpo de até 32 KiB. |
 | `POST /api/alerts/test` | sim | `{id}`: envia uma mensagem de teste por um canal salvo. |
 

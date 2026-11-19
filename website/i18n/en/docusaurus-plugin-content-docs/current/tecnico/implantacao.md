@@ -93,7 +93,15 @@ go build -o atalaia ./cmd/atalaia
 
 ## Backup and updates
 
-All state is one SQLite file (`/data/atalaia.db` in the container). To back it up, copy the volume or the file while the server is stopped. To update, run `docker compose up -d --build` again: the database migrates by itself, and an older version refuses to open a newer database.
+All state is one SQLite file (`/data/atalaia.db` in the container, `/var/lib/atalaia/atalaia.db` with the package). For a consistent copy **without stopping the server**:
+
+```bash
+atalaia backup --db /var/lib/atalaia/atalaia.db ~/atalaia-$(date +%F).db
+```
+
+The copy is created with mode `0600` and never overwrites an existing file: it holds the device list **and the alert channels' secrets**, so keep it as you would a password. To restore, stop the server and put the copy in place of the database. To update, install the new version (or `docker compose up -d --build`): the database migrates by itself, and an older version refuses to open a newer database.
+
+To take the list to a spreadsheet: `atalaia export --format csv` (or `json`), or the **Download the list** link on the dashboard. The CSV neutralizes formulas: names coming from the network never become spreadsheet commands.
 
 ## What CI checks
 

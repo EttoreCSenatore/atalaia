@@ -93,7 +93,15 @@ go build -o atalaia ./cmd/atalaia
 
 ## Backup e atualização
 
-Todo o estado é um arquivo SQLite (`/data/atalaia.db` no contêiner). Para fazer backup, copie o volume ou o arquivo com o servidor parado. Para atualizar, rode `docker compose up -d --build` de novo: o banco migra sozinho e uma versão mais antiga se recusa a abrir um banco mais novo.
+Todo o estado é um arquivo SQLite (`/data/atalaia.db` no contêiner, `/var/lib/atalaia/atalaia.db` com o pacote). Para uma cópia consistente **sem parar o servidor**:
+
+```bash
+atalaia backup --db /var/lib/atalaia/atalaia.db ~/atalaia-$(date +%F).db
+```
+
+A cópia é criada com permissão `0600` e nunca sobrescreve um arquivo existente: ela contém a lista de dispositivos **e os segredos dos canais de alerta**, então guarde-a como guardaria uma senha. Para restaurar, pare o servidor e coloque a cópia no lugar do banco. Para atualizar, instale a versão nova (ou `docker compose up -d --build`): o banco migra sozinho e uma versão mais antiga se recusa a abrir um banco mais novo.
+
+Para levar a lista para uma planilha: `atalaia export --format csv` (ou `json`), ou o link **Baixar a lista** no painel. O CSV neutraliza fórmulas: nomes vindos da rede nunca viram comandos na planilha.
 
 ## O que a CI verifica
 

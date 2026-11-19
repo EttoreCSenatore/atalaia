@@ -2,6 +2,7 @@
   import { api, type Exposure, type PortsResult } from '../lib/api';
   import { toolError } from '../lib/errors';
   import { app, loadData } from '../lib/app.svelte';
+  import { navigate } from '../lib/router.svelte';
   import { t, i18n } from '../lib/i18n.svelte';
   import { kindIcon } from '../lib/kinds';
   import { riskGroup } from '../lib/risk';
@@ -91,6 +92,17 @@
     }
   }
 
+  async function forget() {
+    if (!confirm(t('detail.forgetConfirm'))) return;
+    try {
+      await api.forget(mac);
+      await loadData();
+      navigate('/');
+    } catch (err) {
+      failed = toolError(err);
+    }
+  }
+
   async function checkExposure() {
     toolMsg = null;
     exposureBusy = true;
@@ -141,7 +153,11 @@
     <p class="muted help">{t('detail.knownHelp')}</p>
     {#if saved}<p class="ok" role="status">{t('settings.saved')}</p>{/if}
     {#if failed}<p class="error" role="alert">{failed}</p>{/if}
-    <button class="primary" disabled={busy}>{t('common.save')}</button>
+    <div class="row">
+      <button class="primary" disabled={busy}>{t('common.save')}</button>
+      <button type="button" class="danger" onclick={forget}>{t('detail.forget')}</button>
+    </div>
+    <p class="muted help">{t('detail.forgetHelp')}</p>
   </form>
 
   {#if app.status.active_tools === false}

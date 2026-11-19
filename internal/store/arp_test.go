@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/netip"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -183,5 +185,55 @@ func TestWhatADeviceSaysAboutItselfIsKeptAndOnlyReplacedByNewInformation(t *test
 	d, _, _ = getByMAC(ctx, s.db, mac)
 	if d.Kind != "speaker" || d.Model != "Chromecast" || len(d.Services) != 1 {
 		t.Fatalf("new information not applied: %+v", d)
+	}
+}
+
+func TestDeletePruneAndBackup(t *testing.T) {
+	s, ctx, now := open(t), context.Background(), time.Unix(1700000000, 0)
+	rec := func(mac, ipa string, at time.Time) {
+		_, _ = s.Record(ctx, at, []Observation{{MAC: mac, IP: ip(ipa)}}, time.Hour)
+	}
+	rec("aa:00:00:00:00:01", "192.168.1.10", now.AddDate(0, 0, -40)) // old, untouched: pruned
+	rec("aa:00:00:00:00:02", "192.168.1.11", now.AddDate(0, 0, -40)) // old but known: kept
+	rec("aa:00:00:00:00:03", "192.168.1.12", now)                    // recent: kept
+	_, _, _ = s.UpdateDevice(ctx, "aa:00:00:00:00:02", "", nil, true)
+	_, _ = s.Record(ctx, now, []Observation{{MAC: "aa:00:00:00:00:03", IP: ip("192.168.1.12")}}, time.Hour) // the others go offline
+	if n, err := s.PruneDevices(ctx, now.AddDate(0, 0, -30)); err != nil || n != 1 {
+		t.Fatalf("pruned %d %v", n, err)
+	}
+	if _, ok, _ := s.DeviceByMAC(ctx, "aa:00:00:00:00:01"); ok {
+		t.Fatal("old untouched device kept")
+	}
+	if ok, err := s.DeleteDevice(ctx, "aa:00:00:00:00:03"); !ok || err != nil {
+		t.Fatalf("delete: %v %v", ok, err)
+	}
+	if ok, _ := s.DeleteDevice(ctx, "aa:00:00:00:00:03"); ok {
+		t.Fatal("deleted twice")
+	}
+	evs, _ := s.Events(ctx, 50)
+	for _, e := range evs {
+		if e.MAC == "aa:00:00:00:00:03" || e.MAC == "aa:00:00:00:00:01" {
+			t.Fatalf("history of a forgotten device kept: %+v", e)
+		}
+	}
+
+	dst := filepath.Join(t.TempDir(), "backup.db")
+	if err := s.Backup(ctx, dst); err != nil {
+		t.Fatal(err)
+	}
+	st, err := os.Stat(dst)
+	if err != nil || st.Mode().Perm() != 0o600 {
+		t.Fatalf("backup mode: %v %v", st, err)
+	}
+	if err := s.Backup(ctx, dst); err == nil {
+		t.Fatal("a backup must not overwrite an existing file")
+	}
+	b, err := Open(dst)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer b.Close()
+	if list, _ := b.Devices(ctx); len(list) != 1 || list[0].MAC != "aa:00:00:00:00:02" {
+		t.Fatalf("backup content: %+v", list)
 	}
 }

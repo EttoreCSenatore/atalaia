@@ -42,6 +42,9 @@ type Status struct {
 // RetentionKey is the setting that holds how many days of events are kept (0 = forever).
 const RetentionKey = "retention_days"
 
+// PruneKey holds after how many days offline an untouched device is forgotten (0 = never).
+const PruneKey = "prune_days"
+
 // DefaultRetentionDays is used until the user changes the setting.
 const DefaultRetentionDays = 90
 
@@ -194,6 +197,9 @@ func (m *Monitor) purge(ctx context.Context, now time.Time) {
 	days, err := m.Store.SettingInt(ctx, RetentionKey, DefaultRetentionDays)
 	if err == nil && days > 0 {
 		_, _ = m.Store.PurgeEvents(ctx, now.AddDate(0, 0, -days))
+	}
+	if keep, err := m.Store.SettingInt(ctx, PruneKey, 0); err == nil && keep > 0 {
+		_, _ = m.Store.PruneDevices(ctx, now.AddDate(0, 0, -keep))
 	}
 	_ = m.Store.PurgeSessions(ctx, now)
 }

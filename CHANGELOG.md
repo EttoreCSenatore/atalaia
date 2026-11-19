@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Inventory housekeeping: forget a device (with its history), opt-in forgetting of untouched devices offline for N days, a type filter on the dashboard, CSV/JSON export (spreadsheet-safe CSV) from the dashboard and `atalaia export`, and `atalaia backup` for a consistent 0600 copy while the server runs.
+
+**PT-BR** — Organização do inventário: esquecer um dispositivo (com o histórico), esquecer automaticamente (opcional) os não mexidos offline há N dias, filtro por tipo no painel, exportação CSV/JSON (CSV seguro para planilhas) pelo painel e `atalaia export`, e `atalaia backup` para uma cópia consistente 0600 com o servidor rodando.
+
 **EN** — Security review fixes: parallel password guesses could all pass the lockout check (attempts are now counted before the password is checked); a global limit across all addresses (about 30 a minute, at most a 1-minute lockout); at most 2 concurrent argon2id checks (memory exhaustion); a data race on the DHCP-names counter; SSDP answers capped at 256 per round; staticcheck added to CI.
 
 **PT-BR** — Correções da revisão de segurança: tentativas de senha em paralelo podiam todas passar pela checagem do bloqueio (agora a tentativa é contada antes de conferir a senha); limite global para todos os endereços (cerca de 30 por minuto, bloqueio de no máximo 1 minuto); no máximo 2 verificações argon2id simultâneas (esgotamento de memória); condição de corrida no contador de nomes por DHCP; respostas SSDP limitadas a 256 por rodada; staticcheck na CI.

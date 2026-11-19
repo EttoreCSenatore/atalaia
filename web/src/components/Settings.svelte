@@ -9,6 +9,7 @@
   let settings = $state<Settings | null>(null);
   let days = $state(90);
   let scanHours = $state(0);
+  let pruneDays = $state(0);
   let saved = $state(false);
   let current = $state('');
   let next = $state('');
@@ -20,6 +21,7 @@
       settings = await api.settings();
       days = settings.retention_days;
       scanHours = settings.port_scan_hours;
+      pruneDays = settings.prune_days;
     } catch {
       /* the page still shows the language and password sections */
     }
@@ -30,6 +32,7 @@
     saved = false;
     try {
       settings = await api.saveSettings(Number(days));
+      settings = await api.savePruneDays(Number(pruneDays));
       saved = true;
     } catch {
       saved = false;
@@ -83,6 +86,9 @@
       <label for="days">{t('settings.days')}</label>
       <input id="days" type="number" min="0" max="3650" bind:value={days} />
       <p class="muted help">{t('settings.retentionHelp')}</p>
+      <label for="prune">{t('settings.pruneDays')}</label>
+      <input id="prune" type="number" min="0" max="3650" bind:value={pruneDays} />
+      <p class="muted help">{t('settings.pruneHelp')}</p>
       {#if saved}<p class="ok" role="status">{t('settings.saved')}</p>{/if}
       <button class="primary">{t('common.save')}</button>
     </form>
