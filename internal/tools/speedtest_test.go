@@ -26,7 +26,7 @@ func TestSpeedTestMeasuresAndCapsTheDownload(t *testing.T) {
 
 func TestSpeedTestRefusesRedirectsAndBadAnswers(t *testing.T) {
 	redir := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "http://169.254.169.254/", 302)
+		http.Redirect(w, r, "http://169.254.169.254/", http.StatusFound)
 	}))
 	defer redir.Close()
 	if _, err := SpeedTest(context.Background(), nil, redir.URL, 1<<20, time.Second); err == nil || strings.Contains(err.Error(), "169.254") {

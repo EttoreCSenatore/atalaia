@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -499,5 +500,49 @@ func TestScheduledPortScansCannotBeEnabledInObserveOnlyMode(t *testing.T) {
 	}
 	if w := f.do("PUT", "/api/settings", map[string]any{}, c); w.Code != 400 {
 		t.Fatalf("empty update: %d", w.Code)
+	}
+}
+
+func TestParallelGuessesCannotSlipPastTheLockout(t *testing.T) {
+	f := newFixture(t)
+	f.setup()
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	codes := map[int]int{}
+	for i := 0; i < 20; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			w := f.do("POST", "/api/login", map[string]string{"password": "wrong password guess"}, nil)
+			mu.Lock()
+			codes[w.Code]++
+			mu.Unlock()
+		}()
+	}
+	wg.Wait()
+	if codes[401] > 5 {
+		t.Fatalf("more than 5 passwords were actually checked: %v", codes)
+	}
+	if codes[429] < 15 {
+		t.Fatalf("the rest must be refused: %v", codes)
+	}
+}
+
+func TestAllAddressesTogetherAreLimitedButNotForLong(t *testing.T) {
+	f := newFixture(t)
+	f.setup()
+	now := time.Now()
+	f.srv.Now = func() time.Time { return now }
+	for i := 0; i < 40; i++ {
+		ip := fmt.Sprintf("192.168.1.%d:5555", 100+i) // a new address for every guess
+		w := f.do("POST", "/api/login", map[string]string{"password": "wrong password guess"}, nil, func(r *http.Request) { r.RemoteAddr = ip })
+		if i >= 30 && w.Code != 429 {
+			t.Fatalf("guess %d from a fresh address was checked (%d): rotating addresses must not bypass the limit", i, w.Code)
+		}
+	}
+	now = now.Add(61 * time.Second)
+	w := f.do("POST", "/api/login", map[string]string{"password": password}, nil, func(r *http.Request) { r.RemoteAddr = "192.168.1.250:5555" })
+	if w.Code != 200 {
+		t.Fatalf("the owner must get back in after a minute: %d", w.Code)
 	}
 }

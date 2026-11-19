@@ -33,6 +33,10 @@ O código passou por uma revisão manual das partes críticas (login, sessões, 
 
 | Achado | Decisão |
 |---|---|
+| Tentativas de senha em paralelo passavam todas pela checagem do bloqueio antes de qualquer falha ser contada (revisão de 2026-11-19) | Corrigido: a tentativa é contada **antes** de conferir a senha |
+| Trocar de endereço IP na rede multiplicava as tentativas | Corrigido: além do limite por endereço, um limite para **todos juntos** (cerca de 30 por minuto, bloqueio de no máximo 1 minuto, para que um atacante não consiga trancar o dono do lado de fora) |
+| Muitos logins ao mesmo tempo podiam esgotar a memória (cada argon2id usa ~19 MiB) | Corrigido: no máximo 2 verificações de senha simultâneas |
+| Respostas SSDP falsificadas em massa | Corrigido: no máximo 256 dispositivos por rodada de descoberta |
 | Conversões `int`→`uint16`/`uint32`/`byte` apontadas (G115) | Corrigidas: porta fora de 1–65535 vira porta 0 (recusada); tamanho da chave do argon2 limitado a 128 bytes; máscaras explícitas na leitura da tabela de rotas |
 | Cookie de logout sem `Secure` (G124) | Corrigido; novo `--secure-cookies` (`ATALAIA_SECURE_COOKIES=1`) marca o cookie `Secure` atrás de um proxy que termina TLS |
 | Cookie `Secure` só quando há HTTPS (G124) | **Aceito**: um cookie `Secure` em HTTP puro seria descartado pelo navegador |

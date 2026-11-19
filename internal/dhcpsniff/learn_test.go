@@ -50,7 +50,7 @@ func TestLearnerNamesAnonymousDevicesAndKeepsWhatIsKnown(t *testing.T) {
 	if d.Name != "late-comer-laptop" || d.Kind != "computer" {
 		t.Fatalf("pending announcement lost: %+v", d)
 	}
-	if l.Learned < 3 {
-		t.Fatalf("learned counter %d", l.Learned)
+	if l.Learned() < 3 {
+		t.Fatalf("learned counter %d", l.Learned())
 	}
 }

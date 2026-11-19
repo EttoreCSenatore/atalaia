@@ -63,7 +63,7 @@ func TestSanitizeLabel(t *testing.T) {
 	cases := []struct{ in, want string }{
 		{"  my\tphone \n 2  ", "my phone 2"},
 		{"evil\x1b[31mred\x00", "evil[31mre"},
-		{"abc‮def", "abcdef"}, // right-to-left override
+		{"abc\u202edef", "abcdef"}, // right-to-left override
 		{"caf\xc3\xa9\xff", "café"},
 		{strings.Repeat("a", 100), strings.Repeat("a", 10)},
 	}

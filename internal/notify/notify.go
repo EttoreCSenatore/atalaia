@@ -87,7 +87,7 @@ func Validate(c Channel) error {
 		return validURL(c.URL)
 	case TypeTelegram:
 		if c.Token == "" || c.ChatID == "" {
-			return errors.New("Telegram needs a bot token and a chat id")
+			return errors.New("telegram needs a bot token and a chat id")
 		}
 		if strings.ContainsAny(c.Token, "/? #") {
 			return errors.New("invalid bot token")

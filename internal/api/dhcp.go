@@ -144,7 +144,7 @@ func (s *Server) sniffView(r *http.Request) sniffDTO {
 		out.Active, out.Error = s.Sniff.Status()
 	}
 	if s.Learner != nil {
-		out.Learned = s.Learner.Learned
+		out.Learned = s.Learner.Learned()
 	}
 	return out
 }

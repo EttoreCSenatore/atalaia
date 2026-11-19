@@ -37,6 +37,9 @@ type SSDP struct {
 	Fetch func(ctx context.Context, rawURL string) ([]byte, error)
 }
 
+// maxSSDPAnswers bounds how many devices one discovery round accepts.
+const maxSSDPAnswers = 256
+
 type ssdpAnswer struct {
 	location, server string
 }
@@ -74,6 +77,9 @@ func (s SSDP) Discover(ctx context.Context) (map[netip.Addr]SSDPInfo, error) {
 			continue
 		}
 		ip = ip.Unmap()
+		if _, seen := answers[ip]; !seen && len(answers) >= maxSSDPAnswers {
+			continue // a flood of (possibly spoofed) answers must not turn into a flood of requests
+		}
 		h := parseHeaders(string(buf[:n]))
 		if loc := h["location"]; loc != "" {
 			if _, seen := answers[ip]; !seen || answers[ip].location == "" {
