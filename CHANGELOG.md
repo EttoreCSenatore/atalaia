@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.6.0 — 2026-11-19
+
 **EN** — Inventory housekeeping: forget a device (with its history), opt-in forgetting of untouched devices offline for N days, a type filter on the dashboard, CSV/JSON export (spreadsheet-safe CSV) from the dashboard and `atalaia export`, and `atalaia backup` for a consistent 0600 copy while the server runs.
 
 **PT-BR** — Organização do inventário: esquecer um dispositivo (com o histórico), esquecer automaticamente (opcional) os não mexidos offline há N dias, filtro por tipo no painel, exportação CSV/JSON (CSV seguro para planilhas) pelo painel e `atalaia export`, e `atalaia backup` para uma cópia consistente 0600 com o servidor rodando.
