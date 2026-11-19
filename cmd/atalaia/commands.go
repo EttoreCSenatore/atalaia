@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/EttoreCSenatore/atalaia/internal/discovery"
+	"github.com/EttoreCSenatore/atalaia/internal/export"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
 )
 
@@ -181,4 +182,58 @@ func label(name, vendor, mac string) string {
 		return vendor + " (" + mac + ")"
 	}
 	return mac
+}
+
+// cmdExport prints the inventory as CSV or JSON.
+func (a *app) cmdExport(ctx context.Context, args []string) int {
+	fs, db := a.flags("export")
+	format := fs.String("format", "csv", "csv or json")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if *format != "csv" && *format != "json" {
+		fmt.Fprintln(a.err, "error: --format must be csv or json")
+		return 2
+	}
+	st, err := store.Open(*db)
+	if err != nil {
+		return a.fail(err)
+	}
+	defer st.Close()
+	devs, err := st.Devices(ctx)
+	if err != nil {
+		return a.fail(err)
+	}
+	rows := export.Rows(devs)
+	if *format == "json" {
+		err = export.JSON(a.out, rows)
+	} else {
+		err = export.CSV(a.out, rows)
+	}
+	if err != nil {
+		return a.fail(err)
+	}
+	return 0
+}
+
+// cmdBackup writes a consistent copy of the database (safe while the server runs).
+func (a *app) cmdBackup(ctx context.Context, args []string) int {
+	fs, db := a.flags("backup")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if fs.NArg() != 1 {
+		fmt.Fprintln(a.err, "usage: atalaia backup [--db file] <new-file.db>")
+		return 2
+	}
+	st, err := store.Open(*db)
+	if err != nil {
+		return a.fail(err)
+	}
+	defer st.Close()
+	if err := st.Backup(ctx, fs.Arg(0)); err != nil {
+		return a.fail(err)
+	}
+	fmt.Fprintf(a.out, "Backup written to %s (only you can read it: it holds your device list and alert secrets).\n", fs.Arg(0))
+	return 0
 }

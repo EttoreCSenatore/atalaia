@@ -163,3 +163,42 @@ func TestDevicesExposeWhatTheyAnnounced(t *testing.T) {
 		t.Fatal(raw)
 	}
 }
+
+func TestForgetAndExportDevices(t *testing.T) {
+	f := newFixture(t)
+	c := f.setup()
+	f.seedDevice()
+	r := f.do("GET", "/api/devices/export?format=csv", nil, c)
+	if r.Code != 200 || !strings.HasPrefix(r.Header().Get("Content-Type"), "text/csv") || !strings.Contains(r.Header().Get("Content-Disposition"), "attachment") || !strings.Contains(r.Body.String(), "b8:27:eb:00:00:01") {
+		t.Fatalf("csv: %d %v %s", r.Code, r.Header(), r.Body)
+	}
+	if r := f.do("GET", "/api/devices/export?format=json", nil, c); r.Code != 200 || !strings.Contains(r.Body.String(), `"mac"`) {
+		t.Fatalf("json: %d", r.Code)
+	}
+	if r := f.do("GET", "/api/devices/export?format=xml", nil, c); r.Code != 400 {
+		t.Fatalf("bad format: %d", r.Code)
+	}
+	if r := f.do("GET", "/api/devices/export", nil, nil); r.Code != 401 {
+		t.Fatalf("anonymous export: %d", r.Code)
+	}
+	if r := f.do("DELETE", "/api/devices/b8:27:eb:00:00:01", nil, nil); r.Code != 401 {
+		t.Fatalf("anonymous forget: %d", r.Code)
+	}
+	if r := f.do("DELETE", "/api/devices/b8:27:eb:00:00:01", nil, c); r.Code != 200 {
+		t.Fatalf("forget: %d", r.Code)
+	}
+	if r := f.do("DELETE", "/api/devices/b8:27:eb:00:00:01", nil, c); r.Code != 404 {
+		t.Fatalf("forget twice: %d", r.Code)
+	}
+	var a []auditDTO
+	_ = json.Unmarshal(f.do("GET", "/api/audit", nil, c).Body.Bytes(), &a)
+	if len(a) == 0 || a[0].Action != "forget" {
+		t.Fatalf("audit: %+v", a)
+	}
+	if r := f.do("PUT", "/api/settings", map[string]int{"prune_days": 30}, c); r.Code != 200 || !strings.Contains(r.Body.String(), `"prune_days":30`) {
+		t.Fatalf("prune setting: %d %s", r.Code, r.Body)
+	}
+	if r := f.do("PUT", "/api/settings", map[string]int{"prune_days": -1}, c); r.Code != 400 {
+		t.Fatalf("bad prune: %d", r.Code)
+	}
+}

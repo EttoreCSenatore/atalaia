@@ -68,6 +68,10 @@ Celulares e notebooks **anunciam o nome** (e, no Android, uma "classe de fabrica
 - Nunca troca um nome que você ou outra fonte já definiu, e um nome aprendido não apaga o seu.
 - Não é uma ferramenta ativa: continua disponível no [modo somente observação](../tecnico/implantacao.md).
 
+## Limpar a lista
+
+Na página de um dispositivo, **Esquecer este dispositivo** remove o dispositivo, o histórico e os resultados de varredura (fica no registro de auditoria). Em **Configurações**, **Esquecer dispositivos offline há mais de N dias** limpa sozinho os que você nunca mexeu (não conhecidos, sem nome, sem etiquetas); o padrão é nunca. Isso evita o acúmulo de celulares que trocam o MAC aleatório. No painel dá para **filtrar por tipo**.
+
 ## Segurança e privacidade
 
 - O banco guarda o inventário da rede, que é dado pessoal. O arquivo é criado com permissão `0600` e a pasta com `0700`, e nada sai da máquina.

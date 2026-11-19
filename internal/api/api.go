@@ -26,6 +26,7 @@ import (
 	"github.com/EttoreCSenatore/atalaia/internal/auth"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpsniff"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpwatch"
+	"github.com/EttoreCSenatore/atalaia/internal/export"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
 	"github.com/EttoreCSenatore/atalaia/internal/notify"
 	"github.com/EttoreCSenatore/atalaia/internal/scope"
@@ -120,6 +121,8 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/logout", s.mutating(s.protected(s.logout)))
 	mux.HandleFunc("POST /api/password", s.mutating(s.protected(s.changePassword)))
 	mux.HandleFunc("GET /api/devices", s.protected(s.devices))
+	mux.HandleFunc("GET /api/devices/export", s.protected(s.exportDevices))
+	mux.HandleFunc("DELETE /api/devices/{mac}", s.mutating(s.protected(s.forgetDevice)))
 	mux.HandleFunc("PUT /api/devices/{mac}", s.mutating(s.protected(s.updateDevice)))
 	mux.HandleFunc("POST /api/devices/{mac}/wake", s.mutating(s.protected(s.activeOnly(s.wake))))
 	mux.HandleFunc("POST /api/devices/{mac}/portscan", s.mutating(s.protected(s.activeOnly(s.portScan))))
@@ -460,15 +463,14 @@ func (s *Server) setup(w http.ResponseWriter, r *http.Request) {
 // limit is reached.
 func (s *Server) attempt(w http.ResponseWriter, key string) bool {
 	now := s.now()
-	if ok, wait := s.global.Allow("all", now); !ok {
-		tooMany(w, wait)
-		return false
-	}
 	if ok, wait := s.limiter.Attempt(key, now); !ok {
 		tooMany(w, wait)
 		return false
 	}
-	s.global.Fail("all", now)
+	if ok, wait := s.global.Attempt("all", now); !ok {
+		tooMany(w, wait)
+		return false
+	}
 	return true
 }
 
@@ -689,6 +691,7 @@ type settingsDTO struct {
 	RetentionDays int    `json:"retention_days"`
 	ScanInterval  string `json:"scan_interval"`
 	PortScanHours int    `json:"port_scan_hours"`
+	PruneDays     int    `json:"prune_days"`
 	ActiveTools   bool   `json:"active_tools"`
 }
 
@@ -699,18 +702,30 @@ func (s *Server) getSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hours, _ := s.Store.SettingInt(r.Context(), portScanHoursKey, 0)
-	writeJSON(w, http.StatusOK, settingsDTO{RetentionDays: days, ScanInterval: s.Monitor.Status().Interval, PortScanHours: hours, ActiveTools: !s.NoActiveTools})
+	prune, _ := s.Store.SettingInt(r.Context(), monitor.PruneKey, 0)
+	writeJSON(w, http.StatusOK, settingsDTO{RetentionDays: days, ScanInterval: s.Monitor.Status().Interval, PortScanHours: hours, PruneDays: prune, ActiveTools: !s.NoActiveTools})
 }
 
 func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 	var in struct {
 		RetentionDays *int `json:"retention_days"`
 		PortScanHours *int `json:"port_scan_hours"`
+		PruneDays     *int `json:"prune_days"`
 	}
 	if !decode(w, r, &in) {
 		return
 	}
-	if in.RetentionDays == nil && in.PortScanHours == nil {
+	if in.PruneDays != nil && (*in.PruneDays < 0 || *in.PruneDays > 3650) {
+		writeError(w, http.StatusBadRequest, "prune_days must be between 0 (never) and 3650")
+		return
+	}
+	if in.PruneDays != nil {
+		if err := s.Store.SetSetting(r.Context(), monitor.PruneKey, fmt.Sprint(*in.PruneDays)); err != nil {
+			serverError(w, err)
+			return
+		}
+	}
+	if in.RetentionDays == nil && in.PortScanHours == nil && in.PruneDays == nil {
 		writeError(w, http.StatusBadRequest, "nothing to change")
 		return
 	}
@@ -905,4 +920,51 @@ func localMACs() map[string]bool {
 		}
 	}
 	return out
+}
+
+func (s *Server) forgetDevice(w http.ResponseWriter, r *http.Request) {
+	hw, err := net.ParseMAC(r.PathValue("mac"))
+	if err != nil || len(hw) != 6 {
+		writeError(w, http.StatusBadRequest, "invalid MAC address")
+		return
+	}
+	ok, err := s.Store.DeleteDevice(r.Context(), hw.String())
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	if !ok {
+		writeError(w, http.StatusNotFound, "unknown device")
+		return
+	}
+	s.audited(r, "forget", hw.String(), "device and its history removed")
+	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+}
+
+// exportDevices downloads the inventory as CSV (spreadsheet-safe) or JSON.
+func (s *Server) exportDevices(w http.ResponseWriter, r *http.Request) {
+	format := r.URL.Query().Get("format")
+	if format == "" {
+		format = "csv"
+	}
+	if format != "csv" && format != "json" {
+		writeError(w, http.StatusBadRequest, "format must be csv or json")
+		return
+	}
+	devs, err := s.Store.Devices(r.Context())
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	name := "atalaia-devices-" + s.now().Format("2006-01-02") + "." + format
+	w.Header().Set("Content-Disposition", `attachment; filename="`+name+`"`)
+	w.Header().Set("Cache-Control", "no-store")
+	rows := export.Rows(devs)
+	if format == "json" {
+		w.Header().Set("Content-Type", "application/json")
+		_ = export.JSON(w, rows)
+		return
+	}
+	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	_ = export.CSV(w, rows)
 }

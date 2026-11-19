@@ -68,6 +68,10 @@ Phones and laptops **announce their name** (and, on Android, a "vendor class" su
 - It never replaces a name that you or another source already set, and a learned name does not erase yours.
 - It is not an active tool: it stays available in [observe-only mode](../tecnico/implantacao.md).
 
+## Cleaning up the list
+
+On a device's page, **Forget this device** removes the device, its history and its scan results (it stays in the audit log). In **Settings**, **Forget devices offline for more than N days** cleans up by itself the ones you never touched (not known, no name, no tags); the default is never. This keeps phones that change their random MAC from piling up. On the dashboard you can **filter by type**.
+
 ## Security and privacy
 
 - The database holds the network inventory, which is personal data. The file is created with `0600` permissions and its folder with `0700`, and nothing leaves the machine.

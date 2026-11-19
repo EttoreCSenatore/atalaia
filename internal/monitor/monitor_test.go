@@ -146,3 +146,22 @@ func TestOnResultFlagsOnlyTheFirstScanAsBaseline(t *testing.T) {
 		t.Fatalf("flags %v new %v", flags, news)
 	}
 }
+
+func TestPurgeForgetsOldUntouchedDevicesOnlyWhenAsked(t *testing.T) {
+	st := newStore(t)
+	ctx := context.Background()
+	old := time.Now().AddDate(0, 0, -60)
+	_, _ = st.Record(ctx, old, []store.Observation{{MAC: "a8:00:00:00:00:09", IP: netip.MustParseAddr("192.168.1.9")}}, time.Hour)
+	_, _ = st.Record(ctx, old.Add(2*time.Hour), nil, time.Hour) // goes offline
+	m := &Monitor{Store: st, Scan: func(context.Context, bool) ([]store.Observation, error) { return nil, nil }}
+	m.init()
+	m.purge(ctx, time.Now())
+	if _, ok, _ := st.DeviceByMAC(ctx, "a8:00:00:00:00:09"); !ok {
+		t.Fatal("pruned without being asked")
+	}
+	_ = st.SetSetting(ctx, PruneKey, "30")
+	m.purge(ctx, time.Now())
+	if _, ok, _ := st.DeviceByMAC(ctx, "a8:00:00:00:00:09"); ok {
+		t.Fatal("not pruned")
+	}
+}

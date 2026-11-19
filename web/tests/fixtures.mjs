@@ -55,7 +55,7 @@ export const audit = [
   { at: new Date(Date.now() - 50 * 60_000).toISOString(), action: 'ping', target: '192.168.1.1', detail: '4 sent, 0 lost' },
   { at: new Date(Date.now() - 26 * 3600_000).toISOString(), action: 'wake', target: 'a8:55:66:00:00:41', detail: 'magic packet to 192.168.1.255' },
 ];
-export const settings = { retention_days: 90, scan_interval: '5m0s', port_scan_hours: 24, active_tools: true };
+export const settings = { retention_days: 90, scan_interval: '5m0s', port_scan_hours: 24, prune_days: 30, active_tools: true };
 export const status = (extra = {}) => ({ version: '0.2.0', setup_required: false, authenticated: true, scan: { scanning: false, last_scan: ago(1), last_error: '', interval: '5m0s' }, ...extra });
 
 export const alerts = {

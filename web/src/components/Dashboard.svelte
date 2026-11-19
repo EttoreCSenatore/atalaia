@@ -2,17 +2,20 @@
   import { app, startScan } from '../lib/app.svelte';
   import { t, i18n } from '../lib/i18n.svelte';
   import { compareIp, deviceLabel, relativeTime } from '../lib/format';
-  import { kindIcon } from '../lib/kinds';
+  import { kindIcon, knownKinds } from '../lib/kinds';
   import StateBadge from './StateBadge.svelte';
 
   let query = $state('');
   let filter = $state<'all' | 'online' | 'offline'>('all');
+  let kind = $state('');
+  const presentKinds = $derived(knownKinds.filter((k) => app.devices.some((d) => d.kind === k)));
 
   const online = $derived(app.devices.filter((d) => d.online).length);
   const newToday = $derived(app.devices.filter((d) => Date.now() - new Date(d.first_seen).getTime() < 86_400_000).length);
   const shown = $derived(
     app.devices
       .filter((d) => (filter === 'all' ? true : filter === 'online' ? d.online : !d.online))
+      .filter((d) => !kind || (kind === 'unknown' ? !d.kind : d.kind === kind))
       .filter((d) => {
         const q = query.trim().toLowerCase();
         return !q || [d.label, d.name, d.vendor, d.model, d.kind, d.ip, d.mac, ...d.tags].some((v) => v.toLowerCase().includes(q));
@@ -45,6 +48,11 @@
 <div class="tools">
   <label class="sr-only" for="q">{t('dashboard.search')}</label>
   <input id="q" type="search" placeholder={t('dashboard.search')} bind:value={query} />
+  <select bind:value={kind} aria-label={t('dashboard.kindFilter')}>
+    <option value="">{t('dashboard.allKinds')}</option>
+    {#each presentKinds as k (k)}<option value={k}>{kindIcon(k)} {t(`kinds.${k}`)}</option>{/each}
+    <option value="unknown">❔ {t('kinds.unknown')}</option>
+  </select>
   <div class="seg" role="group">
     <button class:sel={filter === 'all'} onclick={() => (filter = 'all')}>{t('dashboard.all')}</button>
     <button class:sel={filter === 'online'} onclick={() => (filter = 'online')}>{t('common.online')}</button>
@@ -87,7 +95,20 @@
   {/if}
 </div>
 
+<p class="muted export">
+  {t('dashboard.export')}:
+  <a href="/api/devices/export?format=csv" download>CSV</a> ·
+  <a href="/api/devices/export?format=json" download>JSON</a>
+</p>
+
 <style>
+  .export {
+    margin-top: 0.8rem;
+    font-size: 0.9rem;
+  }
+  .tools select {
+    width: auto;
+  }
   .icon {
     margin-right: 0.4rem;
   }

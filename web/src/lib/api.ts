@@ -64,7 +64,7 @@ export type DhcpServer = { ip: string; first_seen: string; last_seen: string; ro
 export type DhcpReport = { at: string; offers: unknown[]; baseline: boolean; new: string[]; error?: string };
 export type DhcpNames = { enabled: boolean; active: boolean; error?: string; learned: number };
 export type Dhcp = { names: DhcpNames; enabled: boolean; servers: DhcpServer[]; last: DhcpReport | null };
-export type Settings = { retention_days: number; scan_interval: string; port_scan_hours: number; active_tools: boolean };
+export type Settings = { retention_days: number; scan_interval: string; port_scan_hours: number; prune_days: number; active_tools: boolean };
 
 export class ApiError extends Error {
   constructor(
@@ -115,12 +115,14 @@ export const api = {
   scan: () => request<{ status: string }>('POST', '/api/scan'),
   settings: () => request<Settings>('GET', '/api/settings'),
   saveSettings: (retention_days: number) => request<Settings>('PUT', '/api/settings', { retention_days }),
+  savePruneDays: (prune_days: number) => request<Settings>('PUT', '/api/settings', { prune_days }),
   savePortScanHours: (port_scan_hours: number) => request<Settings>('PUT', '/api/settings', { port_scan_hours }),
   updateDevice: (mac: string, label: string, tags: string[], known: boolean) =>
     request<Device>('PUT', `/api/devices/${encodeURIComponent(mac)}`, { label, tags, known }),
   alerts: () => request<Alerts>('GET', '/api/alerts'),
   saveAlerts: (a: Alerts) => request<Alerts>('PUT', '/api/alerts', a),
   testAlert: (id: string) => request<{ ok: boolean }>('POST', '/api/alerts/test', { id }),
+  forget: (mac: string) => request<{ ok: boolean }>('DELETE', `/api/devices/${encodeURIComponent(mac)}`),
   wake: (mac: string) => request<{ status: string }>('POST', `/api/devices/${encodeURIComponent(mac)}/wake`),
   portScan: (mac: string) => request<PortsResult>('POST', `/api/devices/${encodeURIComponent(mac)}/portscan`, { confirm: true }),
   exposureScan: (mac: string) => request<Exposure>('POST', `/api/devices/${encodeURIComponent(mac)}/exposure`, { confirm: true }),

@@ -263,3 +263,39 @@ func TestServeRefusesAnOverWideAllowCIDR(t *testing.T) {
 		t.Fatal("0.0.0.0/0 must be refused")
 	}
 }
+
+func TestExportAndBackupCommands(t *testing.T) {
+	var out, errOut syncBuf
+	dir := t.TempDir()
+	db := filepath.Join(dir, "a.db")
+	a := &app{out: &out, err: &errOut, now: time.Now, scan: func(context.Context, bool) ([]store.Observation, error) {
+		return []store.Observation{{MAC: "aa:00:00:00:00:01", IP: netip.MustParseAddr("192.168.1.10"), Name: "=1+1"}}, nil
+	}}
+	if code := a.run(context.Background(), []string{"scan", "--db", db}); code != 0 {
+		t.Fatalf("scan: %q", errOut.String())
+	}
+	out = syncBuf{}
+	if code := a.run(context.Background(), []string{"export", "--db", db}); code != 0 || !strings.Contains(out.String(), "'=1+1") || !strings.HasPrefix(out.String(), "mac,ip,") {
+		t.Fatalf("csv: %d %q", code, out.String())
+	}
+	out = syncBuf{}
+	if code := a.run(context.Background(), []string{"export", "--db", db, "--format", "json"}); code != 0 || !strings.Contains(out.String(), `"mac": "aa:00:00:00:00:01"`) {
+		t.Fatalf("json: %q", out.String())
+	}
+	if code := a.run(context.Background(), []string{"export", "--db", db, "--format", "xml"}); code != 2 {
+		t.Fatal("unknown format accepted")
+	}
+	bk := filepath.Join(dir, "copy.db")
+	if code := a.run(context.Background(), []string{"backup", "--db", db, bk}); code != 0 {
+		t.Fatalf("backup: %q", errOut.String())
+	}
+	if st, err := os.Stat(bk); err != nil || st.Mode().Perm() != 0o600 {
+		t.Fatalf("backup file: %v %v", st, err)
+	}
+	if code := a.run(context.Background(), []string{"backup", "--db", db, bk}); code == 0 {
+		t.Fatal("overwrote an existing backup")
+	}
+	if code := a.run(context.Background(), []string{"backup", "--db", db}); code != 2 {
+		t.Fatal("missing file name accepted")
+	}
+}
