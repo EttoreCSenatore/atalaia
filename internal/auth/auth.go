@@ -136,6 +136,10 @@ func (l *Limiter) Allow(key string, now time.Time) (bool, time.Duration) {
 func (l *Limiter) Fail(key string, now time.Time) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	l.failLocked(key, now)
+}
+
+func (l *Limiter) failLocked(key string, now time.Time) {
 	if l.state == nil {
 		l.state = map[string]*entry{}
 	}
@@ -173,13 +177,16 @@ func (l *Limiter) Fail(key string, now time.Time) {
 }
 
 // Attempt counts an attempt before the password is checked and reports whether
-// it may go ahead. Counting first means parallel guesses cannot all slip past
-// the limit while the (slow) check runs; a successful login calls Reset.
+// it may go ahead. The check and the count happen under one lock, so parallel
+// guesses cannot slip past the limit while the (slow) check runs; a successful
+// login calls Reset.
 func (l *Limiter) Attempt(key string, now time.Time) (bool, time.Duration) {
-	if ok, wait := l.Allow(key, now); !ok {
-		return false, wait
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if e, ok := l.state[key]; ok && now.Before(e.until) {
+		return false, e.until.Sub(now)
 	}
-	l.Fail(key, now)
+	l.failLocked(key, now)
 	return true, 0
 }
 

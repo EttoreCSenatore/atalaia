@@ -463,15 +463,14 @@ func (s *Server) setup(w http.ResponseWriter, r *http.Request) {
 // limit is reached.
 func (s *Server) attempt(w http.ResponseWriter, key string) bool {
 	now := s.now()
-	if ok, wait := s.global.Allow("all", now); !ok {
-		tooMany(w, wait)
-		return false
-	}
 	if ok, wait := s.limiter.Attempt(key, now); !ok {
 		tooMany(w, wait)
 		return false
 	}
-	s.global.Fail("all", now)
+	if ok, wait := s.global.Attempt("all", now); !ok {
+		tooMany(w, wait)
+		return false
+	}
 	return true
 }
 

@@ -2,6 +2,8 @@ package auth
 
 import (
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -106,5 +108,25 @@ func TestSetupCode(t *testing.T) {
 	}
 	if b, _ := NewSetupCode(); a == b {
 		t.Fatal("codes must be random")
+	}
+}
+
+func TestAttemptIsAtomicUnderContention(t *testing.T) {
+	var l Limiter
+	now := time.Now()
+	var wg sync.WaitGroup
+	var allowed atomic.Int32
+	for i := 0; i < 200; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if ok, _ := l.Attempt("k", now); ok {
+				allowed.Add(1)
+			}
+		}()
+	}
+	wg.Wait()
+	if allowed.Load() != 5 {
+		t.Fatalf("exactly 5 attempts may pass, got %d", allowed.Load())
 	}
 }
