@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Docs: comparison with Kaladrius and the M7 "Operations and maturity" roadmap; roadmap brought up to date (v0.5, v0.6).
+
+**PT-BR** — Documentação: comparação com o Kaladrius e o roteiro M7 "Operação e maturidade"; roadmap atualizado (v0.5, v0.6).
+
 ## v0.6.0 — 2026-11-19
 
 **EN** — Inventory housekeeping: forget a device (with its history), opt-in forgetting of untouched devices offline for N days, a type filter on the dashboard, CSV/JSON export (spreadsheet-safe CSV) from the dashboard and `atalaia export`, and `atalaia backup` for a consistent 0600 copy while the server runs.
