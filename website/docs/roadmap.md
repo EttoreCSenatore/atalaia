@@ -23,8 +23,27 @@ Cada etapa vira um pull request, revisado e integrado antes da próxima. Documen
 | **M6.1** | HTTPS embutido (certificado próprio ou autoassinado com renovação) | Concluído (ver [Implantação](tecnico/implantacao.md)) |
 | **M6.2** | Autorrevisão de segurança do código e gosec na CI | Concluído (ver [Segurança e privacidade](tecnico/seguranca-e-privacidade.md)) |
 | **M6.3** | Unidade systemd, pacotes .deb/.rpm e modo somente observação | Concluído (ver [Implantação](tecnico/implantacao.md)) |
+| **v0.5** | Identificação: serviços mDNS, SSDP/UPnP, NetBIOS, palpite de tipo com ícones, nomes por DHCP (opcional), VPN por `--allow-cidr`, varreduras agendadas | Concluído (ver [Descoberta](funcionalidades/descoberta.md)) |
+| **v0.6** | Revisão de segurança (bloqueio de login sob tentativas paralelas, limite global) e organização do inventário (esquecer, limpeza automática, filtro, exportação, backup) | Concluído (ver [Segurança e privacidade](tecnico/seguranca-e-privacidade.md)) |
 
-A **v0.1** é o fim do M3: descoberta, histórico e alertas. A v0.1.0 foi publicada. O próximo passo é o **M5.3**.
+A versão publicada mais recente é a **v0.6.0**. O próximo bloco é o **M7**.
+
+## M7: Operação e maturidade
+
+Inspirado no Kaladrius (veja a [comparação](tecnico/comparacao-kaladrius.md)). Um pull request por passo, nesta ordem; cada um tem uma issue no marco **M7** do GitHub.
+
+| Passo | Entrega | Estado |
+|---|---|---|
+| **M7.1** | Cadeia de suprimentos: Dependabot com espera de 7 dias e PRs agrupados; ações do GitHub fixadas por SHA e imagens por digest, com verificação na CI | Planejado |
+| **M7.2** | Arquivos do repositório: CONTRIBUTING, CODE_OF_CONDUCT, CODEOWNERS, NOTICE (nome, marca, sem ligação com a Fing) e modelos de issue e PR | Planejado |
+| **M7.3** | Versões e novidades: `releases.yaml` como fonte única da página **Novidades** no app, da versão no rodapé e do texto da release; a CI confere a versão | Planejado |
+| **M7.4** | Saúde e monitoramento: `GET /api/health` sem login (versão e banco), sinais opcionais para Healthchecks.io (varredura, backup), `/metrics` opcional para Prometheus e aviso de disco quase cheio | Planejado |
+| **M7.5** | Backup agendado: timer diário no pacote com rotação, teste de restauração semanal registrado e aviso quando o backup atrasa | Planejado |
+| **M7.6** | Atualização segura: backup automático antes de migrar e teste na CI que atualiza bancos criados por cada versão publicada | Planejado |
+| **M7.7** | Ciclo de vida do pacote: scripts de instalação e remoção, teste de instalação do `.deb` e do `.rpm` na CI | Planejado |
+| **M7.8** | Documentação: manual por tarefas (primeiros passos, FAQ, glossário), seção de operação (backup, monitoramento, atualização), registro de decisões e referência única de configuração | Planejado |
+| **M7.9** | Demonstração pública: o app web em modo demonstração, com dados fictícios, no GitHub Pages | Planejado |
+| **M7.10** | (Opcional) Tradução para o espanhol | A decidir |
 
 ## Depois
 

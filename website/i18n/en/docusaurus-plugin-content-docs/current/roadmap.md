@@ -22,9 +22,28 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **M5.3** | Traceroute and speed test (with a privacy notice). CVEs: decided **not** to do for now, with the reason in the docs | Done (see [Tools](funcionalidades/ferramentas.md)) |
 | **M6.1** | Built-in HTTPS (own certificate, or self-signed with renewal) | Done (see [Deployment](tecnico/implantacao.md)) |
 | **M6.2** | Security self-review of the code and gosec in CI | Done (see [Security and privacy](tecnico/seguranca-e-privacidade.md)) |
-| **M6.3** | systemd unit, .deb/.rpm packages and an observe-only mode | Done (see [Deployment](tecnico/implantacao.md)) |
+| **M6.3** | systemd unit, .deb/.rpm packages and observe-only mode | Done (see [Deployment](tecnico/implantacao.md)) |
+| **v0.5** | Identification: mDNS services, SSDP/UPnP, NetBIOS, type guess with icons, names from DHCP (opt-in), VPN via `--allow-cidr`, scheduled scans | Done (see [Discovery](funcionalidades/descoberta.md)) |
+| **v0.6** | Security review (login lockout under parallel attempts, global limit) and inventory housekeeping (forget, auto-prune, filter, export, backup) | Done (see [Security and privacy](tecnico/seguranca-e-privacidade.md)) |
 
-**v0.1** is the end of M3: discovery, history and alerts. v0.1.0 has been published. The next step is **M5.3**.
+The latest published version is **v0.6.0**. The next block is **M7**.
+
+## M7: Operations and maturity
+
+Inspired by Kaladrius (see the [comparison](tecnico/comparacao-kaladrius.md)). One pull request per step, in this order; each has an issue in the GitHub **M7** milestone.
+
+| Step | Delivery | State |
+|---|---|---|
+| **M7.1** | Supply chain: Dependabot with a 7-day wait and grouped PRs; GitHub actions pinned by SHA and images by digest, checked in CI | Planned |
+| **M7.2** | Repository files: CONTRIBUTING, CODE_OF_CONDUCT, CODEOWNERS, NOTICE (name, brand, no link to Fing) and issue and PR templates | Planned |
+| **M7.3** | Versions and what's new: `releases.yaml` as the single source of the **What's new** page in the app, the version in the footer and the release text; CI checks the version | Planned |
+| **M7.4** | Health and monitoring: `GET /api/health` without login (version and database), optional Healthchecks.io signals (scan, backup), optional `/metrics` for Prometheus and a nearly-full-disk warning | Planned |
+| **M7.5** | Scheduled backup: a daily timer in the package with rotation, a recorded weekly restore test and a warning when the backup is late | Planned |
+| **M7.6** | Safe upgrades: automatic backup before migrating and a CI test that upgrades databases created by every published release | Planned |
+| **M7.7** | Package lifecycle: install and remove scripts, an install test of the `.deb` and the `.rpm` in CI | Planned |
+| **M7.8** | Documentation: task-based manual (first steps, FAQ, glossary), an operations section (backup, monitoring, upgrade), a decision log and a single configuration reference | Planned |
+| **M7.9** | Public demo: the web app in demo mode, with fictitious data, on GitHub Pages | Planned |
+| **M7.10** | (Optional) Spanish translation | To decide |
 
 ## Later
 
