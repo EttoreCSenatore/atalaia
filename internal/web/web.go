@@ -55,10 +55,13 @@ func handler(files fs.FS) http.Handler {
 		}
 		defer f.Close()
 		st, _ := f.Stat()
+		if path.Ext(name) == ".webmanifest" { // Go's mime table does not know it
+			w.Header().Set("Content-Type", "application/manifest+json")
+		}
 		if strings.HasPrefix(name, "assets/") {
 			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable") // hashed file names
 		} else {
-			w.Header().Set("Cache-Control", "no-cache")
+			w.Header().Set("Cache-Control", "no-cache") // also sw.js, so a new build's service worker is seen at once
 		}
 		rs, ok := f.(readSeeker)
 		if !ok {

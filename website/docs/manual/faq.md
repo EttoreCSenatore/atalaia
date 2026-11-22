@@ -58,3 +58,7 @@ Veja [Atualização](../operacao/atualizacao.md). O banco é copiado antes de mu
 ## Funciona no Windows ou no macOS?
 
 A descoberta usa recursos do Linux (tabela ARP do kernel, sockets sem privilégio). Use um Linux: um Raspberry Pi já basta.
+
+## Dá para instalar no celular?
+
+Dá: veja [Instalar como app](../funcionalidades/app-web.md#instalar-como-app). A opção de instalar só aparece com HTTPS e um certificado em que o aparelho confia; sem isso, use o navegador normalmente.

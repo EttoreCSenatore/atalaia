@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- full-bleed version of favicon.svg for "maskable" icons: the glyph sits inside the 80% safe zone -->
+  <rect width="64" height="64" fill="#1d4ed8"/>
+  <g transform="translate(6.4 6.4) scale(0.8)">
+    <rect x="22" y="12" width="20" height="14" rx="2" fill="#f59e0b"/>
+    <path d="M20 26h24l-4 8H24zM24 34h16l4 22H20z" fill="#ffffff"/>
+  </g>
+</svg>

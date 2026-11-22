@@ -37,3 +37,4 @@ The design choices that shape Atalaia, with the reason for each. A new (or revis
 | 25 | **No real network data in the repository**: screenshots and tests use fictitious data | Privacy of whoever tests and of whoever is on the network | M2.2 |
 | 26 | **Static demo** on GitHub Pages: API simulated in the browser, no server | Nobody has to install to look; nothing runs or is stored on the publishing side, and the real app does not carry this code | M7.9 |
 | 27 | **Portuguese and English only** (no Spanish or other languages) | Every change is already written in two languages; a third would double the work of keeping them in step | M7.10 |
+| 28 | **Installable app (PWA) that keeps only the shell**, with a hand-written service worker | Opens without the server and gets an icon, without leaving network data on the device; no new dependency | PWA |
