@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Upgrade-test database for v0.8.0 added.
+
+**PT-BR** — Banco de teste de atualização da v0.8.0 incluído.
+
 ## v0.8.0 — 2026-11-22
 
 **EN** — Installable app (PWA): web app manifest, icons (with a maskable one) and a hand-written service worker that keeps only the app shell, so the installed app opens without the server and says it cannot reach it; it never answers or caches `/api/` or `/metrics`. Registered only in a secure context and never in the demo. Docs: "Install as an app", FAQ, decision log row 28.
