@@ -10,6 +10,22 @@
 # - ao publicar, a tag precisa ser a primeira versão daqui.
 # O CHANGELOG.md continua com os detalhes técnicos; aqui vai o que importa para quem usa.
 releases:
+  - version: 0.7.1
+    date: 2026-11-22
+    en:
+      title: Security fixes
+      items:
+        - "Backups: automatic backups refuse a folder other users can write to, and a backup is never written through a symlink planted under its name."
+        - Databases open with SQLite's trusted_schema off, so a crafted file given to `atalaia verify-backup` cannot run side-effect functions.
+        - "`/metrics` tokens must have at least 10 different characters, besides 32+ in total."
+        - A Debian upgrade no longer stops to ask about an edited `/etc/default/atalaia`, and each release is tested as an upgrade from the previous one.
+    pt-BR:
+      title: Correções de segurança
+      items:
+        - "Backups: os backups automáticos recusam uma pasta gravável por outros usuários, e um backup nunca é gravado através de um link simbólico plantado com o nome dele."
+        - Os bancos abrem com o trusted_schema do SQLite desligado, então um arquivo forjado entregue ao `atalaia verify-backup` não consegue rodar funções com efeitos.
+        - "O token de `/metrics` precisa de ao menos 10 caracteres diferentes, além dos 32 ou mais no total."
+        - Uma atualização no Debian não para mais para perguntar sobre um `/etc/default/atalaia` editado, e cada release é testada como atualização a partir da anterior.
   - version: 0.7.0
     date: 2026-11-22
     en:

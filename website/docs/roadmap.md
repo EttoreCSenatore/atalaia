@@ -27,7 +27,7 @@ Cada etapa vira um pull request, revisado e integrado antes da próxima. Documen
 | **v0.6** | Revisão de segurança (bloqueio de login sob tentativas paralelas, limite global) e organização do inventário (esquecer, limpeza automática, filtro, exportação, backup) | Concluído (ver [Segurança e privacidade](tecnico/seguranca-e-privacidade.md)) |
 | **v0.7** | Operação e maturidade (M7.1–M7.9): cadeia de suprimentos fixada, novidades no app, saúde e métricas, backups automáticos com teste de restauração, atualização segura, pacotes testados, manual e demonstração | Concluído (ver [Primeiros passos](manual/primeiros-passos.md)) |
 
-A versão publicada mais recente é a **v0.7.0**, com o bloco **M7** (o M7.10, espanhol, não será feito).
+A versão publicada mais recente é a **v0.7.1** (correções da revisão de segurança da v0.7), com o bloco **M7** (o M7.10, espanhol, não será feito).
 
 ## M7: Operação e maturidade
 
