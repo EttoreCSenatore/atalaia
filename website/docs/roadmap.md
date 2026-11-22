@@ -43,7 +43,7 @@ Inspirado no Kaladrius (veja a [comparação](tecnico/comparacao-kaladrius.md)).
 | **M7.7** | Ciclo de vida do pacote: scripts de instalação e remoção, teste de instalação do `.deb` e do `.rpm` na CI | Concluído (ver [Implantação](tecnico/implantacao.md)) |
 | **M7.8** | Documentação: manual por tarefas (primeiros passos, FAQ, glossário), seção de operação (backup, monitoramento, atualização), registro de decisões e referência única de configuração | Concluído (ver [Primeiros passos](manual/primeiros-passos.md)) |
 | **M7.9** | Demonstração pública: o app web em modo demonstração, com dados fictícios, no GitHub Pages | Concluído ([abrir a demonstração](https://ettorecsenatore.github.io/atalaia/demo/)) |
-| **M7.10** | (Opcional) Tradução para o espanhol | A decidir |
+| **M7.10** | (Opcional) Tradução para o espanhol | Adiado (cada mudança teria de ser escrita em três línguas; rever se houver pedido) |
 
 ## Depois
 
