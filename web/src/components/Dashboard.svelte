@@ -1,4 +1,13 @@
 <script lang="ts">
+  import { demoExportURL, isDemo } from '../lib/api';
+  // the demo makes the file in the browser (there is no server to download it from)
+  async function demoDownload(e: MouseEvent, format: 'csv' | 'json') {
+    e.preventDefault();
+    const a = document.createElement('a');
+    a.href = await demoExportURL(format);
+    a.download = `atalaia-demo.${format}`;
+    a.click();
+  }
   import { app, startScan } from '../lib/app.svelte';
   import { t, i18n } from '../lib/i18n.svelte';
   import { compareIp, deviceLabel, relativeTime } from '../lib/format';
@@ -97,8 +106,13 @@
 
 <p class="muted export">
   {t('dashboard.export')}:
-  <a href="/api/devices/export?format=csv" download>CSV</a> ·
-  <a href="/api/devices/export?format=json" download>JSON</a>
+  {#if isDemo}
+    <a href="#export-csv" onclick={(e) => demoDownload(e, 'csv')}>CSV</a> ·
+    <a href="#export-json" onclick={(e) => demoDownload(e, 'json')}>JSON</a>
+  {:else}
+    <a href="/api/devices/export?format=csv" download>CSV</a> ·
+    <a href="/api/devices/export?format=json" download>JSON</a>
+  {/if}
 </p>
 
 <style>

@@ -74,6 +74,8 @@ const config: Config = {
           label: 'Documentação',
         },
         {to: '/docs/roadmap', label: 'Roadmap', position: 'left'},
+        // the web app with fictitious data, built by CI into /demo (see web/src/lib/demo.ts)
+        {href: 'pathname:///atalaia/demo/', label: 'Demonstração', position: 'left', target: '_self'},
         {type: 'localeDropdown', position: 'right'},
         {
           href: 'https://github.com/EttoreCSenatore/atalaia',

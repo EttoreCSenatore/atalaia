@@ -21,3 +21,4 @@ __pycache__/
 /internal/web/dist/*
 !/internal/web/dist/placeholder.txt
 /web/node_modules/
+/web/dist-demo/

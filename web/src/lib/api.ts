@@ -86,7 +86,17 @@ export function setUnauthorizedHandler(fn: () => void) {
   onUnauthorized = fn;
 }
 
+/** True in the public demo build (VITE_DEMO=1). Vite replaces it at build time, so the real app drops the demo code. */
+export const isDemo = import.meta.env.VITE_DEMO === '1';
+
+/** In the demo, the device list as a file made in the browser (an object URL); '' in the real app. */
+export async function demoExportURL(format: 'csv' | 'json'): Promise<string> {
+  if (!isDemo) return '';
+  return (await import('./demo')).demoExport(format);
+}
+
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+  if (isDemo) return (await import('./demo')).demoRequest<T>(method, path, body);
   const headers: Record<string, string> = { Accept: 'application/json' };
   if (method !== 'GET') headers['X-Atalaia'] = '1'; // the server refuses state changes without it (CSRF)
   if (body !== undefined) headers['Content-Type'] = 'application/json';

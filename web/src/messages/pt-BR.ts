@@ -270,5 +270,11 @@ export const ptBR: Messages = {
     body: 'O disco onde fica o banco do Atalaia está ficando sem espaço; quando encher, as varreduras e o histórico deixam de ser gravados. Libere espaço ou mude o banco de lugar.',
     free: 'livres',
   },
+  demo: {
+    title: 'Demonstração com dados fictícios.',
+    body: 'Nada aqui toca uma rede de verdade nem envia nada; as mudanças duram até você recarregar a página.',
+    install: 'Instalar o Atalaia',
+    docsUrl: 'https://ettorecsenatore.github.io/atalaia/docs/manual/primeiros-passos',
+  },
   time: { justNow: 'agora há pouco' },
 };

@@ -26,7 +26,7 @@
 <header>
   <div class="bar">
     <a class="brand" href="/" data-link>
-      <img src="/favicon.svg" alt="" width="28" height="28" />
+      <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="28" height="28" />
       <span>{t('app.name')}</span>
     </a>
     <nav aria-label="Main">

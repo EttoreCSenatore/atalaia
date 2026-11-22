@@ -39,6 +39,10 @@ npm run build        # gera internal/web/dist, que o Go embute
 
 Para refazer as imagens da documentação (dados fictícios): `PLAYWRIGHT=/caminho/playwright/index.mjs npm run screenshots -- ../website/static/img/screenshots`.
 
+## Demonstração pública
+
+`npm run build:demo` (em `web/`) gera o app em modo demonstração em `web/dist-demo/`, para `/atalaia/demo/`: a API é respondida no navegador por `src/lib/demo.ts` com os dados fictícios de `tests/fixtures.mjs` (os mesmos das capturas de tela), as rotas ficam no `#` (o GitHub Pages só serve arquivos) e as ações que tocariam uma rede são recusadas com uma mensagem. A CI publica isso junto com a documentação e confere que o build normal **não** leva o código nem os dados da demonstração (`VITE_DEMO` vira uma constante no build).
+
 ## Lista de fabricantes (IEEE)
 
 O arquivo `internal/identity/oui.tsv.gz` é gerado a partir das listas públicas do IEEE. Para atualizar:

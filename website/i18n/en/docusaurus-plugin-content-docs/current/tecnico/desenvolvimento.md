@@ -39,6 +39,10 @@ npm run build        # writes internal/web/dist, which Go embeds
 
 To redo the documentation images (fictitious data): `PLAYWRIGHT=/path/to/playwright/index.mjs npm run screenshots -- ../website/static/img/screenshots`.
 
+## Public demo
+
+`npm run build:demo` (in `web/`) builds the app in demo mode into `web/dist-demo/`, for `/atalaia/demo/`: the API is answered in the browser by `src/lib/demo.ts` with the fictitious data from `tests/fixtures.mjs` (the same as the screenshots), routes live in the `#` (GitHub Pages only serves files) and actions that would touch a network are refused with a message. CI publishes it with the docs and checks that the normal build does **not** carry the demo code or data (`VITE_DEMO` becomes a constant at build time).
+
 ## Vendor list (IEEE)
 
 The file `internal/identity/oui.tsv.gz` is built from the IEEE public lists. To update it:

@@ -1,4 +1,4 @@
-import { api, ApiError, setUnauthorizedHandler, type Device, type DeviceEvent, type Status } from './api';
+import { api, ApiError, isDemo, setUnauthorizedHandler, type Device, type DeviceEvent, type Status } from './api';
 
 type Phase = 'loading' | 'error' | 'ready';
 
@@ -42,6 +42,10 @@ export async function loadData() {
 }
 
 export function connectLive() {
+  if (isDemo) {
+    app.live = true; // the demo has no server to stream from
+    return;
+  }
   if (source || typeof EventSource === 'undefined') return;
   source = new EventSource('/api/stream');
   source.onopen = () => (app.live = true);
