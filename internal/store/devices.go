@@ -149,6 +149,7 @@ func (s *Store) Backup(ctx context.Context, path string) error {
 	old := syscallUmask(0o077) // the copy is never readable by others, not even for an instant
 	defer syscallUmask(old)
 	if _, err := s.db.ExecContext(ctx, `VACUUM INTO ?`, abs); err != nil {
+		_ = os.Remove(abs) // never leave a half-written copy that looks like a backup
 		return err
 	}
 	return os.Chmod(abs, 0o600)

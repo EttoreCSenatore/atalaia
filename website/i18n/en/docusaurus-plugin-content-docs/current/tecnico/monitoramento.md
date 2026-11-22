@@ -19,7 +19,7 @@ Answers **without login** (but only to the local network, like the rest of the s
 | `status` | HTTP | When |
 |---|---|---|
 | `ok` | 200 | All good |
-| `degraded` | 200 | Only warnings in `warnings`: `disk_low` (the database's disk is almost full) |
+| `degraded` | 200 | Only warnings in `warnings`: `disk_low` (the database's disk is almost full), `backup_late` (the last automatic backup is more than 26 h old), `restore_test_failed` (the last restore test failed) |
 | `error` | 503 | Problems in `problems`: `database` (the database does not answer), `last_scan_failed` (the last scan failed), `scans_stale` (no scan for more than 3 intervals) |
 
 Error texts never show here (they may name the network interface); see the server log or the app. The version shows without login: anyone on your local network can tell which version you run.
@@ -37,7 +37,7 @@ A service such as [Healthchecks.io](https://healthchecks.io/) alerts you when a 
 | Signal | How to turn it on | What it sends |
 |---|---|---|
 | Scan | `--heartbeat-scan URL` or `ATALAIA_HEARTBEAT_SCAN` | `GET URL` after every scan; `GET URL/fail` when it fails |
-| Backup | `atalaia backup --heartbeat URL` or `ATALAIA_HEARTBEAT_BACKUP` | `GET URL` when the backup works; `GET URL/fail` when it fails |
+| Backup | `--heartbeat-backup URL` (automatic backups), `atalaia backup --heartbeat URL` (by hand) or `ATALAIA_HEARTBEAT_BACKUP` | `GET URL` when the backup (and the restore test, when it runs) works; `GET URL/fail` when it fails |
 
 The URL is a secret (whoever has it can send fake pings): it never shows in the logs. It waits at most 10 seconds and follows no redirects. In Healthchecks.io, set the period to the scan interval (5 minutes by default) with a grace time of a few minutes.
 
@@ -65,7 +65,8 @@ scrape_configs:
 | `atalaia_devices`, `atalaia_devices_online`, `atalaia_devices_known` | Inventory counts |
 | `atalaia_scans_total`, `atalaia_scan_failures_total` | Scans and failures since the server started |
 | `atalaia_last_scan_timestamp_seconds`, `atalaia_last_scan_duration_seconds`, `atalaia_last_scan_success` | The last scan |
-| `atalaia_last_backup_timestamp_seconds` | Last `atalaia backup` that worked |
+| `atalaia_last_backup_timestamp_seconds` | Last backup (automatic or `atalaia backup`) that worked |
+| `atalaia_last_restore_test_timestamp_seconds`, `atalaia_last_restore_test_success` | The last restore test |
 | `atalaia_database_size_bytes` | The database and its write-ahead log |
 | `atalaia_disk_free_bytes`, `atalaia_disk_size_bytes` | The disk that holds the database |
 

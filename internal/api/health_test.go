@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/EttoreCSenatore/atalaia/internal/backup"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
 )
 
@@ -109,4 +111,52 @@ func waitFor(t *testing.T, ok func() bool) {
 		time.Sleep(10 * time.Millisecond)
 	}
 	t.Fatal("timed out")
+}
+
+func TestBackupStateAndBackupNow(t *testing.T) {
+	f := newFixture(t)
+	c := f.setup()
+	// off: status says so, backup now is refused
+	var st struct {
+		Backup *struct {
+			Enabled   bool       `json:"enabled"`
+			Late      bool       `json:"late"`
+			Last      *time.Time `json:"last"`
+			RestoreOK bool       `json:"restore_ok"`
+		} `json:"backup"`
+	}
+	_ = json.Unmarshal(f.do("GET", "/api/status", nil, c).Body.Bytes(), &st)
+	if st.Backup == nil || st.Backup.Enabled {
+		t.Fatalf("off: %+v", st.Backup)
+	}
+	if w := f.do("POST", "/api/backup", nil, c); w.Code != http.StatusConflict {
+		t.Fatalf("backup while off: %d", w.Code)
+	}
+	now := time.Date(2026, 11, 22, 3, 0, 0, 0, time.UTC)
+	f.srv.Now = func() time.Time { return now }
+	f.srv.Backups = &backup.Scheduler{Store: f.st, Dir: filepath.Join(t.TempDir(), "bk"), Keep: 3, Interval: 24 * time.Hour, Now: func() time.Time { return now }}
+	if w := f.do("POST", "/api/backup", nil, nil); w.Code != http.StatusUnauthorized {
+		t.Fatalf("without login: %d", w.Code)
+	}
+	if w := f.do("POST", "/api/backup", nil, c); w.Code != http.StatusOK {
+		t.Fatalf("backup now: %d %s", w.Code, w.Body)
+	}
+	_ = json.Unmarshal(f.do("GET", "/api/status", nil, c).Body.Bytes(), &st)
+	if !st.Backup.Enabled || st.Backup.Last == nil || st.Backup.Late || !st.Backup.RestoreOK {
+		t.Fatalf("after backup: %+v", st.Backup)
+	}
+	if w := f.do("GET", "/api/audit", nil, c); !strings.Contains(w.Body.String(), `"action":"backup"`) {
+		t.Fatalf("not audited: %s", w.Body)
+	}
+	// two days later: late, health warns but stays 200
+	now = now.Add(48 * time.Hour)
+	w := f.do("GET", "/api/health", nil, nil)
+	if w.Code != 200 || !strings.Contains(w.Body.String(), "backup_late") || !strings.Contains(w.Body.String(), `"status":"degraded"`) {
+		t.Fatalf("late: %d %s", w.Code, w.Body)
+	}
+	f.srv.MetricsToken = strings.Repeat("k", 32)
+	m := f.do("GET", "/metrics", nil, nil, func(r *http.Request) { r.Header.Set("Authorization", "Bearer "+f.srv.MetricsToken) })
+	if !strings.Contains(m.Body.String(), "atalaia_last_restore_test_success 1\n") {
+		t.Fatalf("metrics: %s", m.Body)
+	}
 }

@@ -44,7 +44,9 @@ The timeline of everything that changed: new devices, devices that came back, th
 
 ## Settings
 
-How long the history is kept (default 90 days; 0 keeps everything), password change (ends the other sessions), language and the version.
+How long the history is kept (default 90 days; 0 keeps everything), password change (ends the other sessions), backups (last backup, last restore test and **Back up now**; see [Deployment](../tecnico/implantacao.md)), language and the version.
+
+![Backups section (fictitious data)](/img/screenshots/app-backups-en.png)
 
 ![Settings screen](/img/screenshots/app-configuracoes-en.png)
 

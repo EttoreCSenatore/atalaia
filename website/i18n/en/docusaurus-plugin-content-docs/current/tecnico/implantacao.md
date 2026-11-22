@@ -93,7 +93,20 @@ go build -o atalaia ./cmd/atalaia
 
 ## Backup and updates
 
-All state is one SQLite file (`/data/atalaia.db` in the container, `/var/lib/atalaia/atalaia.db` with the package). For a consistent copy **without stopping the server**:
+All state is one SQLite file (`/data/atalaia.db` in the container, `/var/lib/atalaia/atalaia.db` with the package).
+
+**Automatic backups (on by default).** While it runs, `atalaia serve` copies the database once a day into the `backups/` folder next to it (`/data/backups` in the container, `/var/lib/atalaia/backups` with the package), keeps the newest 7 and, once a week, **test-restores** the newest one: it restores it into a scratch copy, opens it as Atalaia would and runs SQLite's integrity check. It works the same with Docker, the packages and the binary. If the machine was off, the late backup runs as soon as the server is back. The app shows the last backup and the last test in **Settings > Backups** (with a **Back up now** button) and a notice at the top when the last backup is more than 26 hours old.
+
+| Option | Variable | Default |
+|---|---|---|
+| `--backup-dir` | `ATALAIA_BACKUP_DIR` | `backups/` next to the database |
+| `--backup-keep` | `ATALAIA_BACKUP_KEEP` | 7 (0 turns scheduled backups off) |
+| `--backup-interval` | — | 24h (at least 1h) |
+| `--heartbeat-backup` | `ATALAIA_HEARTBEAT_BACKUP` | off (see [Monitoring](monitoramento.md)) |
+
+The copies are **on the same disk** as the database: they protect against mistakes and corruption, not against losing the disk. Copy the folder somewhere else now and then (another disk, a NAS). To check a copy by hand: `atalaia verify-backup FILE` or `atalaia verify-backup --dir FOLDER` (the newest).
+
+For a one-off consistent copy **without stopping the server** (or from your own scheduler, with `--dir FOLDER --keep N`):
 
 ```bash
 atalaia backup --db /var/lib/atalaia/atalaia.db ~/atalaia-$(date +%F).db

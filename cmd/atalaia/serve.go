@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -16,6 +17,7 @@ import (
 	"github.com/EttoreCSenatore/atalaia/internal/alerts"
 	"github.com/EttoreCSenatore/atalaia/internal/api"
 	"github.com/EttoreCSenatore/atalaia/internal/auth"
+	"github.com/EttoreCSenatore/atalaia/internal/backup"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpprobe"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpsniff"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpwatch"
@@ -49,6 +51,10 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 	noActive := fs.Bool("no-active-tools", os.Getenv("ATALAIA_NO_ACTIVE_TOOLS") == "1", "observe only: disable ping, Wake-on-LAN, port scan and the exposure check")
 	heartbeat := fs.String("heartbeat-scan", os.Getenv("ATALAIA_HEARTBEAT_SCAN"), "ping this URL after every scan, URL/fail when it fails (Healthchecks.io style; keep it secret)")
 	metricsFile := fs.String("metrics-token-file", os.Getenv("ATALAIA_METRICS_TOKEN_FILE"), "enable /metrics for Prometheus with the bearer token in this file (32+ characters; or env ATALAIA_METRICS_TOKEN)")
+	backupDir := fs.String("backup-dir", os.Getenv("ATALAIA_BACKUP_DIR"), "folder for the scheduled backups (default: backups/ next to the database)")
+	backupKeep := fs.Int("backup-keep", envInt("ATALAIA_BACKUP_KEEP", 7), "scheduled backups to keep (0 turns scheduled backups off)")
+	backupEvery := fs.Duration("backup-interval", 24*time.Hour, "time between scheduled backups")
+	backupBeat := fs.String("heartbeat-backup", os.Getenv("ATALAIA_HEARTBEAT_BACKUP"), "ping this URL after every scheduled backup, URL/fail when it fails")
 	var cidrs stringList
 	fs.Var(&cidrs, "allow-cidr", "extra client network to treat as local, e.g. 100.64.0.0/10 for Tailscale (repeatable; env ATALAIA_ALLOW_CIDR, comma separated)")
 	var hosts stringList
@@ -76,6 +82,13 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 	metricsToken, err := readMetricsToken(*metricsFile)
 	if err != nil {
 		return a.fail(err)
+	}
+	bhb, err := health.ParseHeartbeat(*backupBeat)
+	if err != nil {
+		return a.fail(err)
+	}
+	if *backupKeep < 0 || *backupEvery < time.Hour {
+		return a.fail(errors.New("--backup-keep must be 0 or more and --backup-interval at least 1h"))
 	}
 	st, err := store.Open(*db)
 	if err != nil {
@@ -114,7 +127,11 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 			}()
 		}
 	}
-	srv = &api.Server{AllowedNets: nets, NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, DHCP: watcher, Sniff: sniffer, Learner: learner, Sender: sender, Version: version.Version, AllowedHosts: hosts, MetricsToken: metricsToken, Static: web.Handler(), Now: a.now}
+	if *backupDir == "" {
+		*backupDir = filepath.Join(filepath.Dir(st.Path()), "backups")
+	}
+	backups := &backup.Scheduler{Store: st, Dir: *backupDir, Keep: *backupKeep, Interval: *backupEvery, Heartbeat: bhb, Now: a.now, Log: a.err}
+	srv = &api.Server{Backups: backups, AllowedNets: nets, NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, DHCP: watcher, Sniff: sniffer, Learner: learner, Sender: sender, Version: version.Version, AllowedHosts: hosts, MetricsToken: metricsToken, Static: web.Handler(), Now: a.now}
 
 	var tlsConf *tls.Config
 	if *tlsSelf || *tlsCert != "" {
@@ -175,6 +192,11 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 		// no WriteTimeout: live updates (SSE) keep the response open
 	}
 	go mon.Run(ctx)
+	// a backup that has started is allowed to finish before the database closes
+	bctx, bstop := context.WithCancel(ctx)
+	bdone := make(chan struct{})
+	go func() { defer close(bdone); backups.Run(bctx) }()
+	defer func() { bstop(); <-bdone }()
 	go sniffer.Run(ctx, func() bool {
 		n, err := st.SettingInt(ctx, api.SniffKey, 0)
 		return err == nil && n != 0
@@ -263,4 +285,12 @@ func readMetricsToken(file string) (string, error) {
 func fileExists(p string) bool {
 	_, err := os.Stat(p) // #nosec G703 -- a path under systemd's CREDENTIALS_DIRECTORY
 	return err == nil
+}
+
+// envInt reads an integer environment variable, or def when unset or invalid.
+func envInt(name string, def int) int {
+	if v, err := strconv.Atoi(strings.TrimSpace(os.Getenv(name))); err == nil {
+		return v
+	}
+	return def
 }

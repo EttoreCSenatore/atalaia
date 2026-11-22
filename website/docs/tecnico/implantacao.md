@@ -93,7 +93,20 @@ go build -o atalaia ./cmd/atalaia
 
 ## Backup e atualização
 
-Todo o estado é um arquivo SQLite (`/data/atalaia.db` no contêiner, `/var/lib/atalaia/atalaia.db` com o pacote). Para uma cópia consistente **sem parar o servidor**:
+Todo o estado é um arquivo SQLite (`/data/atalaia.db` no contêiner, `/var/lib/atalaia/atalaia.db` com o pacote).
+
+**Backups automáticos (ligados por padrão).** Enquanto roda, o `atalaia serve` faz uma cópia do banco por dia na pasta `backups/` ao lado do banco (`/data/backups` no contêiner, `/var/lib/atalaia/backups` com o pacote), guarda as 7 mais novas e, uma vez por semana, **testa a restauração** da mais nova: restaura numa cópia de rascunho, abre como o Atalaia abriria e roda a verificação de integridade do SQLite. Funciona igual no Docker, nos pacotes e no binário. Se a máquina ficou desligada, o backup atrasado sai logo que o servidor volta. O app mostra o último backup e o último teste em **Configurações > Backups** (com o botão **Fazer backup agora**) e um aviso no topo quando o último backup tem mais de 26 horas.
+
+| Opção | Variável | Padrão |
+|---|---|---|
+| `--backup-dir` | `ATALAIA_BACKUP_DIR` | `backups/` ao lado do banco |
+| `--backup-keep` | `ATALAIA_BACKUP_KEEP` | 7 (0 desliga os backups agendados) |
+| `--backup-interval` | — | 24h (mínimo 1h) |
+| `--heartbeat-backup` | `ATALAIA_HEARTBEAT_BACKUP` | desligado (veja [Monitoramento](monitoramento.md)) |
+
+As cópias ficam **no mesmo disco** do banco: protegem contra erro e corrupção, não contra a perda do disco. Copie a pasta para outro lugar de vez em quando (outro disco, um NAS). Para conferir uma cópia à mão: `atalaia verify-backup ARQUIVO` ou `atalaia verify-backup --dir PASTA` (a mais nova).
+
+Para uma cópia avulsa e consistente **sem parar o servidor** (ou num agendador seu, com `--dir PASTA --keep N`):
 
 ```bash
 atalaia backup --db /var/lib/atalaia/atalaia.db ~/atalaia-$(date +%F).db

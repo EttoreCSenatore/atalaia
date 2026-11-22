@@ -56,7 +56,7 @@ export const audit = [
   { at: new Date(Date.now() - 26 * 3600_000).toISOString(), action: 'wake', target: 'a8:55:66:00:00:41', detail: 'magic packet to 192.168.1.255' },
 ];
 export const settings = { retention_days: 90, scan_interval: '5m0s', port_scan_hours: 24, prune_days: 30, active_tools: true };
-export const status = (extra = {}) => ({ version: 'v0.6.0', setup_required: false, authenticated: true, scan: { scanning: false, last_scan: ago(1), last_error: '', interval: '5m0s', duration_seconds: 2.4, scans: 12, failures: 0 }, disk: { free_bytes: 40 * 2 ** 30, total_bytes: 120 * 2 ** 30, low: false }, ...extra });
+export const status = (extra = {}) => ({ version: 'v0.6.0', setup_required: false, authenticated: true, scan: { scanning: false, last_scan: ago(1), last_error: '', interval: '5m0s', duration_seconds: 2.4, scans: 12, failures: 0 }, disk: { free_bytes: 40 * 2 ** 30, total_bytes: 120 * 2 ** 30, low: false }, backup: { enabled: true, dir: '/var/lib/atalaia/backups', keep: 7, interval: '24h0m0s', last: ago(60 * 5), late: false, last_restore_test: ago(60 * 24 * 3), restore_ok: true }, ...extra });
 
 export const alerts = {
   rules: { new_device: true, known_offline: false, arp_anomaly: true, rogue_dhcp: true, new_ports: true },

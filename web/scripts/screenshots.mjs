@@ -18,7 +18,7 @@ const json = (body, code = 200) => ({ status: code, contentType: 'application/js
 const browser = await chromium.launch();
 try {
   for (const [lang, suffix] of [['pt-BR', ''], ['en', '-en']]) {
-    const shot = async (name, path, { auth = true, setup = false, width = 1100, height = 640, seen = '', disk } = {}) => {
+    const shot = async (name, path, { auth = true, setup = false, width = 1100, height = 640, seen = '', disk, backup, selector } = {}) => {
       const ctx = await browser.newContext({ viewport: { width, height }, colorScheme: 'light', locale: lang });
       await ctx.addInitScript((l) => localStorage.setItem('atalaia.lang', l), lang);
       // the newest release this browser has seen: an older one shows the "updated" notice
@@ -30,7 +30,7 @@ try {
       const page = await ctx.newPage();
       await page.route('**/api/**', (route) => {
         const p = new URL(route.request().url()).pathname;
-        if (p === '/api/status') return route.fulfill(json(status({ authenticated: auth, setup_required: setup, ...(auth ? {} : { scan: undefined, disk: undefined }), ...(disk ? { disk } : {}) })));
+        if (p === '/api/status') return route.fulfill(json(status({ authenticated: auth, setup_required: setup, ...(auth ? {} : { scan: undefined, disk: undefined }), ...(disk ? { disk } : {}), ...(backup ? { backup } : {}) })));
         if (p === '/api/devices') return route.fulfill(json(devices));
         if (p === '/api/events') return route.fulfill(json(events));
         if (p === '/api/dhcp') return route.fulfill(json(dhcp));
@@ -46,7 +46,9 @@ try {
       await page.goto(base + path);
       await page.waitForSelector('h1');
       await page.waitForTimeout(300);
-      await page.screenshot({ path: `${out}/app-${name}${suffix}.png` });
+      const file = `${out}/app-${name}${suffix}.png`;
+      if (selector) await page.locator(selector).screenshot({ path: file });
+      else await page.screenshot({ path: file });
       await ctx.close();
     };
     await shot('painel', '/', { height: 740 });
@@ -58,6 +60,8 @@ try {
     await shot('novidades', '/whats-new', { height: 760, seen: '0.5.0' });
     await shot('aviso-novidades', '/', { height: 300, seen: '0.5.0' });
     await shot('disco-cheio', '/', { height: 300, disk: { free_bytes: 300 * 2 ** 20, total_bytes: 32 * 2 ** 30, low: true } });
+    await shot('backups', '/settings', { height: 2400, selector: '#backups' });
+    await shot('backup-atrasado', '/', { height: 300, backup: { enabled: true, dir: '/var/lib/atalaia/backups', keep: 7, interval: '24h0m0s', last: new Date(Date.now() - 31 * 3600_000).toISOString(), late: true, last_restore_test: new Date(Date.now() - 4 * 86400_000).toISOString(), restore_ok: true } });
     await shot('login', '/', { auth: false, width: 640, height: 460 });
     await shot('configuracao-inicial', '/', { auth: false, setup: true, width: 640, height: 640 });
   }

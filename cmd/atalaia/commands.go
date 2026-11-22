@@ -222,6 +222,8 @@ func (a *app) cmdExport(ctx context.Context, args []string) int {
 func (a *app) cmdBackup(ctx context.Context, args []string) int {
 	fs, db := a.flags("backup")
 	heartbeat := fs.String("heartbeat", os.Getenv("ATALAIA_HEARTBEAT_BACKUP"), "ping this URL after the backup, URL/fail when it fails (Healthchecks.io style)")
+	dir := fs.String("dir", "", "write a dated backup into this folder instead of NEW-FILE, keeping the newest --keep")
+	keep := fs.Int("keep", 7, "with --dir: how many dated backups to keep")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -234,8 +236,8 @@ func (a *app) cmdBackup(ctx context.Context, args []string) int {
 			fmt.Fprintln(a.err, "atalaia:", err)
 		}
 	}
-	if fs.NArg() != 1 {
-		fmt.Fprintln(a.err, "usage: atalaia backup [--db file] <new-file.db>")
+	if (*dir == "") == (fs.NArg() != 1) || *keep < 1 {
+		fmt.Fprintln(a.err, "usage: atalaia backup [--db file] [--heartbeat URL] <new-file.db>\n       atalaia backup [--db file] [--heartbeat URL] --dir FOLDER [--keep N]")
 		return 2
 	}
 	st, err := store.Open(*db)
@@ -244,14 +246,55 @@ func (a *app) cmdBackup(ctx context.Context, args []string) int {
 		return a.fail(err)
 	}
 	defer st.Close()
-	if err := st.Backup(ctx, fs.Arg(0)); err != nil {
-		ping(false)
-		return a.fail(err)
-	}
-	if err := st.SetSetting(ctx, store.LastBackupKey, strconv.FormatInt(a.now().Unix(), 10)); err != nil {
-		fmt.Fprintln(a.err, "atalaia: backup written, but its time was not recorded:", err)
+	written := fs.Arg(0)
+	if *dir != "" {
+		if written, err = st.BackupTo(ctx, *dir, *keep, a.now()); err != nil {
+			ping(false)
+			return a.fail(err)
+		}
+	} else {
+		if err := st.Backup(ctx, written); err != nil {
+			ping(false)
+			return a.fail(err)
+		}
+		if err := st.SetSetting(ctx, store.LastBackupKey, strconv.FormatInt(a.now().Unix(), 10)); err != nil {
+			fmt.Fprintln(a.err, "atalaia: backup written, but its time was not recorded:", err)
+		}
 	}
 	ping(true)
-	fmt.Fprintf(a.out, "Backup written to %s (only you can read it: it holds your device list and alert secrets).\n", fs.Arg(0))
+	fmt.Fprintf(a.out, "Backup written to %s (only you can read it: it holds your device list and alert secrets).\n", written)
+	return 0
+}
+
+// cmdVerifyBackup test-restores a backup into a scratch copy and checks it.
+func (a *app) cmdVerifyBackup(ctx context.Context, args []string) int {
+	fs := flag.NewFlagSet("verify-backup", flag.ContinueOnError)
+	fs.SetOutput(a.err)
+	dir := fs.String("dir", "", "check the newest dated backup in this folder")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	path := fs.Arg(0)
+	switch {
+	case *dir != "" && fs.NArg() == 0:
+		list, err := store.Backups(*dir)
+		if err != nil {
+			return a.fail(err)
+		}
+		if len(list) == 0 {
+			return a.fail(fmt.Errorf("no backups in %s", *dir))
+		}
+		path = list[len(list)-1]
+	case *dir == "" && fs.NArg() == 1:
+	default:
+		fmt.Fprintln(a.err, "usage: atalaia verify-backup FILE | --dir FOLDER")
+		return 2
+	}
+	// the scratch copy goes next to the backup: /tmp may be read-only (Docker)
+	rc, err := store.VerifyBackup(ctx, path, filepath.Dir(path))
+	if err != nil {
+		return a.fail(fmt.Errorf("%s: restore test failed: %w", path, err))
+	}
+	fmt.Fprintf(a.out, "%s: restore test passed (schema %d, %d devices).\n", path, rc.Schema, rc.Devices)
 	return 0
 }

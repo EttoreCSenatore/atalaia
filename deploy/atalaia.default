@@ -26,3 +26,10 @@
 #   sudo systemctl edit atalaia   ->   [Service]
 #                                     LoadCredential=metrics-token:/etc/atalaia/metrics-token
 # GET /api/health answers without login (HTTP 503 when something is wrong) for Uptime Kuma and the like.
+
+# Automatic backups (on by default): a copy of the database every day in /var/lib/atalaia/backups,
+# keeping the newest 7, with a weekly restore test. They are on the same disk: copy them elsewhere too.
+#ATALAIA_BACKUP_DIR=/var/lib/atalaia/backups
+#ATALAIA_BACKUP_KEEP=7
+# ping this URL after every automatic backup, URL/fail when it (or its restore test) fails:
+#ATALAIA_HEARTBEAT_BACKUP=https://hc-ping.com/your-other-uuid

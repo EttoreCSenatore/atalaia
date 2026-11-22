@@ -25,6 +25,7 @@ import (
 
 	"github.com/EttoreCSenatore/atalaia/internal/alerts"
 	"github.com/EttoreCSenatore/atalaia/internal/auth"
+	"github.com/EttoreCSenatore/atalaia/internal/backup"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpsniff"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpwatch"
 	"github.com/EttoreCSenatore/atalaia/internal/export"
@@ -68,6 +69,8 @@ type Server struct {
 	// MetricsToken enables GET /metrics for Prometheus with this bearer token
 	// (empty = /metrics answers 404).
 	MetricsToken string
+	// Backups makes the scheduled backups (nil = off).
+	Backups *backup.Scheduler
 	// AllowedNets are extra client networks treated as local (for example a VPN such as
 	// Tailscale, 100.64.0.0/10), besides loopback, private and link-local addresses.
 	AllowedNets []netip.Prefix
@@ -153,6 +156,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/scan", s.mutating(s.protected(s.scan)))
 	mux.HandleFunc("GET /api/stream", s.protected(s.stream))
 	mux.HandleFunc("GET /api/releases", s.protected(s.releases))
+	mux.HandleFunc("POST /api/backup", s.mutating(s.protected(s.backupNow)))
 	mux.HandleFunc("GET /api/settings", s.protected(s.getSettings))
 	mux.HandleFunc("PUT /api/settings", s.mutating(s.protected(s.putSettings)))
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) { writeError(w, http.StatusNotFound, "not found") })
@@ -397,6 +401,7 @@ type statusDTO struct {
 	Authenticated bool            `json:"authenticated"`
 	Scan          *monitor.Status `json:"scan,omitempty"`
 	Disk          *health.Disk    `json:"disk,omitempty"`
+	Backup        *backup.State   `json:"backup,omitempty"`
 }
 
 func (s *Server) status(w http.ResponseWriter, r *http.Request) {
@@ -412,6 +417,8 @@ func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 		if d, err := health.DiskFor(filepath.Dir(s.Store.Path())); err == nil {
 			out.Disk = &d
 		}
+		b := s.Backups.State(r.Context())
+		out.Backup = &b
 	}
 	writeJSON(w, http.StatusOK, out)
 }

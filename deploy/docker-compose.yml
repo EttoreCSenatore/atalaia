@@ -20,6 +20,9 @@ services:
       # enable /metrics for Prometheus with a token of 32+ characters.
       # - ATALAIA_HEARTBEAT_SCAN=https://hc-ping.com/your-uuid
       # - ATALAIA_METRICS_TOKEN=change-me-to-a-long-random-token
+      # Automatic backups are on by default: daily into /data/backups (in the same volume, so copy them elsewhere
+      # too), the newest 7 kept, a weekly restore test. ATALAIA_BACKUP_KEEP=0 turns them off.
+      # - ATALAIA_HEARTBEAT_BACKUP=https://hc-ping.com/your-other-uuid
     restart: unless-stopped
     read_only: true
     cap_drop: [ALL]
