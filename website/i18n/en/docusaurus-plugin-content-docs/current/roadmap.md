@@ -41,7 +41,7 @@ Inspired by Kaladrius (see the [comparison](tecnico/comparacao-kaladrius.md)). O
 | **M7.5** | Scheduled backup: a daily backup inside `atalaia serve` (Docker, packages and binary) with rotation, a recorded weekly restore test and a warning when the backup is late | Done (see [Deployment](tecnico/implantacao.md)) |
 | **M7.6** | Safe upgrades: automatic backup before migrating and a CI test that upgrades databases created by every published release | Done (see [Versions and what's new](tecnico/versionamento.md)) |
 | **M7.7** | Package lifecycle: install and remove scripts, an install test of the `.deb` and the `.rpm` in CI | Done (see [Deployment](tecnico/implantacao.md)) |
-| **M7.8** | Documentation: task-based manual (first steps, FAQ, glossary), an operations section (backup, monitoring, upgrade), a decision log and a single configuration reference | Planned |
+| **M7.8** | Documentation: task-based manual (first steps, FAQ, glossary), an operations section (backup, monitoring, upgrade), a decision log and a single configuration reference | Done (see [Getting started](manual/primeiros-passos.md)) |
 | **M7.9** | Public demo: the web app in demo mode, with fictitious data, on GitHub Pages | Planned |
 | **M7.10** | (Optional) Spanish translation | To decide |
 

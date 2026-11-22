@@ -77,6 +77,27 @@ func (s *Store) DeleteSession(ctx context.Context, tokenHash string) error {
 	return err
 }
 
+// ResetAccount removes the administrator account and every session, so the
+// next `atalaia serve` asks for a new account with a one-time setup code.
+// Devices, history and settings are kept. It reports whether there was an
+// account to remove.
+func (s *Store) ResetAccount(ctx context.Context) (bool, error) {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return false, err
+	}
+	defer func() { _ = tx.Rollback() }()
+	if _, err := tx.ExecContext(ctx, `DELETE FROM sessions`); err != nil {
+		return false, err
+	}
+	r, err := tx.ExecContext(ctx, `DELETE FROM users`)
+	if err != nil {
+		return false, err
+	}
+	n, _ := r.RowsAffected()
+	return n > 0, tx.Commit()
+}
+
 // PurgeSessions removes expired sessions.
 func (s *Store) PurgeSessions(ctx context.Context, now time.Time) error {
 	_, err := s.db.ExecContext(ctx, `DELETE FROM sessions WHERE expires_at <= ?`, now.Unix())

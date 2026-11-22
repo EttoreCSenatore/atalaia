@@ -21,7 +21,7 @@ sidebar_position: 9
 | Migrations | CI tests going up and down each migration | Forward-only migrations; no test from older releases' databases | **Adapted** (M7.6): test upgrading from the database of every published release, and back up automatically before migrating |
 | Packages | `.deb`/`.rpm` with install and remove scripts, an install test in CI, a **package repository** for updates | `.deb`/`.rpm` without scripts or install test | **Done** (M7.7); the package repository comes later |
 | Automatic update | A timer every 5 min with **automatic rollback** when health fails | None | **Not for now**: with a package, the system (apt/dnf) updates. To be discussed again with the package repository |
-| Documentation | User manual, operations (backup, monitoring, upgrade), decision log, data model, FAQ | Mostly technical; no task-based manual, no decision log | **Yes** (M7.8) |
+| Documentation | User manual, operations (backup, monitoring, upgrade), decision log, data model, FAQ | Mostly technical; no task-based manual, no decision log | **Done** (M7.8) |
 | Public demo | A demo server reset every night | Screenshots only | **Adapt** (M7.9): the web app in demo mode, with fictitious data, on GitHub Pages itself, with no server |
 | Languages | pt-BR, English and Spanish | pt-BR and English | **Maybe** (M7.10) |
 | Stack, Google Cloud, funding | Django/HTMX, a Google Cloud guide, FUNDING | Go + Svelte, self-hosted | **Does not** apply |

@@ -429,3 +429,45 @@ func TestBackupDirAndVerify(t *testing.T) {
 		t.Fatal("empty folder passed")
 	}
 }
+
+func TestResetPassword(t *testing.T) {
+	var out, errOut syncBuf
+	db := filepath.Join(t.TempDir(), "a.db")
+	a := &app{out: &out, err: &errOut, now: time.Now, scan: func(context.Context, bool) ([]store.Observation, error) {
+		return []store.Observation{{MAC: "aa:00:00:00:00:01", IP: netip.MustParseAddr("192.168.1.10")}}, nil
+	}}
+	if code := a.run(context.Background(), []string{"scan", "--db", db}); code != 0 {
+		t.Fatal(errOut.String())
+	}
+	st, err := store.Open(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	_ = st.CreateUser(ctx, "hash", time.Now())
+	_ = st.CreateSession(ctx, "tok", time.Now(), time.Hour)
+	st.Close()
+	if code := a.run(ctx, []string{"reset-password", "--db", db}); code != 2 || !strings.Contains(out.String(), "--yes") {
+		t.Fatalf("without --yes: %d %q", code, out.String())
+	}
+	if code := a.run(ctx, []string{"reset-password", "--db", db, "--yes"}); code != 0 {
+		t.Fatalf("reset: %q", errOut.String())
+	}
+	// run as root on a package install, it must not leave root-owned WAL files behind
+	for _, suffix := range []string{"-wal", "-shm"} {
+		if _, err := os.Stat(db + suffix); err == nil {
+			t.Fatalf("%s left behind", suffix)
+		}
+	}
+	st, _ = store.Open(db)
+	defer st.Close()
+	if has, _ := st.HasUser(ctx); has {
+		t.Fatal("account still there")
+	}
+	if ok, _ := st.SessionValid(ctx, "tok", time.Now()); ok {
+		t.Fatal("session survived")
+	}
+	if n, _ := st.CountDevices(ctx); n != 1 {
+		t.Fatalf("devices lost: %d", n)
+	}
+}

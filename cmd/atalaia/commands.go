@@ -298,3 +298,36 @@ func (a *app) cmdVerifyBackup(ctx context.Context, args []string) int {
 	fmt.Fprintf(a.out, "%s: restore test passed (schema %d, %d devices).\n", path, rc.Schema, rc.Devices)
 	return 0
 }
+
+// cmdResetPassword removes the administrator account (devices and history
+// stay), for when the password is lost. Whoever can write the database file
+// already controls Atalaia, so it needs no password; the server must be stopped.
+func (a *app) cmdResetPassword(ctx context.Context, args []string) int {
+	fs, db := a.flags("reset-password")
+	yes := fs.Bool("yes", false, "do it (without --yes, only explains what would happen)")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if !*yes {
+		fmt.Fprintf(a.out, "This removes the administrator account of %s (devices, history and settings stay).\n"+
+			"Stop the server first, run again with --yes, then start the server: it prints a new setup code\n"+
+			"for creating the account again.\n", *db)
+		return 2
+	}
+	st, err := store.Open(*db)
+	if err != nil {
+		return a.fail(err)
+	}
+	defer st.Close()
+	had, err := st.ResetAccount(ctx)
+	if err != nil {
+		return a.fail(err)
+	}
+	_ = st.Audit(ctx, a.now(), "reset-password", "", "administrator account removed from the command line")
+	if !had {
+		fmt.Fprintln(a.out, "There was no account; the next start asks for one.")
+		return 0
+	}
+	fmt.Fprintln(a.out, "Account removed. Start the server and look for \"Setup code\" in its log to create a new one.")
+	return 0
+}

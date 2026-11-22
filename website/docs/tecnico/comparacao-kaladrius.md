@@ -21,7 +21,7 @@ O [Kaladrius](https://github.com/facchini-miguel/kaladrius) (Apache 2.0) é um s
 | Migrações | CI testa subir e descer cada migração | Migrações só para frente; sem teste a partir de bancos de versões antigas | **Adaptado** (M7.6): testar a atualização a partir do banco de cada versão publicada e fazer backup automático antes de migrar |
 | Pacotes | `.deb`/`.rpm` com scripts de instalação e remoção, teste de instalação na CI, **repositório de pacotes** para atualizações | `.deb`/`.rpm` sem scripts nem teste de instalação | **Feito** (M7.7); o repositório de pacotes fica para depois |
 | Atualização automática | Timer a cada 5 min com **rollback automático** se a saúde falhar | Nenhuma | **Não por ora**: num pacote, quem atualiza é o sistema (apt/dnf). Volta a ser discutido com o repositório de pacotes |
-| Documentação | Manual do usuário, operação (backup, monitoramento, atualização), registro de decisões, modelo de dados, FAQ | Boa parte técnica; sem manual por tarefas, sem registro de decisões | **Sim** (M7.8) |
+| Documentação | Manual do usuário, operação (backup, monitoramento, atualização), registro de decisões, modelo de dados, FAQ | Boa parte técnica; sem manual por tarefas, sem registro de decisões | **Feito** (M7.8) |
 | Demonstração pública | Servidor de demonstração reiniciado toda noite | Só capturas de tela | **Adaptar** (M7.9): o app web em modo demonstração, com dados fictícios, no próprio GitHub Pages, sem servidor |
 | Idiomas | pt-BR, inglês e espanhol | pt-BR e inglês | **Talvez** (M7.10) |
 | Pilha, nuvem do Google, financiamento | Django/HTMX, guia do Google Cloud, FUNDING | Go + Svelte, auto-hospedado | **Não** se aplica |
