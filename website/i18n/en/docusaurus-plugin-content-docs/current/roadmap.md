@@ -34,7 +34,7 @@ Inspired by Kaladrius (see the [comparison](tecnico/comparacao-kaladrius.md)). O
 
 | Step | Delivery | State |
 |---|---|---|
-| **M7.1** | Supply chain: Dependabot with a 7-day wait and grouped PRs; GitHub actions pinned by SHA and images by digest, checked in CI | Planned |
+| **M7.1** | Supply chain: Dependabot with a 7-day wait and grouped PRs; GitHub actions pinned by SHA and images by digest, checked in CI | Done (see [Supply chain](tecnico/cadeia-de-suprimentos.md)) |
 | **M7.2** | Repository files: CONTRIBUTING, CODE_OF_CONDUCT, CODEOWNERS, NOTICE (name, brand, no link to Fing) and issue and PR templates | Planned |
 | **M7.3** | Versions and what's new: `releases.yaml` as the single source of the **What's new** page in the app, the version in the footer and the release text; CI checks the version | Planned |
 | **M7.4** | Health and monitoring: `GET /api/health` without login (version and database), optional Healthchecks.io signals (scan, backup), optional `/metrics` for Prometheus and a nearly-full-disk warning | Planned |

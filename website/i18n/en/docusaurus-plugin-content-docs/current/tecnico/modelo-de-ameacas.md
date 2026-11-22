@@ -44,7 +44,7 @@ Atalaia is a security tool that is also a target: it knows every device on the n
 | A malicious device name used to attack the alert | Sent as plain text, no markup; line breaks removed from titles |
 | Data leaks | Local storage, no telemetry, configurable retention |
 | Malicious input from the network (names, banners) | Treated as untrusted data: escaped in the UI, never executed |
-| Compromised dependency or image | CI with vulnerability and license audits, SBOM and Dependabot |
+| Compromised dependency or image | CI with vulnerability and license audits, SBOM, Dependabot with a 7-day wait, actions pinned by SHA and images by digest ([Supply chain](cadeia-de-suprimentos.md)) |
 
 ## Out of scope, on purpose
 

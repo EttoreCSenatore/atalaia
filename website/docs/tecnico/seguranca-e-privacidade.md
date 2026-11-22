@@ -54,4 +54,4 @@ Use o [relato privado de vulnerabilidades do GitHub](https://github.com/EttoreCS
 
 ## Cadeia de suprimentos
 
-A CI audita vulnerabilidades e licenças das dependências, e o Dependabot mantém as dependências e as ações do GitHub atualizadas.
+A CI audita vulnerabilidades e licenças das dependências, e o Dependabot mantém as dependências e as ações do GitHub atualizadas, com espera de 7 dias; ações e imagens são fixadas por SHA e digest (ver [Cadeia de suprimentos](cadeia-de-suprimentos.md)).

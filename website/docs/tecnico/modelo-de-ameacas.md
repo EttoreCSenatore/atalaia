@@ -44,7 +44,7 @@ O Atalaia é uma ferramenta de segurança que também é um alvo: ele conhece to
 | Nome de dispositivo malicioso usado para atacar o alerta | Enviado como texto simples, sem marcação; quebras de linha removidas dos títulos |
 | Dados vazarem | Armazenamento local, sem telemetria, retenção configurável |
 | Entrada maliciosa vinda da rede (nomes, banners) | Tratada como dado não confiável: escapada na interface, nunca executada |
-| Dependência ou imagem comprometida | CI com auditoria de vulnerabilidades e de licenças, SBOM e Dependabot |
+| Dependência ou imagem comprometida | CI com auditoria de vulnerabilidades e de licenças, SBOM, Dependabot com espera de 7 dias, ações fixadas por SHA e imagens por digest ([Cadeia de suprimentos](cadeia-de-suprimentos.md)) |
 
 ## Fora do escopo, de propósito
 

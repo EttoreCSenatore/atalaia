@@ -1,7 +1,7 @@
 ---
 id: comparacao-kaladrius
 title: Comparison with Kaladrius
-sidebar_position: 7
+sidebar_position: 8
 ---
 
 # What to learn from Kaladrius
@@ -12,7 +12,7 @@ sidebar_position: 7
 
 | Topic | Kaladrius | Atalaia today | Bring over? |
 |---|---|---|---|
-| Dependencies (Dependabot) | Weekly, a **7-day wait** before proposing a new version, grouped PRs | Weekly, no wait, no groups | **Yes** (M7.1) |
+| Dependencies (Dependabot) | Weekly, a **7-day wait** before proposing a new version, grouped PRs | Weekly, no wait, no groups | **Done** (M7.1) |
 | GitHub actions and images | Pinned by **SHA** and by **digest** | By tag (`@v7`, `node:24-alpine`) | **Yes** (M7.1) |
 | Repository files | SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, CODEOWNERS, NOTICE | SECURITY only | **Yes** (M7.2) |
 | Versions and what's new | A single `releases.yaml` feeds the "What's new" page in the app, the version in the footer and the GitHub release | A text CHANGELOG; version only on the About card | **Yes** (M7.3) |

@@ -6,6 +6,10 @@
 
 **PT-BR** — Documentação: comparação com o Kaladrius e o roteiro M7 "Operação e maturidade"; roadmap atualizado (v0.5, v0.6).
 
+**EN** — Supply chain (M7.1): GitHub actions pinned by commit SHA and Docker images by digest, checked in CI by `scripts/checar-fixacao.py`; Dependabot waits 7 days before proposing a version, groups minor/patch updates and limits open PRs. New docs page "Supply chain".
+
+**PT-BR** — Cadeia de suprimentos (M7.1): ações do GitHub fixadas por SHA de commit e imagens Docker por digest, conferidas na CI por `scripts/checar-fixacao.py`; o Dependabot espera 7 dias antes de propor uma versão, agrupa as atualizações menores e de correção e limita os PRs abertos. Nova página "Cadeia de suprimentos".
+
 ## v0.6.0 — 2026-11-19
 
 **EN** — Inventory housekeeping: forget a device (with its history), opt-in forgetting of untouched devices offline for N days, a type filter on the dashboard, CSV/JSON export (spreadsheet-safe CSV) from the dashboard and `atalaia export`, and `atalaia backup` for a consistent 0600 copy while the server runs.
