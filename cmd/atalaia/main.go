@@ -23,6 +23,7 @@ Usage:
   atalaia serve [--listen ADDR] [--db FILE] [--interval DURATION] [--allow-host NAME]
                 [--allow-cidr NET] [--tls-self-signed | --tls-cert F --tls-key F]
                 [--no-active-tools] [--secure-cookies]
+                [--heartbeat-scan URL] [--metrics-token-file FILE]
                     run the web app and scan the network in the background
   atalaia scan [--db FILE] [--no-names] [--offline-after DURATION]
                     discover the devices on the local network and record them
@@ -32,8 +33,10 @@ Usage:
                     show what happened (joined, online, offline, new address)
   atalaia export [--db FILE] [--format csv|json]
                     print the device list (CSV is safe to open in a spreadsheet)
-  atalaia backup [--db FILE] NEW-FILE
+  atalaia backup [--db FILE] [--heartbeat URL] NEW-FILE
                     write a consistent copy of the database (works while serving)
+  atalaia health [--url URL]
+                    check a running server (exit 0 when healthy; for Docker and scripts)
   atalaia scope     print the networks Atalaia is allowed to probe
   atalaia version   print the version
 
@@ -73,6 +76,8 @@ func (a *app) run(ctx context.Context, args []string) int {
 		return a.cmdExport(ctx, rest)
 	case "backup":
 		return a.cmdBackup(ctx, rest)
+	case "health":
+		return a.cmdHealth(ctx, rest)
 	case "version", "--version":
 		fmt.Fprintln(a.out, "atalaia", version.Version)
 		return 0

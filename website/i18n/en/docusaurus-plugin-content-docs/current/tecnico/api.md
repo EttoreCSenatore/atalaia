@@ -39,7 +39,9 @@ The server speaks HTTP. On a trusted local network that is acceptable, but the p
 
 | Method and path | Login | Description |
 |---|---|---|
-| `GET /api/status` | no | Version, whether setup is needed, whether there is a session. With a session, includes the scan state. |
+| `GET /api/status` | no | Version, whether setup is needed, whether there is a session. With a session, includes the scan state and the database disk's space (`disk`). |
+| `GET /api/health` | no | Health for monitors: `status` (`ok`, `degraded`, `error`), version, database, last scan; HTTP 503 when something is wrong. Nothing about the network. See [Monitoring](monitoramento.md). |
+| `GET /metrics` | token | Prometheus metrics, only with `Authorization: Bearer TOKEN` and when turned on; otherwise 404. |
 | `POST /api/setup` | no | `{code, password}`: creates the administrator and opens the session. |
 | `POST /api/login` | no | `{password}`. |
 | `POST /api/logout` | yes | Ends the session. |

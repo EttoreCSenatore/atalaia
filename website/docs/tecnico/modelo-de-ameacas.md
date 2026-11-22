@@ -22,6 +22,7 @@ O Atalaia é uma ferramenta de segurança que também é um alvo: ele conhece to
 | Pessoa na internet | Alcança o painel se o usuário o expuser por engano |
 | Usuário mal-intencionado | Usa o Atalaia para varrer a rede de outra pessoa |
 | Cadeia de suprimentos | Dependência ou imagem comprometida |
+| Leitura do estado sem login (monitoramento) | `/api/health` só informa estado, versão e horário da última varredura, e só para a rede local; `/metrics` vem desligado e exige um token de 32+ caracteres (comparado em tempo constante); só contagens, nunca dispositivos; a URL dos sinais de vida nunca vai para o log |
 
 ## Ameaças e mitigações
 

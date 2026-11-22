@@ -18,7 +18,7 @@ const json = (body, code = 200) => ({ status: code, contentType: 'application/js
 const browser = await chromium.launch();
 try {
   for (const [lang, suffix] of [['pt-BR', ''], ['en', '-en']]) {
-    const shot = async (name, path, { auth = true, setup = false, width = 1100, height = 640, seen = '' } = {}) => {
+    const shot = async (name, path, { auth = true, setup = false, width = 1100, height = 640, seen = '', disk } = {}) => {
       const ctx = await browser.newContext({ viewport: { width, height }, colorScheme: 'light', locale: lang });
       await ctx.addInitScript((l) => localStorage.setItem('atalaia.lang', l), lang);
       // the newest release this browser has seen: an older one shows the "updated" notice
@@ -30,7 +30,7 @@ try {
       const page = await ctx.newPage();
       await page.route('**/api/**', (route) => {
         const p = new URL(route.request().url()).pathname;
-        if (p === '/api/status') return route.fulfill(json(status({ authenticated: auth, setup_required: setup, ...(auth ? {} : { scan: undefined }) })));
+        if (p === '/api/status') return route.fulfill(json(status({ authenticated: auth, setup_required: setup, ...(auth ? {} : { scan: undefined, disk: undefined }), ...(disk ? { disk } : {}) })));
         if (p === '/api/devices') return route.fulfill(json(devices));
         if (p === '/api/events') return route.fulfill(json(events));
         if (p === '/api/dhcp') return route.fulfill(json(dhcp));
@@ -57,6 +57,7 @@ try {
     await shot('alertas', '/settings', { height: 1700 });
     await shot('novidades', '/whats-new', { height: 760, seen: '0.5.0' });
     await shot('aviso-novidades', '/', { height: 300, seen: '0.5.0' });
+    await shot('disco-cheio', '/', { height: 300, disk: { free_bytes: 300 * 2 ** 20, total_bytes: 32 * 2 ** 30, low: true } });
     await shot('login', '/', { auth: false, width: 640, height: 460 });
     await shot('configuracao-inicial', '/', { auth: false, setup: true, width: 640, height: 640 });
   }

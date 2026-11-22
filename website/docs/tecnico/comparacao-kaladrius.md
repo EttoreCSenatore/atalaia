@@ -16,7 +16,7 @@ O [Kaladrius](https://github.com/facchini-miguel/kaladrius) (Apache 2.0) é um s
 | Ações do GitHub e imagens | Fixadas por **SHA** e por **digest** | Por etiqueta (`@v7`, `node:24-alpine`) | **Sim** (M7.1) |
 | Arquivos do repositório | SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, CODEOWNERS, NOTICE | Só SECURITY | **Feito** (M7.2) |
 | Versões e novidades | `releases.yaml` único alimenta a página "Novidades" no app, a versão no rodapé e a release do GitHub | CHANGELOG em texto; versão só na tela Sobre | **Feito** (M7.3) |
-| Saúde e monitoramento | Página de saúde sem login, sinais para Healthchecks.io (sistema, backup, restauração, atualização, disco), números para Prometheus | Nada sem login; nenhum aviso se o Atalaia parar | **Sim** (M7.4) |
+| Saúde e monitoramento | Página de saúde sem login, sinais para Healthchecks.io (sistema, backup, restauração, atualização, disco), números para Prometheus | Nada sem login; nenhum aviso se o Atalaia parar | **Feito** (M7.4) |
 | Backup | Diário por timer do systemd, **teste de restauração semanal**, aviso quando atrasa | `atalaia backup` manual | **Sim** (M7.5) |
 | Migrações | CI testa subir e descer cada migração | Migrações só para frente; sem teste a partir de bancos de versões antigas | **Adaptar** (M7.6): testar a atualização a partir do banco de cada versão publicada e fazer backup automático antes de migrar |
 | Pacotes | `.deb`/`.rpm` com scripts de instalação e remoção, teste de instalação na CI, **repositório de pacotes** para atualizações | `.deb`/`.rpm` sem scripts nem teste de instalação | **Sim** (M7.7); o repositório de pacotes fica para depois |

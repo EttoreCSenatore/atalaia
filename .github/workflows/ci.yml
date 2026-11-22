@@ -130,6 +130,8 @@ jobs:
           curl -fs http://127.0.0.1:18080/whats-new | grep -qi '<title>Atalaia'
           test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example' http://127.0.0.1:18080/api/status)" = 403
           docker logs atalaia-smoke 2>&1 | grep -q 'Setup code'
+          curl -fs http://127.0.0.1:18080/api/health | grep -q '"database":"ok"'
+          docker exec atalaia-smoke /atalaia health --url http://127.0.0.1:18080
           docker rm -f atalaia-smoke
 
   deploy:

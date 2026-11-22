@@ -103,6 +103,8 @@ The copy is created with mode `0600` and never overwrites an existing file: it h
 
 To take the list to a spreadsheet: `atalaia export --format csv` (or `json`), or the **Download the list** link on the dashboard. The CSV neutralizes formulas: names coming from the network never become spreadsheet commands.
 
+To know whether Atalaia is working (a health endpoint without login, Healthchecks.io pings after every scan and backup, Prometheus metrics and the Docker image's `HEALTHCHECK`), see [Monitoring](monitoramento.md).
+
 ## What CI checks
 
 CI builds the image, validates the compose file, scans for vulnerabilities with Trivy (fails on critical ones with a fix) and runs a smoke test: the server starts, the app and API answer, the CSP is present, `/api/devices` requires login and a forged `Host` header is refused.

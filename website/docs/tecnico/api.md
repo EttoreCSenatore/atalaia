@@ -39,7 +39,9 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 
 | Método e caminho | Login | Descrição |
 |---|---|---|
-| `GET /api/status` | não | Versão, se falta configurar, se há sessão. Com sessão, inclui o estado da varredura. |
+| `GET /api/status` | não | Versão, se falta configurar, se há sessão. Com sessão, inclui o estado da varredura e o espaço do disco do banco (`disk`). |
+| `GET /api/health` | não | Saúde para monitores: `status` (`ok`, `degraded`, `error`), versão, banco, última varredura; HTTP 503 quando há problema. Nada sobre a rede. Veja [Monitoramento](monitoramento.md). |
+| `GET /metrics` | token | Métricas para o Prometheus, só com `Authorization: Bearer TOKEN` e quando ligado; senão 404. |
 | `POST /api/setup` | não | `{code, password}`: cria o administrador e já abre a sessão. |
 | `POST /api/login` | não | `{password}`. |
 | `POST /api/logout` | sim | Encerra a sessão. |

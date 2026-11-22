@@ -8,11 +8,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"text/tabwriter"
 	"time"
 
 	"github.com/EttoreCSenatore/atalaia/internal/discovery"
 	"github.com/EttoreCSenatore/atalaia/internal/export"
+	"github.com/EttoreCSenatore/atalaia/internal/health"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
 )
 
@@ -219,8 +221,18 @@ func (a *app) cmdExport(ctx context.Context, args []string) int {
 // cmdBackup writes a consistent copy of the database (safe while the server runs).
 func (a *app) cmdBackup(ctx context.Context, args []string) int {
 	fs, db := a.flags("backup")
+	heartbeat := fs.String("heartbeat", os.Getenv("ATALAIA_HEARTBEAT_BACKUP"), "ping this URL after the backup, URL/fail when it fails (Healthchecks.io style)")
 	if err := fs.Parse(args); err != nil {
 		return 2
+	}
+	hb, err := health.ParseHeartbeat(*heartbeat)
+	if err != nil {
+		return a.fail(err)
+	}
+	ping := func(ok bool) {
+		if err := hb.Ping(ctx, ok); err != nil {
+			fmt.Fprintln(a.err, "atalaia:", err)
+		}
 	}
 	if fs.NArg() != 1 {
 		fmt.Fprintln(a.err, "usage: atalaia backup [--db file] <new-file.db>")
@@ -228,12 +240,18 @@ func (a *app) cmdBackup(ctx context.Context, args []string) int {
 	}
 	st, err := store.Open(*db)
 	if err != nil {
+		ping(false)
 		return a.fail(err)
 	}
 	defer st.Close()
 	if err := st.Backup(ctx, fs.Arg(0)); err != nil {
+		ping(false)
 		return a.fail(err)
 	}
+	if err := st.SetSetting(ctx, store.LastBackupKey, strconv.FormatInt(a.now().Unix(), 10)); err != nil {
+		fmt.Fprintln(a.err, "atalaia: backup written, but its time was not recorded:", err)
+	}
+	ping(true)
 	fmt.Fprintf(a.out, "Backup written to %s (only you can read it: it holds your device list and alert secrets).\n", fs.Arg(0))
 	return 0
 }

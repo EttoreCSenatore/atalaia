@@ -26,5 +26,7 @@ ENV ATALAIA_DB=/data/atalaia.db
 VOLUME /data
 USER 65532:65532
 # Needs the host network to see the LAN (see docker-compose.yml).
+# `atalaia health` reads the same ATALAIA_LISTEN / ATALAIA_TLS_* variables as `serve`.
+HEALTHCHECK --interval=1m --timeout=10s --start-period=1m --retries=3 CMD ["/atalaia", "health"]
 ENTRYPOINT ["/atalaia"]
 CMD ["serve", "--listen", "127.0.0.1:8080"]

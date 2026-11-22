@@ -86,6 +86,12 @@ func (s *Store) CountDevices(ctx context.Context) (int, error) {
 	return n, err
 }
 
+// DeviceCounts returns how many devices are in the inventory, online and marked known.
+func (s *Store) DeviceCounts(ctx context.Context) (total, online, known int, err error) {
+	err = s.db.QueryRowContext(ctx, `SELECT COUNT(*), COALESCE(SUM(online), 0), COALESCE(SUM(known), 0) FROM devices`).Scan(&total, &online, &known)
+	return
+}
+
 // DeviceByMAC returns the device with that MAC, if it is in the inventory.
 func (s *Store) DeviceByMAC(ctx context.Context, mac string) (Device, bool, error) {
 	return getByMAC(ctx, s.db, mac)
