@@ -79,6 +79,16 @@ journalctl -u atalaia | grep -A1 "Setup code"    # código da primeira configura
 
 O pacote instala o binário em `/usr/bin/atalaia`, a unidade `atalaia.service` e o arquivo de opções `/etc/default/atalaia` (que um upgrade nunca sobrescreve). **Nada é ligado sem você pedir.** A unidade roda como um **usuário descartável sem privilégios** (`DynamicUser`), sem capabilities, com o sistema de arquivos em modo somente leitura (só `/var/lib/atalaia` é gravável), sem acesso a `/home`, com filtro de chamadas de sistema e só sockets IP. As opções (`ATALAIA_LISTEN`, HTTPS, modo somente observação…) ficam em `/etc/default/atalaia`.
 
+O que os scripts do pacote fazem:
+
+| Momento | O quê |
+|---|---|
+| Instalação | Recarrega o systemd e mostra como ligar o serviço; **não** liga nem inicia o Atalaia |
+| Atualização | Recarrega o systemd e reinicia o serviço **só se ele já estava rodando**; mantém o seu `/etc/default/atalaia` |
+| Remoção | Para e desliga o serviço; **mantém os dados** (banco, backups e certificado em `/var/lib/private/atalaia`), mesmo com `apt purge`: apague à mão se não precisar mais |
+
+A CI instala os pacotes em contêineres limpos de Debian 13 e Fedora 44 a cada mudança: instala, roda `systemd-analyze verify` na unidade, atualiza para uma versão nova (com o `/etc/default/atalaia` alterado), remove e, no Debian, faz o purge, conferindo arquivos, permissões e que os dados ficam.
+
 ## Modo somente observação
 
 Com `--no-active-tools` (ou `ATALAIA_NO_ACTIVE_TOOLS=1`) o servidor **só observa**: ping, Wake-on-LAN, varredura de portas e verificação de exposição ficam desligados (o servidor responde 403 e o app esconde os botões). A descoberta passiva, o histórico, os alertas e a consulta DNS continuam. É o modo indicado quando o Atalaia roda numa rede onde você não quer que ninguém, nem um administrador comprometido, possa disparar ações ativas.

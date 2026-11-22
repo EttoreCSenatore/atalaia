@@ -34,6 +34,10 @@
 
 **PT-BR** — Atualização segura (M7.6): antes de migrar um banco de uma versão anterior, o Atalaia o copia para `atalaia-pre-migration-schemaN-DATA.db` ao lado dele (0600, as 3 mais novas ficam) e se recusa a migrar se a cópia falhar. As migrações publicadas agora só crescem (lista de hashes conferida por teste). Novo teste de atualização: um banco criado pelo binário de cada versão publicada (v0.1.0–v0.6.0, gerados por `scripts/gerar-bancos-de-versoes.py` numa rede Docker descartável com um dispositivo fictício, binários conferidos pelo SHA256SUMS) é aberto pelo código atual e precisa chegar ao esquema mais novo, passar no `integrity_check`, manter dispositivos e eventos e aceitar uma varredura nova.
 
+**EN** — Packages (M7.7): `.deb`/`.rpm` install scripts that reload systemd, never enable or start the service by themselves, restart it on upgrade only if it was running, stop and disable it on removal, and never delete the data (not even on purge). New CI job installs the packages in clean Debian 13 and Fedora 44 containers: install, file modes, `systemd-analyze verify`, upgrade keeping a changed `/etc/default/atalaia`, removal and purge keeping the data (`scripts/testar-pacotes.sh`).
+
+**PT-BR** — Pacotes (M7.7): scripts de instalação do `.deb`/`.rpm` que recarregam o systemd, nunca ligam nem iniciam o serviço sozinhos, reiniciam na atualização só se ele já rodava, param e desligam na remoção e nunca apagam os dados (nem no purge). Novo job da CI instala os pacotes em contêineres limpos de Debian 13 e Fedora 44: instalação, permissões, `systemd-analyze verify`, atualização mantendo um `/etc/default/atalaia` alterado, remoção e purge mantendo os dados (`scripts/testar-pacotes.sh`).
+
 ## v0.6.0 — 2026-11-19
 
 **EN** — Inventory housekeeping: forget a device (with its history), opt-in forgetting of untouched devices offline for N days, a type filter on the dashboard, CSV/JSON export (spreadsheet-safe CSV) from the dashboard and `atalaia export`, and `atalaia backup` for a consistent 0600 copy while the server runs.
