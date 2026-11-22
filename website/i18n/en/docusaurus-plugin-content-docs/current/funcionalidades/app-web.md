@@ -7,7 +7,7 @@ sidebar_position: 2
 # Web app
 
 :::tip Try it without installing
-The [demo](pathname:///atalaia/demo/) runs the app in your browser with fictitious data: nothing touches a real network or sends anything, and changes last until you reload the page.
+The [demo](https://ettorecsenatore.github.io/atalaia/demo/) runs the app in your browser with fictitious data: nothing touches a real network or sends anything, and changes last until you reload the page.
 :::
 
 `atalaia serve` serves a web app that shows the network inventory, the history and the settings. It comes **inside the binary** (and the Docker image): there is nothing to install in the browser and no cloud service. It works in Portuguese and English, with light and dark themes (it follows the system's) and on phones.

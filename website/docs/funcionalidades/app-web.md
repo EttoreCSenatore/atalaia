@@ -7,7 +7,7 @@ sidebar_position: 2
 # App web
 
 :::tip Experimente sem instalar
-A [demonstração](pathname:///atalaia/demo/) roda o app no seu navegador com dados fictícios: nada toca uma rede de verdade nem envia nada, e as mudanças duram até você recarregar a página.
+A [demonstração](https://ettorecsenatore.github.io/atalaia/demo/) roda o app no seu navegador com dados fictícios: nada toca uma rede de verdade nem envia nada, e as mudanças duram até você recarregar a página.
 :::
 
 O `atalaia serve` serve um app web que mostra o inventário da rede, o histórico e as configurações. Ele vem **dentro do binário** (e da imagem Docker): não há nada para instalar no navegador nem serviço na nuvem. Funciona em português e inglês, com tema claro e escuro (segue o do sistema) e no celular.
