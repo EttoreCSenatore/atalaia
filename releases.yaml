@@ -10,6 +10,20 @@
 # - ao publicar, a tag precisa ser a primeira versão daqui.
 # O CHANGELOG.md continua com os detalhes técnicos; aqui vai o que importa para quem usa.
 releases:
+  - version: 0.8.0
+    date: 2026-11-22
+    en:
+      title: Installable app
+      items:
+        - "Install Atalaia as an app on your phone or computer (Chrome/Edge: Install app; iPhone: Add to Home Screen), with its own icon and window."
+        - The installed app opens even when the server is unreachable and says so, instead of a browser error page.
+        - Only the app itself is kept on the device; your network data is never stored by it.
+    pt-BR:
+      title: App instalável
+      items:
+        - "Instale o Atalaia como app no celular ou no computador (Chrome/Edge: Instalar app; iPhone: Adicionar à Tela de Início), com ícone e janela próprios."
+        - O app instalado abre mesmo com o servidor fora de alcance e avisa isso, em vez de uma página de erro do navegador.
+        - Só o próprio app fica guardado no aparelho; os dados da sua rede nunca são guardados por ele.
   - version: 0.7.1
     date: 2026-11-22
     en:

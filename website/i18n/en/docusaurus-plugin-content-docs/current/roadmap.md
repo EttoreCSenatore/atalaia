@@ -26,9 +26,9 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **v0.5** | Identification: mDNS services, SSDP/UPnP, NetBIOS, type guess with icons, names from DHCP (opt-in), VPN via `--allow-cidr`, scheduled scans | Done (see [Discovery](funcionalidades/descoberta.md)) |
 | **v0.6** | Security review (login lockout under parallel attempts, global limit) and inventory housekeeping (forget, auto-prune, filter, export, backup) | Done (see [Security and privacy](tecnico/seguranca-e-privacidade.md)) |
 | **v0.7** | Operations and maturity (M7.1–M7.9): pinned supply chain, what's new in the app, health and metrics, automatic backups with restore tests, safe upgrades, tested packages, manual and demo | Done (see [Getting started](manual/primeiros-passos.md)) |
-| **PWA** | Installable app: manifest, icons and a service worker that keeps only the app shell (never API responses) and opens even without the server | Done, not released yet (see [Install as an app](funcionalidades/app-web.md#install-as-an-app)) |
+| **PWA** | Installable app: manifest, icons and a service worker that keeps only the app shell (never API responses) and opens even without the server | Done in v0.8.0 (see [Install as an app](funcionalidades/app-web.md#install-as-an-app)) |
 
-The latest published version is **v0.7.1** (fixes from the v0.7 security review), with the **M7** block (M7.10, Spanish, won't be done).
+The latest published version is **v0.8.0** (installable app), after the **M7** block (M7.10, Spanish, won't be done).
 
 ## M7: Operations and maturity
 
