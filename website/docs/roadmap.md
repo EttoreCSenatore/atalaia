@@ -27,7 +27,7 @@ Cada etapa vira um pull request, revisado e integrado antes da próxima. Documen
 | **v0.6** | Revisão de segurança (bloqueio de login sob tentativas paralelas, limite global) e organização do inventário (esquecer, limpeza automática, filtro, exportação, backup) | Concluído (ver [Segurança e privacidade](tecnico/seguranca-e-privacidade.md)) |
 | **v0.7** | Operação e maturidade (M7.1–M7.9): cadeia de suprimentos fixada, novidades no app, saúde e métricas, backups automáticos com teste de restauração, atualização segura, pacotes testados, manual e demonstração | Concluído (ver [Primeiros passos](manual/primeiros-passos.md)) |
 
-A versão publicada mais recente é a **v0.7.0**, com o bloco **M7** (menos o M7.10, adiado).
+A versão publicada mais recente é a **v0.7.0**, com o bloco **M7** (o M7.10, espanhol, não será feito).
 
 ## M7: Operação e maturidade
 
@@ -44,7 +44,7 @@ Inspirado no Kaladrius (veja a [comparação](tecnico/comparacao-kaladrius.md)).
 | **M7.7** | Ciclo de vida do pacote: scripts de instalação e remoção, teste de instalação do `.deb` e do `.rpm` na CI | Concluído (ver [Implantação](tecnico/implantacao.md)) |
 | **M7.8** | Documentação: manual por tarefas (primeiros passos, FAQ, glossário), seção de operação (backup, monitoramento, atualização), registro de decisões e referência única de configuração | Concluído (ver [Primeiros passos](manual/primeiros-passos.md)) |
 | **M7.9** | Demonstração pública: o app web em modo demonstração, com dados fictícios, no GitHub Pages | Concluído ([abrir a demonstração](https://ettorecsenatore.github.io/atalaia/demo/)) |
-| **M7.10** | (Opcional) Tradução para o espanhol | Adiado (cada mudança teria de ser escrita em três línguas; rever se houver pedido) |
+| **M7.10** | (Opcional) Tradução para o espanhol | Não será feito: o projeto fica em português e inglês |
 
 ## Depois
 

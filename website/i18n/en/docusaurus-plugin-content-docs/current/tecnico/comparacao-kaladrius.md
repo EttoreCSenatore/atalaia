@@ -23,7 +23,7 @@ sidebar_position: 9
 | Automatic update | A timer every 5 min with **automatic rollback** when health fails | None | **Not for now**: with a package, the system (apt/dnf) updates. To be discussed again with the package repository |
 | Documentation | User manual, operations (backup, monitoring, upgrade), decision log, data model, FAQ | Mostly technical; no task-based manual, no decision log | **Done** (M7.8) |
 | Public demo | A demo server reset every night | Screenshots only | **Adapted** (M7.9): the web app in demo mode, with fictitious data, on GitHub Pages itself, with no server |
-| Languages | pt-BR, English and Spanish | pt-BR and English | **Postponed** (M7.10) |
+| Languages | pt-BR, English and Spanish | pt-BR and English | **No** (decided) |
 | Stack, Google Cloud, funding | Django/HTMX, a Google Cloud guide, FUNDING | Go + Svelte, self-hosted | **Does not** apply |
 
 ## What Atalaia already does better (and keeps)
