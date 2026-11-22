@@ -16,13 +16,14 @@ sidebar_position: 3
 - No telemetry and no cloud accounts. **The exception you turn on:** if you configure an alert channel (ntfy, Telegram, e-mail, webhook), the alert text (the device's name, vendor, IP and MAC) is sent to that service. With ntfy.sh or Telegram that means a third party; to keep everything at home, use your own ntfy server or webhook. See [Alerts](../funcionalidades/alertas.md). **Another exception you turn on:** the speed test downloads a file from `speed.cloudflare.com`, which then sees your network's public IP; the app asks for confirmation every time.
 - The SQLite database is created with `0600` permissions (folder `0700`).
 - Everything that comes from the network (names, vendors) is treated as untrusted and sanitized before it is stored or shown.
+- The installable app (PWA) keeps only the app shell on the device (HTML, JavaScript, CSS, icons). The service worker never answers or caches `/api/` or `/metrics`, so network data is not cached because of it; a test checks this. See [Install as an app](../funcionalidades/app-web.md#install-as-an-app).
 
 ## Privacy and data protection
 
 MAC addresses, device names and connection times can identify people (for example, a resident's phone). So:
 
 - Data stays in a local file owned by the user. The project receives nothing.
-- History retention will be configurable (M2).
+- The event history is deleted after 90 days by default; change it in Settings (0 keeps it forever).
 - Whoever runs Atalaia on a third party's network (a company, a building) is the controller of that data and must inform the people affected.
 
 The project's compliance documentation is done with **AI-assisted review** and is **not legal advice**.

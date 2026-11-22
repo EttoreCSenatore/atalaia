@@ -13,7 +13,7 @@ How to know that Atalaia itself is working. Everything here is optional except t
 Answers **without login** (but only to the local network, like the rest of the server), for Uptime Kuma, Gatus and the like:
 
 ```json
-{"status": "ok", "version": "v0.7.0", "database": "ok", "last_scan": "2026-11-22T12:00:00Z"}
+{"status": "ok", "version": "v0.8.0", "database": "ok", "last_scan": "2026-11-22T12:00:00Z"}
 ```
 
 | `status` | HTTP | When |

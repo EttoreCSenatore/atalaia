@@ -35,6 +35,10 @@ Só funciona para dispositivos do inventário, na sua rede local. Veja [Ferramen
 
 Escute em todos os endereços com HTTPS ligado: `ATALAIA_LISTEN=0.0.0.0:8443` e `ATALAIA_TLS_SELF_SIGNED=1` (Docker: `environment:`; pacote: `/etc/default/atalaia`). Na primeira vez o navegador avisa sobre o certificado: compare a impressão digital que aparece no log do Atalaia antes de aceitar. Veja [Implantação](../tecnico/implantacao.md#https-embutido).
 
+## Instalar no celular ou no computador
+
+Chrome/Edge: menu › **Instalar app**; iPhone: Compartilhar › **Adicionar à Tela de Início**. A opção só aparece com HTTPS e um certificado em que o aparelho confia. Veja [Instalar como app](../funcionalidades/app-web.md#instalar-como-app).
+
 ## Abrir pela VPN (Tailscale e similares)
 
 Diga qual rede da VPN é de confiança: `ATALAIA_ALLOW_CIDR=100.64.0.0/10` (Tailscale). Sem isso, endereços de VPN recebem 403. Nunca exponha o Atalaia direto para a internet.

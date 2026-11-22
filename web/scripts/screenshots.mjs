@@ -57,8 +57,8 @@ try {
     await shot('configuracoes', '/settings', { height: 700 });
     await shot('ferramentas', '/tools', { height: 760 });
     await shot('alertas', '/settings', { height: 1700 });
-    await shot('novidades', '/whats-new', { height: 760, seen: '0.5.0' });
-    await shot('aviso-novidades', '/', { height: 300, seen: '0.5.0' });
+    await shot('novidades', '/whats-new', { height: 760, seen: '0.7.1' });
+    await shot('aviso-novidades', '/', { height: 300, seen: '0.7.1' });
     await shot('disco-cheio', '/', { height: 300, disk: { free_bytes: 300 * 2 ** 20, total_bytes: 32 * 2 ** 30, low: true } });
     await shot('backups', '/settings', { height: 2400, selector: '#backups' });
     await shot('backup-atrasado', '/', { height: 300, backup: { enabled: true, dir: '/var/lib/atalaia/backups', keep: 7, interval: '24h0m0s', last: new Date(Date.now() - 31 * 3600_000).toISOString(), late: true, last_restore_test: new Date(Date.now() - 4 * 86400_000).toISOString(), restore_ok: true } });

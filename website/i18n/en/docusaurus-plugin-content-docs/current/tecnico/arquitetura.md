@@ -45,7 +45,7 @@ A browser has no raw sockets, ARP, ICMP or mDNS. The agent runs **without root a
 | `internal/tools` | Ping, DNS, Wake-on-LAN, port scan, exposure, traceroute, speed test |
 | `internal/dhcpprobe`, `internal/dhcpwatch` | Optional rogue DHCP server check |
 | `internal/dhcpsniff` | Optional listener of DHCP requests to learn names |
-| `internal/web` + `web/` | Web app (Svelte) embedded in the binary |
+| `internal/web` + `web/` | Web app (Svelte) embedded in the binary, with the installable app's manifest and service worker (`web/pwa/`) |
 
 ## Stack
 

@@ -16,13 +16,14 @@ sidebar_position: 3
 - Sem telemetria e sem contas em nuvem. **Exceção que você liga:** se configurar um canal de alerta (ntfy, Telegram, e-mail, webhook), o texto do alerta (nome, fabricante, IP e MAC do dispositivo) é enviado a esse serviço. Com ntfy.sh ou Telegram isso significa um terceiro; para manter tudo em casa, use um servidor ntfy ou um webhook seu. Veja [Alertas](../funcionalidades/alertas.md). **Outra exceção que você liga:** o teste de velocidade baixa um arquivo de `speed.cloudflare.com`, que passa a ver o IP público da sua rede; o app pede confirmação a cada uso.
 - O banco SQLite é criado com permissão `0600` (pasta `0700`).
 - Tudo o que vem da rede (nomes, fabricantes) é tratado como dado não confiável e limpo antes de ser guardado ou mostrado.
+- O app instalável (PWA) guarda no aparelho só o casco do app (HTML, JavaScript, CSS, ícones). O service worker nunca responde nem guarda `/api/` ou `/metrics`, então os dados da rede não ficam no cache por causa dele; um teste confere isso. Veja [Instalar como app](../funcionalidades/app-web.md#instalar-como-app).
 
 ## Privacidade e LGPD
 
 Endereços MAC, nomes de dispositivos e horários de conexão podem identificar pessoas (por exemplo, o celular de um morador). Por isso:
 
 - Os dados ficam num arquivo local do usuário. O projeto não recebe nada.
-- A retenção do histórico será configurável (M2).
+- O histórico de eventos é apagado depois de 90 dias por padrão; o prazo muda em Configurações (0 guarda para sempre).
 - Quem opera o Atalaia numa rede de terceiros (uma empresa, um condomínio) é o controlador desses dados e deve informar as pessoas.
 
 A documentação de conformidade do projeto é feita com **revisão assistida por IA** e **não é aconselhamento jurídico**.

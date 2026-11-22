@@ -8,7 +8,7 @@
 
 **Vigia da sua rede.** Vigia de rede livre, de código aberto e auto-hospedado: descubra os dispositivos da sua rede, acompanhe o histórico, receba alertas e faça verificações de segurança **defensivas**. Um agente em Go com o app web embutido.
 
-> **Estado: v0.7.** `atalaia serve` descobre e identifica os dispositivos, guarda o histórico, serve um app web com login (Linux, Docker, pacotes .deb/.rpm), faz verificações defensivas e avisa por ntfy, Telegram, webhook ou e-mail quando surge um dispositivo novo. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
+> **Estado: v0.8.** `atalaia serve` descobre e identifica os dispositivos, guarda o histórico, serve um app web com login que pode ser instalado como app no celular ou no computador (Linux, Docker, pacotes .deb/.rpm), faz verificações defensivas e avisa por ntfy, Telegram, webhook ou e-mail quando surge um dispositivo novo. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
 
 ## Experimente (Linux)
 
@@ -29,6 +29,7 @@ Com Docker: `cd deploy && docker compose up -d --build` (o código de configura�
 - **Histórico e alertas**: linha do tempo online/offline e aviso de dispositivo novo (ntfy, Telegram, e-mail, webhook).
 - **Segurança passiva e ativa**: sinais de ARP spoofing, DHCP falso (opcional), portas e serviços arriscados, TLS, interfaces web expostas. Sem verificação de CVEs, de propósito.
 - **Ferramentas de rede**: ping, traceroute, DNS, Wake-on-LAN, velocidade de download.
+- **App web** em português e inglês, instalável no celular ou no computador (PWA), com uma [demonstração](https://ettorecsenatore.github.io/atalaia/demo/) de dados fictícios.
 
 ## Princípios
 
