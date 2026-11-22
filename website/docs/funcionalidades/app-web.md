@@ -44,7 +44,9 @@ A linha do tempo de tudo o que mudou: dispositivos novos, que voltaram, que sumi
 
 ## Configurações
 
-Quanto tempo o histórico é guardado (padrão 90 dias; 0 guarda tudo), troca de senha (encerra as outras sessões), idioma e a versão.
+Quanto tempo o histórico é guardado (padrão 90 dias; 0 guarda tudo), troca de senha (encerra as outras sessões), backups (último backup, último teste de restauração e **Fazer backup agora**; veja [Implantação](../tecnico/implantacao.md)), idioma e a versão.
+
+![Seção Backups (dados fictícios)](/img/screenshots/app-backups.png)
 
 ![Tela de configurações](/img/screenshots/app-configuracoes.png)
 

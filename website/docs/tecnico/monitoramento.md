@@ -19,7 +19,7 @@ Responde **sem login** (mas só para a rede local, como o resto do servidor), pa
 | `status` | HTTP | Quando |
 |---|---|---|
 | `ok` | 200 | Tudo certo |
-| `degraded` | 200 | Só avisos em `warnings`: `disk_low` (disco do banco quase cheio) |
+| `degraded` | 200 | Só avisos em `warnings`: `disk_low` (disco do banco quase cheio), `backup_late` (último backup automático com mais de 26 h), `restore_test_failed` (o último teste de restauração falhou) |
 | `error` | 503 | Problemas em `problems`: `database` (o banco não responde), `last_scan_failed` (a última varredura falhou), `scans_stale` (nenhuma varredura há mais de 3 intervalos) |
 
 O texto dos erros nunca aparece aqui (ele pode citar a interface de rede); veja o log do servidor ou o app. A versão aparece sem login: quem está na sua rede local consegue saber qual versão você roda.
@@ -37,7 +37,7 @@ Um serviço como o [Healthchecks.io](https://healthchecks.io/) avisa quando um s
 | Sinal | Como ligar | O que envia |
 |---|---|---|
 | Varredura | `--heartbeat-scan URL` ou `ATALAIA_HEARTBEAT_SCAN` | `GET URL` depois de cada varredura; `GET URL/fail` quando ela falha |
-| Backup | `atalaia backup --heartbeat URL` ou `ATALAIA_HEARTBEAT_BACKUP` | `GET URL` quando o backup dá certo; `GET URL/fail` quando falha |
+| Backup | `--heartbeat-backup URL` (backups automáticos), `atalaia backup --heartbeat URL` (à mão) ou `ATALAIA_HEARTBEAT_BACKUP` | `GET URL` quando o backup (e o teste de restauração, quando roda) dá certo; `GET URL/fail` quando falha |
 
 A URL é um segredo (quem a tiver pode mandar sinais falsos): ela nunca aparece nos logs. Espera até 10 segundos e não segue redirecionamentos. No Healthchecks.io, configure o período igual ao intervalo de varredura (5 minutos por padrão) com uma tolerância de alguns minutos.
 
@@ -65,7 +65,8 @@ scrape_configs:
 | `atalaia_devices`, `atalaia_devices_online`, `atalaia_devices_known` | Contagens do inventário |
 | `atalaia_scans_total`, `atalaia_scan_failures_total` | Varreduras e falhas desde que o servidor subiu |
 | `atalaia_last_scan_timestamp_seconds`, `atalaia_last_scan_duration_seconds`, `atalaia_last_scan_success` | A última varredura |
-| `atalaia_last_backup_timestamp_seconds` | Último `atalaia backup` que deu certo |
+| `atalaia_last_backup_timestamp_seconds` | Último backup (automático ou `atalaia backup`) que deu certo |
+| `atalaia_last_restore_test_timestamp_seconds`, `atalaia_last_restore_test_success` | O último teste de restauração |
 | `atalaia_database_size_bytes` | Banco e o seu log de escrita |
 | `atalaia_disk_free_bytes`, `atalaia_disk_size_bytes` | Disco onde fica o banco |
 

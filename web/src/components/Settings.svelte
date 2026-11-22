@@ -3,6 +3,7 @@
   import { api, ApiError, type Settings } from '../lib/api';
   import AlertsSettings from './AlertsSettings.svelte';
   import DhcpSettings from './DhcpSettings.svelte';
+  import BackupSettings from './BackupSettings.svelte';
   import { app } from '../lib/app.svelte';
   import { t, i18n, setLang, type Lang } from '../lib/i18n.svelte';
 
@@ -124,6 +125,8 @@
       <button class="primary" disabled={busy}>{t('settings.change')}</button>
     </form>
   </section>
+
+  <BackupSettings />
 
   <AlertsSettings />
 

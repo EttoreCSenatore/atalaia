@@ -24,6 +24,7 @@ Usage:
                 [--allow-cidr NET] [--tls-self-signed | --tls-cert F --tls-key F]
                 [--no-active-tools] [--secure-cookies]
                 [--heartbeat-scan URL] [--metrics-token-file FILE]
+                [--backup-dir DIR] [--backup-keep N] [--heartbeat-backup URL]
                     run the web app and scan the network in the background
   atalaia scan [--db FILE] [--no-names] [--offline-after DURATION]
                     discover the devices on the local network and record them
@@ -33,8 +34,10 @@ Usage:
                     show what happened (joined, online, offline, new address)
   atalaia export [--db FILE] [--format csv|json]
                     print the device list (CSV is safe to open in a spreadsheet)
-  atalaia backup [--db FILE] [--heartbeat URL] NEW-FILE
+  atalaia backup [--db FILE] [--heartbeat URL] NEW-FILE | --dir FOLDER [--keep N]
                     write a consistent copy of the database (works while serving)
+  atalaia verify-backup FILE | --dir FOLDER
+                    test-restore a backup into a scratch copy and check it
   atalaia health [--url URL]
                     check a running server (exit 0 when healthy; for Docker and scripts)
   atalaia scope     print the networks Atalaia is allowed to probe
@@ -78,6 +81,8 @@ func (a *app) run(ctx context.Context, args []string) int {
 		return a.cmdBackup(ctx, rest)
 	case "health":
 		return a.cmdHealth(ctx, rest)
+	case "verify-backup":
+		return a.cmdVerifyBackup(ctx, rest)
 	case "version", "--version":
 		fmt.Fprintln(a.out, "atalaia", version.Version)
 		return 0

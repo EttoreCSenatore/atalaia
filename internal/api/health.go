@@ -49,6 +49,14 @@ func (s *Server) health(w http.ResponseWriter, r *http.Request) {
 	if d, err := health.DiskFor(filepath.Dir(s.Store.Path())); err == nil && d.Low {
 		out.Warnings = append(out.Warnings, "disk_low")
 	}
+	if b := s.Backups.State(ctx); b.Enabled {
+		if b.Late {
+			out.Warnings = append(out.Warnings, "backup_late")
+		}
+		if b.LastRestoreTest != nil && !b.RestoreOK {
+			out.Warnings = append(out.Warnings, "restore_test_failed")
+		}
+	}
 	code := http.StatusOK
 	switch {
 	case len(out.Problems) > 0:
@@ -103,6 +111,14 @@ func (s *Server) metrics(w http.ResponseWriter, r *http.Request) {
 	if t, err := s.Store.LastBackup(ctx); err == nil && !t.IsZero() {
 		m.Add("atalaia_last_backup_timestamp_seconds", "gauge", "When `atalaia backup` last succeeded (Unix time).", float64(t.Unix()))
 	}
+	if at, ok, err := s.Store.LastRestoreTest(ctx); err == nil && !at.IsZero() {
+		m.Add("atalaia_last_restore_test_timestamp_seconds", "gauge", "When the last restore test of a backup ran (Unix time).", float64(at.Unix()))
+		v := 0.0
+		if ok {
+			v = 1
+		}
+		m.Add("atalaia_last_restore_test_success", "gauge", "1 when the last restore test passed.", v)
+	}
 	if fi, err := os.Stat(s.Store.Path()); err == nil {
 		size := fi.Size()
 		if wal, err := os.Stat(s.Store.Path() + "-wal"); err == nil {
@@ -117,4 +133,23 @@ func (s *Server) metrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-store")
 	_, _ = w.Write([]byte(m.String()))
+}
+
+// backupNow makes a scheduled-style backup right away (Settings > Backups).
+func (s *Server) backupNow(w http.ResponseWriter, r *http.Request) {
+	if !s.Backups.Enabled() {
+		writeError(w, http.StatusConflict, "scheduled backups are off")
+		return
+	}
+	err := s.Backups.RunNow(r.Context())
+	detail := "ok"
+	if err != nil {
+		detail = "failed"
+	}
+	s.audited(r, "backup", "", detail)
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, s.Backups.State(r.Context()))
 }

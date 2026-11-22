@@ -68,6 +68,7 @@ The server speaks HTTP. On a trusted local network that is acceptable, but the p
 | `GET /api/releases` | yes | What's new in each version, from the embedded `releases.yaml`: `current` (running version) and `releases` (version, date, `en` and `pt-BR` with title and items), newest first. |
 | `GET /api/events?limit=N` | yes | History (1 to 1000), newest first. Kinds: `joined`, `online`, `offline`, `ip_changed`, `gateway_changed`, `multi_ip`, `rogue_dhcp`. |
 | `POST /api/scan` | yes | Asks for a scan now (answers 202). |
+| `POST /api/backup` | yes | Makes an automatic backup now (and the restore test, when due); 409 when scheduled backups are off. Goes to the audit log. The backup state comes in `GET /api/status` (`backup`). |
 | `GET /api/stream` | yes | Live events (SSE): `hello`, `scan_started`, `scan_finished`, `scan_failed`. |
 | `GET/PUT /api/settings` | yes | `retention_days` (0 to 3650; 0 keeps forever; default 90) `port_scan_hours` (0 = off, up to 720; only with active tools) and `prune_days` (0 = never, up to 3650). You can send any combination. |
 | `GET/PUT /api/alerts` | yes | `{rules: {new_device, known_offline, arp_anomaly, rogue_dhcp, new_ports}, channels: [...]}`. Secrets (`token`, `password`) are never returned by GET; in PUT, a channel sent without a secret keeps the one already saved. Up to 8 channels, body up to 32 KiB. |

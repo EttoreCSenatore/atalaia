@@ -43,6 +43,12 @@
       <span><strong>{t('disk.title')}</strong> {t('disk.body')} ({formatBytes(app.status.disk.free_bytes, i18n.lang)} {t('disk.free')})</span>
     </div>
   {/if}
+  {#if app.status.backup?.enabled && app.status.backup.late}
+    <div class="notice card warn" role="status">
+      <span><strong>{t('backup.lateTitle')}</strong> {t('backup.lateBody')}</span>
+      <a href="/settings#backups" data-link>{t('backup.see')}</a>
+    </div>
+  {/if}
   {#if hasUnseen() && route.path !== '/whats-new'}
     <div class="notice card" role="status">
       <span>{t('news.updated')} <strong class="mono">v{latest()}</strong>.</span>
@@ -73,6 +79,10 @@
   .notice.danger {
     border-left-color: var(--danger);
     background: var(--danger-bg);
+  }
+  .notice.warn {
+    border-left-color: var(--warn);
+    background: var(--warn-bg);
   }
   .notice .link {
     margin-left: auto;

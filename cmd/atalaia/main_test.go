@@ -396,3 +396,36 @@ func TestHealthCommand(t *testing.T) {
 		t.Fatalf("default url = %s", got)
 	}
 }
+
+func TestBackupDirAndVerify(t *testing.T) {
+	var out, errOut syncBuf
+	dir := t.TempDir()
+	db := filepath.Join(dir, "a.db")
+	a := &app{out: &out, err: &errOut, now: time.Now, scan: func(context.Context, bool) ([]store.Observation, error) {
+		return []store.Observation{{MAC: "aa:00:00:00:00:01", IP: netip.MustParseAddr("192.168.1.10")}}, nil
+	}}
+	if code := a.run(context.Background(), []string{"scan", "--db", db}); code != 0 {
+		t.Fatalf("scan: %q", errOut.String())
+	}
+	bk := filepath.Join(dir, "bk")
+	if code := a.run(context.Background(), []string{"backup", "--db", db, "--dir", bk, "--keep", "2"}); code != 0 {
+		t.Fatalf("backup --dir: %q", errOut.String())
+	}
+	if code := a.run(context.Background(), []string{"backup", "--db", db, "--dir", bk, filepath.Join(dir, "x.db")}); code != 2 {
+		t.Fatal("both --dir and a file accepted")
+	}
+	out = syncBuf{}
+	if code := a.run(context.Background(), []string{"verify-backup", "--dir", bk}); code != 0 || !strings.Contains(out.String(), "1 devices") {
+		t.Fatalf("verify: %d %q %q", code, out.String(), errOut.String())
+	}
+	bad := filepath.Join(dir, "bad.db")
+	if err := os.WriteFile(bad, []byte("not a db"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if code := a.run(context.Background(), []string{"verify-backup", bad}); code != 1 {
+		t.Fatal("bad backup passed")
+	}
+	if code := a.run(context.Background(), []string{"verify-backup", "--dir", filepath.Join(dir, "none")}); code != 1 {
+		t.Fatal("empty folder passed")
+	}
+}
