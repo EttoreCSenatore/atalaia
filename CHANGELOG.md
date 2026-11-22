@@ -14,6 +14,10 @@
 
 **PT-BR** — Arquivos do repositório (M7.2): CONTRIBUTING e CODE_OF_CONDUCT (bilíngues), NOTICE (uso do nome, sem ligação com a Fing), CODEOWNERS, formulários de issue (bug, ideia) e lista de verificação no PR; estado do README atualizado para v0.6.
 
+**EN** — Build: Node 26 (LTS) for the image, CI and release; Docker release actions moved to their new majors (login v4, setup-qemu v4, setup-buildx v4, build-push v7), tested with a non-publishing multi-arch build.
+
+**PT-BR** — Build: Node 26 (LTS) na imagem, na CI e na release; ações Docker da release nas novas versões maiores (login v4, setup-qemu v4, setup-buildx v4, build-push v7), testadas com um build multiarquitetura sem publicação.
+
 ## v0.6.0 — 2026-11-19
 
 **EN** — Inventory housekeeping: forget a device (with its history), opt-in forgetting of untouched devices offline for N days, a type filter on the dashboard, CSV/JSON export (spreadsheet-safe CSV) from the dashboard and `atalaia export`, and `atalaia backup` for a consistent 0600 copy while the server runs.
