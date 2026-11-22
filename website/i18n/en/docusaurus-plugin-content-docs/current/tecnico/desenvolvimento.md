@@ -9,7 +9,7 @@ sidebar_position: 4
 ## Requirements
 
 - Go (version in `go.mod`) for the agent.
-- Node 24+ for the documentation site.
+- Node 24+ for the documentation site (CI and the image use Node 26, LTS).
 - Python 3 for the CI check scripts.
 
 Without Go installed, Docker works:

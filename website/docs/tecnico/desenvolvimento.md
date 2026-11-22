@@ -9,7 +9,7 @@ sidebar_position: 4
 ## Requisitos
 
 - Go (versão em `go.mod`) para o agente.
-- Node 24+ para o site de documentação.
+- Node 24+ para o site de documentação (a CI e a imagem usam o Node 26, LTS).
 - Python 3 para os scripts de verificação da CI.
 
 Sem Go instalado, dá para usar o Docker:
