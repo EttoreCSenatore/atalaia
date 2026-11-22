@@ -63,3 +63,10 @@ The app keeps the last version it showed in the browser (`localStorage`). The fi
 2. At the top of `releases.yaml`, add the version with the same date and the highlights in both languages.
 3. Run `go run ./cmd/releasenotes check -changelog CHANGELOG.md -tag vX.Y.Z` and `go run ./cmd/releasenotes notes vX.Y.Z` to see the text.
 4. Merge the PR and push the tag: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+5. Once the release is published, make that version's database for the upgrade test and add it in the next PR: `python3 -I scripts/gerar-bancos-de-versoes.py vX.Y.Z` (CI requires the database of every version except the newest).
+
+## Safe database upgrades
+
+- **Backup before migrating:** when it opens a database from an earlier version, Atalaia writes an `atalaia-pre-migration-schemaN-DATE.db` copy next to it before changing the schema; if the copy fails, it does not migrate.
+- **Migrations only grow:** `internal/store/testdata/migrations.sha256` holds the hash of each published migration; the test fails if one is changed or removed (a change becomes a new migration).
+- **A database from every version:** `internal/store/testdata/released/` has a database made by the binary of every published version. The script downloads the release binary, checks its SHA-256 and runs `atalaia scan` on a throwaway Docker network with a fictitious device: no real network data. The test opens each database with the current code and checks the schema, `integrity_check`, devices and events kept, and that a new scan works.

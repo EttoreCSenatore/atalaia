@@ -18,7 +18,7 @@ sidebar_position: 9
 | Versions and what's new | A single `releases.yaml` feeds the "What's new" page in the app, the version in the footer and the GitHub release | A text CHANGELOG; version only on the About card | **Done** (M7.3) |
 | Health and monitoring | A health page without login, signals to Healthchecks.io (system, backup, restore, update, disk), numbers for Prometheus | Nothing without login; no warning if Atalaia stops | **Done** (M7.4) |
 | Backup | Daily via a systemd timer, a **weekly restore test**, a warning when it is late | Manual `atalaia backup` | **Done** (M7.5) |
-| Migrations | CI tests going up and down each migration | Forward-only migrations; no test from older releases' databases | **Adapt** (M7.6): test upgrading from the database of every published release, and back up automatically before migrating |
+| Migrations | CI tests going up and down each migration | Forward-only migrations; no test from older releases' databases | **Adapted** (M7.6): test upgrading from the database of every published release, and back up automatically before migrating |
 | Packages | `.deb`/`.rpm` with install and remove scripts, an install test in CI, a **package repository** for updates | `.deb`/`.rpm` without scripts or install test | **Yes** (M7.7); the package repository comes later |
 | Automatic update | A timer every 5 min with **automatic rollback** when health fails | None | **Not for now**: with a package, the system (apt/dnf) updates. To be discussed again with the package repository |
 | Documentation | User manual, operations (backup, monitoring, upgrade), decision log, data model, FAQ | Mostly technical; no task-based manual, no decision log | **Yes** (M7.8) |

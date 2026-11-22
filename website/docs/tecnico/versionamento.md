@@ -63,3 +63,10 @@ O app guarda no navegador (`localStorage`) a última versão que mostrou. Na pri
 2. No topo do `releases.yaml`, acrescente a versão com a mesma data e os destaques nas duas línguas.
 3. Rode `go run ./cmd/releasenotes check -changelog CHANGELOG.md -tag vX.Y.Z` e `go run ./cmd/releasenotes notes vX.Y.Z` para ver o texto.
 4. Integre o PR e envie a tag: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+5. Depois da release publicada, gere o banco dessa versão para o teste de atualização e inclua-o no próximo PR: `python3 -I scripts/gerar-bancos-de-versoes.py vX.Y.Z` (a CI cobra o banco de toda versão, menos a mais nova).
+
+## Atualização segura do banco
+
+- **Backup antes de migrar:** ao abrir um banco de uma versão anterior, o Atalaia faz uma cópia `atalaia-pre-migration-schemaN-DATA.db` ao lado dele antes de mudar o esquema; se a cópia falhar, não migra.
+- **Migrações só crescem:** `internal/store/testdata/migrations.sha256` guarda o hash de cada migração publicada; o teste falha se uma delas for alterada ou removida (uma mudança vira uma migração nova).
+- **Bancos de cada versão:** `internal/store/testdata/released/` tem um banco criado pelo binário de cada versão publicada. O script baixa o binário da release, confere o SHA-256 e roda `atalaia scan` numa rede Docker descartável com um dispositivo fictício: nenhum dado de rede real. O teste abre cada banco com o código atual e confere esquema, `integrity_check`, dispositivos e eventos preservados, e que uma varredura nova funciona.
