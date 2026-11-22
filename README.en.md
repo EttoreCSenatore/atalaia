@@ -8,7 +8,7 @@
 
 **Watch your network.** A free, open-source, self-hosted network watchtower: discover the devices on your network, track history, get alerts and run **defensive** security checks. A Go agent with the web app embedded.
 
-> **State: v0.4.** `atalaia serve` discovers the devices, keeps the history, serves a web app with login (Linux, Docker) and alerts you through ntfy, Telegram, webhook or e-mail when a new device appears. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
+> **State: v0.6.** `atalaia serve` discovers and identifies the devices, keeps the history, serves a web app with login (Linux, Docker, .deb/.rpm packages), runs defensive checks and alerts you through ntfy, Telegram, webhook or e-mail when a new device appears. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
 
 ## Try it (Linux)
 
@@ -35,7 +35,7 @@ With Docker: `cd deploy && docker compose up -d --build` (the setup code shows i
 - **Defensive**: for auditing **your own** network. Scope fixed to the host's own private networks; active checks are opt-in and logged.
 - **Secure by default**: login required, LAN-only, no root, no telemetry.
 - **Free software**: code AGPL-3.0-or-later ([LICENSE](LICENSE)); documentation CC BY-SA 4.0 ([LICENSE-DOCS.md](LICENSE-DOCS.md)).
-- Independent project: not affiliated with Fing Limited and does not use its trademarks or data.
+- Independent project: not affiliated with Fing Limited and does not use its trademarks or data (see [NOTICE](NOTICE)).
 
 ## Development
 
@@ -45,6 +45,6 @@ go vet ./... && go test -race ./...
 cd website && npm ci && npm start   # documentation
 ```
 
-Without Go installed: `docker run --rm -v "$PWD":/src -w /src golang:1-alpine go test ./...`. See [Development](https://ettorecsenatore.github.io/atalaia/en/docs/tecnico/desenvolvimento). Vulnerabilities: [SECURITY.md](SECURITY.md).
+Without Go installed: `docker run --rm -v "$PWD":/src -w /src golang:1-alpine go test ./...`. See [Development](https://ettorecsenatore.github.io/atalaia/en/docs/tecnico/desenvolvimento). Vulnerabilities: [SECURITY.md](SECURITY.md). To contribute: [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 Use only on networks you administer or have written authorization for.

@@ -8,7 +8,7 @@
 
 **Vigia da sua rede.** Vigia de rede livre, de código aberto e auto-hospedado: descubra os dispositivos da sua rede, acompanhe o histórico, receba alertas e faça verificações de segurança **defensivas**. Um agente em Go com o app web embutido.
 
-> **Estado: v0.4.** `atalaia serve` descobre os dispositivos, guarda o histórico, serve um app web com login (Linux, Docker) e avisa por ntfy, Telegram, webhook ou e-mail quando surge um dispositivo novo. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
+> **Estado: v0.6.** `atalaia serve` descobre e identifica os dispositivos, guarda o histórico, serve um app web com login (Linux, Docker, pacotes .deb/.rpm), faz verificações defensivas e avisa por ntfy, Telegram, webhook ou e-mail quando surge um dispositivo novo. Veja o [roadmap](https://ettorecsenatore.github.io/atalaia/docs/roadmap).
 
 ## Experimente (Linux)
 
@@ -35,7 +35,7 @@ Com Docker: `cd deploy && docker compose up -d --build` (o código de configura�
 - **Defensivo**: para auditar a **sua** rede. Escopo fixo nas redes privadas do próprio host, verificações ativas opcionais e registradas.
 - **Seguro por padrão**: login obrigatório, só na rede local, sem root, sem telemetria.
 - **Software livre**: código AGPL-3.0-or-later ([LICENSE](LICENSE)); documentação CC BY-SA 4.0 ([LICENSE-DOCS.md](LICENSE-DOCS.md)).
-- Projeto independente: sem ligação com a Fing Limited nem uso das suas marcas ou dados.
+- Projeto independente: sem ligação com a Fing Limited nem uso das suas marcas ou dados (veja [NOTICE](NOTICE)).
 
 ## Desenvolvimento
 
@@ -45,6 +45,6 @@ go vet ./... && go test -race ./...
 cd website && npm ci && npm start   # documentação
 ```
 
-Sem Go instalado: `docker run --rm -v "$PWD":/src -w /src golang:1-alpine go test ./...`. Veja [Desenvolvimento](https://ettorecsenatore.github.io/atalaia/docs/tecnico/desenvolvimento). Vulnerabilidades: [SECURITY.md](SECURITY.md).
+Sem Go instalado: `docker run --rm -v "$PWD":/src -w /src golang:1-alpine go test ./...`. Veja [Desenvolvimento](https://ettorecsenatore.github.io/atalaia/docs/tecnico/desenvolvimento). Vulnerabilidades: [SECURITY.md](SECURITY.md). Para contribuir: [CONTRIBUTING.md](CONTRIBUTING.md) e [Código de Conduta](CODE_OF_CONDUCT.md).
 
 Use só em redes que você administra ou em que tem autorização por escrito.

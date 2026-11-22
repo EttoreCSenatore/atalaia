@@ -1,0 +1,24 @@
+name: "Ideia / Feature idea"
+description: "Sugira uma melhoria / Suggest an improvement"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Veja antes o roadmap: https://ettorecsenatore.github.io/atalaia/docs/roadmap · Check the roadmap first: https://ettorecsenatore.github.io/atalaia/en/docs/roadmap
+        O Atalaia é defensivo: ideias para atacar redes de terceiros não serão aceitas. / Atalaia is defensive: ideas for attacking third-party networks will not be accepted.
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Que problema resolve / What problem does it solve"
+    validations: {required: true}
+  - type: textarea
+    id: idea
+    attributes:
+      label: "Como seria / What it would look like"
+    validations: {required: true}
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternativas e riscos / Alternatives and risks"
+      description: "Privacidade, segurança, o que pode dar errado. / Privacy, security, what could go wrong."

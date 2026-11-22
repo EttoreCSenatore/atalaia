@@ -1,0 +1,27 @@
+Atalaia
+Copyright (C) 2026 Ettore Senatore and contributors
+
+Code: GNU Affero General Public License v3.0 or later (see LICENSE).
+Documentation: Creative Commons Attribution-ShareAlike 4.0 (see LICENSE-DOCS.md).
+Source code: https://github.com/EttoreCSenatore/atalaia
+
+Name and brand
+"Atalaia" and the Atalaia logo identify this project. You may use the name to
+refer to the project and to unmodified builds of it. Modified versions you
+distribute should make clear that they are modified, as the AGPL also requires.
+
+No affiliation
+Atalaia is an independent project. It is not affiliated with, endorsed by or
+sponsored by Fing Limited, and it does not use Fing's trademarks, code, data or
+services. "Fing" is a trademark of its owner and is mentioned only to describe
+Atalaia as an alternative.
+
+Third-party data and software
+- Manufacturer names come from the IEEE OUI registry (public data).
+- Go and npm dependencies keep their own licences; CI checks that they are
+  compatible with the AGPL (scripts/auditar-licencas.py, go-licenses).
+
+---
+
+Atalaia é um projeto independente, sem ligação com a Fing Limited, sem o seu
+apoio ou patrocínio, e não usa marcas, código, dados ou serviços da Fing.

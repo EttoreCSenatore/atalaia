@@ -1,0 +1,46 @@
+name: "Bug / Problema"
+description: "Algo não funciona como deveria / Something does not work as it should"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Vulnerabilidade?** Não abra issue: use o relato privado em Security. / **A vulnerability?** Do not open an issue: use private reporting under Security.
+        **Não cole dados reais da sua rede** (MACs, IPs, nomes de dispositivos). Troque por valores fictícios. / **Do not paste real data from your network** (MACs, IPs, device names). Replace them with fictitious values.
+  - type: input
+    id: version
+    attributes:
+      label: "Versão / Version"
+      description: "Saída de `atalaia version` / Output of `atalaia version`"
+    validations: {required: true}
+  - type: dropdown
+    id: install
+    attributes:
+      label: "Instalação / Install method"
+      options: ["Docker", ".deb / .rpm", "Binário / Binary", "Código-fonte / From source"]
+    validations: {required: true}
+  - type: textarea
+    id: what
+    attributes:
+      label: "O que aconteceu / What happened"
+      description: "E o que você esperava. / And what you expected."
+    validations: {required: true}
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Como reproduzir / Steps to reproduce"
+    validations: {required: true}
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs (sem dados reais / without real data)"
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: "Confirmo / I confirm"
+      options:
+        - label: "Removi dados reais da minha rede / I removed real data from my network"
+          required: true
+        - label: "Uso o Atalaia numa rede que administro ou com autorização / I use Atalaia on a network I administer or am authorized for"
+          required: true

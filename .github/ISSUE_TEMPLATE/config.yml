@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "Vulnerabilidade (privado) / Vulnerability (private)"
+    url: https://github.com/EttoreCSenatore/atalaia/security/advisories/new
+    about: "Relate falhas de segurança em privado / Report security issues privately"
+  - name: "Documentação / Documentation"
+    url: https://ettorecsenatore.github.io/atalaia/
+    about: "Instalação e uso / Install and usage"

@@ -74,4 +74,4 @@ Os pacotes `.deb`/`.rpm` são montados pelo [nfpm](https://nfpm.goreleaser.com/)
 
 ## Fluxo de trabalho
 
-Uma etapa por pull request: branch, commits, CI verde, revisão do diff e integração com squash. Documentação (pt-BR e inglês) e memória do projeto são atualizadas na mesma etapa.
+Uma etapa por pull request: branch, commits, CI verde, revisão do diff e integração com squash. Documentação (pt-BR e inglês) e memória do projeto são atualizadas na mesma etapa. Para contribuições de fora, o [CONTRIBUTING](https://github.com/EttoreCSenatore/atalaia/blob/main/CONTRIBUTING.md) resume as regras, e os modelos de issue (bug, ideia) e de PR trazem a lista de verificação; o `CODEOWNERS` pede a revisão da pessoa mantenedora em todo PR.

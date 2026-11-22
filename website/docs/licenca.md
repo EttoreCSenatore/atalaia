@@ -13,7 +13,7 @@ sidebar_position: 2
 
 A AGPL garante que quem hospedar uma versão modificada do Atalaia como serviço também precise abrir o código dessa versão. Por isso o app web traz, em todas as páginas e em Configurações, um link **Código-fonte** para o repositório (na etiqueta da versão em uso). **Se você modificar o Atalaia e oferecê-lo a outras pessoas, troque esse link pelo do seu código.**
 
-O nome e o logotipo "Atalaia" não são cobertos pelas licenças acima.
+O nome e o logotipo "Atalaia" não são cobertos pelas licenças acima. O arquivo [NOTICE](https://github.com/EttoreCSenatore/atalaia/blob/main/NOTICE) diz como usar o nome e registra que o Atalaia é um projeto independente, **sem ligação com a Fing Limited** e sem uso das suas marcas, código ou dados. Para contribuir, veja [CONTRIBUTING](https://github.com/EttoreCSenatore/atalaia/blob/main/CONTRIBUTING.md) e o [Código de Conduta](https://github.com/EttoreCSenatore/atalaia/blob/main/CODE_OF_CONDUCT.md).
 
 ## Dados de terceiros
 
