@@ -27,7 +27,7 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **v0.6** | Security review (login lockout under parallel attempts, global limit) and inventory housekeeping (forget, auto-prune, filter, export, backup) | Done (see [Security and privacy](tecnico/seguranca-e-privacidade.md)) |
 | **v0.7** | Operations and maturity (M7.1–M7.9): pinned supply chain, what's new in the app, health and metrics, automatic backups with restore tests, safe upgrades, tested packages, manual and demo | Done (see [Getting started](manual/primeiros-passos.md)) |
 
-The latest published version is **v0.7.0**, with the **M7** block (except M7.10, postponed).
+The latest published version is **v0.7.0**, with the **M7** block (M7.10, Spanish, won't be done).
 
 ## M7: Operations and maturity
 
@@ -44,7 +44,7 @@ Inspired by Kaladrius (see the [comparison](tecnico/comparacao-kaladrius.md)). O
 | **M7.7** | Package lifecycle: install and remove scripts, an install test of the `.deb` and the `.rpm` in CI | Done (see [Deployment](tecnico/implantacao.md)) |
 | **M7.8** | Documentation: task-based manual (first steps, FAQ, glossary), an operations section (backup, monitoring, upgrade), a decision log and a single configuration reference | Done (see [Getting started](manual/primeiros-passos.md)) |
 | **M7.9** | Public demo: the web app in demo mode, with fictitious data, on GitHub Pages | Done ([open the demo](https://ettorecsenatore.github.io/atalaia/demo/)) |
-| **M7.10** | (Optional) Spanish translation | Postponed (every change would have to be written in three languages; revisit if there is demand) |
+| **M7.10** | (Optional) Spanish translation | Won't do: the project stays in Portuguese and English |
 
 ## Later
 

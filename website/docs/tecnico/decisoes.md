@@ -36,3 +36,4 @@ As escolhas de projeto que moldam o Atalaia, com o motivo de cada uma. Uma decis
 | 24 | **Documentação bilíngue**, português primeiro | O projeto nasceu no Brasil; inglês alcança o resto | M0 |
 | 25 | **Nada de dados de rede reais no repositório**: capturas e testes usam dados fictícios | Privacidade de quem testa e de quem aparece na rede | M2.2 |
 | 26 | **Demonstração estática** no GitHub Pages: API simulada no navegador, sem servidor | Ninguém precisa instalar para ver; nada roda nem é guardado do lado de quem publica, e o app real não leva esse código | M7.9 |
+| 27 | **Só português e inglês** (sem espanhol nem outras línguas) | Cada mudança já é escrita em duas línguas; uma terceira dobraria o trabalho de manter tudo igual | M7.10 |
