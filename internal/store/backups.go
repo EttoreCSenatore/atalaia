@@ -85,6 +85,7 @@ func VerifyBackup(ctx context.Context, path, workDir string) (RestoreCheck, erro
 	if err := os.MkdirAll(workDir, 0o700); err != nil {
 		return rc, err
 	}
+	removeStaleScratch(workDir)
 	tmp, err := os.MkdirTemp(workDir, ".restore-test-")
 	if err != nil {
 		return rc, err
@@ -168,4 +169,15 @@ func copyFile(src, dst string) error {
 		return err
 	}
 	return out.Close()
+}
+
+// removeStaleScratch deletes scratch copies left by a restore test that was
+// killed half-way (older than an hour, so a test running now is left alone).
+func removeStaleScratch(dir string) {
+	old, _ := filepath.Glob(filepath.Join(dir, ".restore-test-*"))
+	for _, p := range old {
+		if fi, err := os.Stat(p); err == nil && fi.IsDir() && time.Since(fi.ModTime()) > time.Hour {
+			_ = os.RemoveAll(p)
+		}
+	}
 }

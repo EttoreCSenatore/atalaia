@@ -49,6 +49,12 @@ func TestBackupToRotatesAndVerify(t *testing.T) {
 		t.Fatalf("dir mode %v", fi.Mode().Perm())
 	}
 
+	stale := filepath.Join(bk, ".restore-test-old")
+	if err := os.MkdirAll(stale, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	long := time.Now().Add(-2 * time.Hour)
+	_ = os.Chtimes(stale, long, long)
 	rc, err := VerifyBackup(ctx, last, bk)
 	if err != nil {
 		t.Fatal(err)

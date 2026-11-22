@@ -102,7 +102,10 @@ func (s *Scheduler) RunNow(ctx context.Context) error {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	err := s.run(ctx)
+	// once started, a backup and its restore test finish even if the server is
+	// stopping (it waits for them): a half-made copy or a false "restore failed"
+	// would be worse than a few seconds' delay
+	err := s.run(context.WithoutCancel(ctx))
 	if perr := s.Heartbeat.Ping(context.WithoutCancel(ctx), err == nil); perr != nil {
 		s.logf("atalaia: %v", perr)
 	}

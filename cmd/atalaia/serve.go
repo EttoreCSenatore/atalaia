@@ -192,7 +192,11 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 		// no WriteTimeout: live updates (SSE) keep the response open
 	}
 	go mon.Run(ctx)
-	go backups.Run(ctx)
+	// a backup that has started is allowed to finish before the database closes
+	bctx, bstop := context.WithCancel(ctx)
+	bdone := make(chan struct{})
+	go func() { defer close(bdone); backups.Run(bctx) }()
+	defer func() { bstop(); <-bdone }()
 	go sniffer.Run(ctx, func() bool {
 		n, err := st.SettingInt(ctx, api.SniffKey, 0)
 		return err == nil && n != 0
