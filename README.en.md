@@ -8,7 +8,7 @@
 
 **Watch your network.** A free, open-source, self-hosted network watchtower: discover the devices on your network, track history, get alerts and run **defensive** security checks. A Go agent with the web app embedded.
 
-> **State: v0.7.** `atalaia serve` discovers and identifies the devices, keeps the history, serves a web app with login (Linux, Docker, .deb/.rpm packages), runs defensive checks and alerts you through ntfy, Telegram, webhook or e-mail when a new device appears. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
+> **State: v0.8.** `atalaia serve` discovers and identifies the devices, keeps the history, serves a web app with login that installs as an app on a phone or computer (Linux, Docker, .deb/.rpm packages), runs defensive checks and alerts you through ntfy, Telegram, webhook or e-mail when a new device appears. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
 
 ## Try it (Linux)
 
@@ -29,6 +29,7 @@ With Docker: `cd deploy && docker compose up -d --build` (the setup code shows i
 - **History and alerts**: online/offline timeline and new-device notifications (ntfy, Telegram, e-mail, webhook).
 - **Passive and active security**: signs of ARP spoofing, rogue DHCP (opt-in), ports and risky services, TLS, exposed web interfaces. No CVE matching, on purpose.
 - **Network tools**: ping, traceroute, DNS, Wake-on-LAN, download speed.
+- **Web app** in Portuguese and English, installable on a phone or computer (PWA), with a [demo](https://ettorecsenatore.github.io/atalaia/demo/) using fictitious data.
 
 ## Principles
 

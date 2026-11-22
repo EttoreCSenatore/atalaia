@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Docs brought up to v0.8: README and introduction state, installable app in the README, tasks, architecture and security pages; the privacy section no longer says retention "will be" configurable (it is: 90 days by default).
+
+**PT-BR** — Documentação atualizada para a v0.8: estado no README e na introdução, app instalável no README, nas tarefas, na arquitetura e na página de segurança; a seção de privacidade não diz mais que a retenção "será" configurável (já é: 90 dias por padrão).
+
 **EN** — Upgrade-test database for v0.8.0 added.
 
 **PT-BR** — Banco de teste de atualização da v0.8.0 incluído.

@@ -35,6 +35,10 @@ Only for devices in the inventory, on your local network. See [Network tools](..
 
 Listen on every address with HTTPS on: `ATALAIA_LISTEN=0.0.0.0:8443` and `ATALAIA_TLS_SELF_SIGNED=1` (Docker: `environment:`; package: `/etc/default/atalaia`). The first time the browser warns about the certificate: compare the fingerprint in Atalaia's log before accepting it. See [Deployment](../tecnico/implantacao.md#built-in-https).
 
+## Install it on a phone or computer
+
+Chrome/Edge: menu › **Install app**; iPhone: Share › **Add to Home Screen**. The option only appears over HTTPS with a certificate the device trusts. See [Install as an app](../funcionalidades/app-web.md#install-as-an-app).
+
 ## Open it over a VPN (Tailscale and similar)
 
 Tell it which VPN network to trust: `ATALAIA_ALLOW_CIDR=100.64.0.0/10` (Tailscale). Without that, VPN addresses get 403. Never expose Atalaia straight to the internet.
