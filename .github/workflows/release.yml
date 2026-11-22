@@ -65,6 +65,22 @@ jobs:
             done
           done
           (cd dist && sha256sum *.tar.gz *.deb *.rpm > SHA256SUMS)
+      - name: Upgrade test of these packages from the previous release (Debian 13, Fedora 44)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prev=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
+          mkdir prev
+          gh release download "$prev" --repo "$GITHUB_REPOSITORY" --dir prev \
+            --pattern "atalaia_${prev#v}_amd64.deb" --pattern "atalaia-${prev#v}-1.x86_64.rpm" --pattern SHA256SUMS
+          (cd prev && sha256sum -c SHA256SUMS --ignore-missing)
+          new=${GITHUB_REF_NAME#v}
+          docker run --rm -v "$PWD/prev:/old:ro" -v "$PWD/dist:/new:ro" -v "$PWD/scripts/testar-pacotes.sh:/t.sh:ro" \
+            debian:13-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 \
+            /t.sh "/old/atalaia_${prev#v}_amd64.deb" "/new/atalaia_${new}_amd64.deb"
+          docker run --rm -v "$PWD/prev:/old:ro" -v "$PWD/dist:/new:ro" -v "$PWD/scripts/testar-pacotes.sh:/t.sh:ro" \
+            fedora:44@sha256:15da97ed9aa94dd3d92c3925eb89520f6c80e07ea7ee24cba848d1f8b6912b3e \
+            /t.sh "/old/atalaia-${prev#v}-1.x86_64.rpm" "/new/atalaia-${new}-1.x86_64.rpm"
       - name: GitHub release
         env:
           GH_TOKEN: ${{ github.token }}

@@ -20,6 +20,8 @@ See what changed on the app's **What's new** page (after upgrading) or in the [r
 
 Check the downloaded files against the release's `SHA256SUMS` (`sha256sum -c SHA256SUMS --ignore-missing`).
 
+On Debian and derivatives, if you edited `/etc/default/atalaia` and the new version also changed that file, `apt` asks which one to keep: answer **N** (keep yours). The new one is left next to it as `/etc/default/atalaia.dpkg-dist`, so you can see the new options (all of them are in the [configuration reference](configuracao.md)). For an unattended upgrade, use `-o Dpkg::Options::=--force-confold` to keep yours without being asked.
+
 ## What happens to the database
 
 - If the new version changed the database format, Atalaia **copies the database first** (`atalaia-pre-migration-schemaN-DATE.db`, next to it) and only then migrates. If the copy fails, it does not migrate and changes nothing.

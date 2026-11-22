@@ -87,7 +87,7 @@ What the package scripts do:
 | Upgrade | Reloads systemd and restarts the service **only if it was already running**; keeps your `/etc/default/atalaia` |
 | Removal | Stops and disables the service; **keeps the data** (database, backups and certificate in `/var/lib/private/atalaia`), even with `apt purge`: delete it by hand if you no longer need it |
 
-CI installs the packages in clean Debian 13 and Fedora 44 containers on every change: it installs them, runs `systemd-analyze verify` on the unit, upgrades to a newer version (with a changed `/etc/default/atalaia`), removes them and, on Debian, purges them, checking files, modes and that the data stays.
+On every release, the published packages are tested as an **upgrade from the previous release** before the release goes out. CI installs the packages in clean Debian 13 and Fedora 44 containers on every change: it installs them, runs `systemd-analyze verify` on the unit, upgrades to a newer version (with a changed `/etc/default/atalaia`), removes them and, on Debian, purges them, checking files, modes and that the data stays.
 
 ## Observe-only mode
 

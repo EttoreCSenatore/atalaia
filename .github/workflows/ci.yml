@@ -160,6 +160,8 @@ jobs:
         run: |
           mkdir -p pkg
           for v in 0.0.1 0.0.2; do
+            # the newer package also changes /etc/default/atalaia, like real releases do (dpkg conffile path)
+            if [ "$v" = 0.0.2 ]; then echo "# changed in 0.0.2" >> deploy/atalaia.default; fi
             CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X github.com/EttoreCSenatore/atalaia/internal/version.Version=v$v" -o "pkg/atalaia-$v" ./cmd/atalaia
             for fmt in deb rpm; do
               VERSION=$v ARCH=amd64 BINARY="pkg/atalaia-$v" \

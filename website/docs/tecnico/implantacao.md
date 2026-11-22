@@ -87,7 +87,7 @@ O que os scripts do pacote fazem:
 | Atualização | Recarrega o systemd e reinicia o serviço **só se ele já estava rodando**; mantém o seu `/etc/default/atalaia` |
 | Remoção | Para e desliga o serviço; **mantém os dados** (banco, backups e certificado em `/var/lib/private/atalaia`), mesmo com `apt purge`: apague à mão se não precisar mais |
 
-A CI instala os pacotes em contêineres limpos de Debian 13 e Fedora 44 a cada mudança: instala, roda `systemd-analyze verify` na unidade, atualiza para uma versão nova (com o `/etc/default/atalaia` alterado), remove e, no Debian, faz o purge, conferindo arquivos, permissões e que os dados ficam.
+A cada release, os pacotes publicados são testados como **atualização a partir da release anterior** antes de a release sair. A CI instala os pacotes em contêineres limpos de Debian 13 e Fedora 44 a cada mudança: instala, roda `systemd-analyze verify` na unidade, atualiza para uma versão nova (com o `/etc/default/atalaia` alterado), remove e, no Debian, faz o purge, conferindo arquivos, permissões e que os dados ficam.
 
 ## Modo somente observação
 

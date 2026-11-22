@@ -20,6 +20,8 @@ Veja o que mudou na página **Novidades** do app (depois de atualizar) ou nas [r
 
 Confira os arquivos baixados com o `SHA256SUMS` da release (`sha256sum -c SHA256SUMS --ignore-missing`).
 
+No Debian e derivados, se você editou o `/etc/default/atalaia` e a versão nova também mudou esse arquivo, o `apt` pergunta qual manter: responda **N** (manter a sua). A versão nova fica ao lado, em `/etc/default/atalaia.dpkg-dist`, para você ver as opções novas (todas estão na [referência de configuração](configuracao.md)). Numa atualização automática, use `-o Dpkg::Options::=--force-confold` para manter a sua sem perguntar.
+
 ## O que acontece com o banco
 
 - Se a versão nova mudou o formato do banco, o Atalaia **copia o banco antes** (`atalaia-pre-migration-schemaN-DATA.db`, ao lado dele) e só então migra. Se a cópia falhar, ele não migra e não muda nada.
