@@ -14,7 +14,9 @@ if command -v apt-get >/dev/null 2>&1; then
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq
   install() { apt-get install -y -qq "$@" >/dev/null; }
-  upgrade() { apt-get install -y -qq "$1" >/dev/null; }
+  # an edited /etc/default/atalaia that the new version also changed makes dpkg ask which to keep;
+  # unattended, keep the user's (what unattended-upgrades does too), and the test checks it was kept
+  upgrade() { apt-get install -y -qq -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold "$1" >/dev/null; }
   remove() { apt-get remove -y -qq atalaia >/dev/null; }
   installed() { dpkg-query -W -f='${Status}' atalaia 2>/dev/null | grep -q 'install ok installed'; }
 elif command -v dnf >/dev/null 2>&1; then

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Packages: a Debian upgrade no longer stops unattended when `/etc/default/atalaia` was edited and the new version also changed it (the test now keeps your file, as unattended upgrades do; the docs explain the `apt` prompt). The release workflow now tests the new `.deb`/`.rpm` as an upgrade from the previous release in Debian 13 and Fedora 44 before publishing, and CI's test packages change the options file like real releases. The v0.6.0 → v0.7.0 upgrade of the published packages was checked this way. Upgrade-test database for v0.7.0 added.
+
+**PT-BR** — Pacotes: uma atualização no Debian não para mais sem resposta quando o `/etc/default/atalaia` foi editado e a versão nova também o mudou (o teste agora mantém o seu arquivo, como as atualizações automáticas; a documentação explica a pergunta do `apt`). O fluxo de release agora testa o `.deb`/`.rpm` novo como atualização a partir da release anterior no Debian 13 e no Fedora 44 antes de publicar, e os pacotes de teste da CI mudam o arquivo de opções como as releases de verdade. A atualização v0.6.0 → v0.7.0 dos pacotes publicados foi conferida assim. Banco de teste de atualização da v0.7.0 incluído.
+
 ## v0.7.0 — 2026-11-22
 
 **EN** — Docs: comparison with Kaladrius and the M7 "Operations and maturity" roadmap; roadmap brought up to date (v0.5, v0.6).
