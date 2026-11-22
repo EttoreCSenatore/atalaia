@@ -45,6 +45,7 @@ Atalaia is a security tool that is also a target: it knows every device on the n
 | Data leaks | Local storage, no telemetry, configurable retention |
 | Malicious input from the network (names, banners) | Treated as untrusted data: escaped in the UI, never executed |
 | Compromised dependency or image | CI with vulnerability and license audits, SBOM, Dependabot with a 7-day wait, actions pinned by SHA and images by digest ([Supply chain](cadeia-de-suprimentos.md)) |
+| Reading the state without login (monitoring) | `/api/health` only gives state, version and the last scan time, and only to the local network; `/metrics` is off by default and needs a token of 32+ characters (compared in constant time); counts only, never devices; the heartbeat URL is never logged |
 
 ## Out of scope, on purpose
 

@@ -12,7 +12,14 @@ services:
     # trusted network only, or put a TLS reverse proxy in front).
     # HTTPS: add  environment: [ATALAIA_TLS_SELF_SIGNED=1]  for a self-signed certificate that Atalaia makes and renews,
     # or mount your own and set ATALAIA_TLS_CERT / ATALAIA_TLS_KEY.
-    command: ["serve", "--listen", "${ATALAIA_LISTEN:-127.0.0.1:8080}"]
+    command: ["serve"]
+    environment:
+      # also read by the image's health check (`atalaia health`)
+      - ATALAIA_LISTEN=${ATALAIA_LISTEN:-127.0.0.1:8080}
+      # Monitoring (see the "Monitoring" docs page): ping a Healthchecks.io-style URL after every scan, and
+      # enable /metrics for Prometheus with a token of 32+ characters.
+      # - ATALAIA_HEARTBEAT_SCAN=https://hc-ping.com/your-uuid
+      # - ATALAIA_METRICS_TOKEN=change-me-to-a-long-random-token
     restart: unless-stopped
     read_only: true
     cap_drop: [ALL]

@@ -248,5 +248,10 @@ export const ptBR: Messages = {
     dismiss: 'Dispensar',
     error: 'Não foi possível carregar as novidades.',
   },
+  disk: {
+    title: 'Disco quase cheio.',
+    body: 'O disco onde fica o banco do Atalaia está ficando sem espaço; quando encher, as varreduras e o histórico deixam de ser gravados. Libere espaço ou mude o banco de lugar.',
+    free: 'livres',
+  },
   time: { justNow: 'agora há pouco' },
 };

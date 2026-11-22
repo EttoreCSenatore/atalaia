@@ -246,6 +246,11 @@ export const en = {
     dismiss: 'Dismiss',
     error: 'Could not load the release notes.',
   },
+  disk: {
+    title: 'Disk almost full.',
+    body: "The disk that holds Atalaia's database is running out of space; when it is full, scans and history stop being saved. Free some space or move the database.",
+    free: 'free',
+  },
   time: { justNow: 'just now' },
 };
 

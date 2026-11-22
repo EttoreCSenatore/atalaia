@@ -5,6 +5,8 @@
   import { onMount } from 'svelte';
   import { app, signOut } from '../lib/app.svelte';
   import { news, loadNews, hasUnseen, latest, markSeen } from '../lib/news.svelte';
+  import { formatBytes } from '../lib/format';
+  import { i18n } from '../lib/i18n.svelte';
 
   onMount(() => {
     if (!news.loaded) loadNews();
@@ -36,6 +38,11 @@
   </div>
 </header>
 <main>
+  {#if app.status.disk?.low}
+    <div class="notice card danger" role="alert">
+      <span><strong>{t('disk.title')}</strong> {t('disk.body')} ({formatBytes(app.status.disk.free_bytes, i18n.lang)} {t('disk.free')})</span>
+    </div>
+  {/if}
   {#if hasUnseen() && route.path !== '/whats-new'}
     <div class="notice card" role="status">
       <span>{t('news.updated')} <strong class="mono">v{latest()}</strong>.</span>
@@ -62,6 +69,10 @@
     gap: 0.4rem 1rem;
     margin-bottom: 1rem;
     border-left: 4px solid var(--accent);
+  }
+  .notice.danger {
+    border-left-color: var(--danger);
+    background: var(--danger-bg);
   }
   .notice .link {
     margin-left: auto;

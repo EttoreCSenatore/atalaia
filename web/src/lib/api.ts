@@ -20,7 +20,8 @@ export type ScanStatus = { scanning: boolean; last_scan: string; last_error: str
 export type ReleaseNotes = { title: string; items: string[] };
 export type Release = { version: string; date: string; en: ReleaseNotes; 'pt-BR': ReleaseNotes };
 export type Releases = { current: string; releases: Release[] };
-export type Status = { active_tools?: boolean; version: string; setup_required: boolean; authenticated: boolean; scan?: ScanStatus };
+export type Disk = { free_bytes: number; total_bytes: number; low: boolean };
+export type Status = { active_tools?: boolean; version: string; setup_required: boolean; authenticated: boolean; scan?: ScanStatus; disk?: Disk };
 export type ChannelType = 'ntfy' | 'telegram' | 'webhook' | 'email';
 export type Channel = {
   id: string;

@@ -37,6 +37,10 @@ type Status struct {
 	LastScan  time.Time `json:"last_scan"`
 	LastError string    `json:"last_error"`
 	Interval  string    `json:"interval"`
+	// Duration of the last scan in seconds; Scans and Failures count scans since start.
+	Duration float64 `json:"duration_seconds"`
+	Scans    uint64  `json:"scans"`
+	Failures uint64  `json:"failures"`
 }
 
 // RetentionKey is the setting that holds how many days of events are kept (0 = forever).
@@ -58,6 +62,9 @@ type Monitor struct {
 	// OnResult, when set, is called after each recorded scan. baseline is true
 	// when the inventory was empty before it (the first scan ever).
 	OnResult func(ctx context.Context, res store.Result, baseline bool)
+	// OnDone, when set, is called after every scan with its error (nil on
+	// success), unless the monitor is stopping. Used for heartbeat pings.
+	OnDone func(ctx context.Context, err error)
 
 	trigger chan struct{}
 
@@ -176,12 +183,18 @@ func (m *Monitor) once(ctx context.Context) {
 	m.mu.Lock()
 	m.status.Scanning = false
 	m.status.LastScan = now
+	m.status.Duration = m.Now().Sub(now).Seconds()
+	m.status.Scans++
 	if err != nil {
 		m.status.LastError = err.Error()
+		m.status.Failures++
 	} else {
 		m.status.LastError = ""
 	}
 	m.mu.Unlock()
+	if m.OnDone != nil && ctx.Err() == nil {
+		m.OnDone(ctx, err)
+	}
 
 	if err != nil {
 		if ctx.Err() == nil {

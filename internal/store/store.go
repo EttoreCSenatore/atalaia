@@ -121,7 +121,10 @@ var migrations = []string{
 }
 
 // Store is the device inventory.
-type Store struct{ db *sql.DB }
+type Store struct {
+	db   *sql.DB
+	path string
+}
 
 // Device is a known device.
 type Device struct {
@@ -204,7 +207,7 @@ func Open(path string) (*Store, error) {
 		return nil, err
 	}
 	db.SetMaxOpenConns(1)
-	s := &Store{db: db}
+	s := &Store{db: db, path: abs}
 	if err := s.migrate(); err != nil {
 		_ = db.Close()
 		return nil, err
@@ -214,6 +217,27 @@ func Open(path string) (*Store, error) {
 
 // Close closes the database.
 func (s *Store) Close() error { return s.db.Close() }
+
+// Path is the absolute path of the database file.
+func (s *Store) Path() string { return s.path }
+
+// Ping checks that the database answers a query.
+func (s *Store) Ping(ctx context.Context) error {
+	var one int
+	return s.db.QueryRowContext(ctx, `SELECT 1`).Scan(&one)
+}
+
+// LastBackupKey holds when `atalaia backup` last succeeded (Unix seconds).
+const LastBackupKey = "last_backup"
+
+// LastBackup returns when the last backup succeeded, or the zero time.
+func (s *Store) LastBackup(ctx context.Context) (time.Time, error) {
+	n, err := s.SettingInt(ctx, LastBackupKey, 0)
+	if err != nil || n <= 0 {
+		return time.Time{}, err
+	}
+	return time.Unix(int64(n), 0), nil
+}
 
 func (s *Store) migrate() error {
 	var v int

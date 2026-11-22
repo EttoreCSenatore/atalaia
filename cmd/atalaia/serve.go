@@ -19,6 +19,7 @@ import (
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpprobe"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpsniff"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpwatch"
+	"github.com/EttoreCSenatore/atalaia/internal/health"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
 	"github.com/EttoreCSenatore/atalaia/internal/notify"
 	"github.com/EttoreCSenatore/atalaia/internal/store"
@@ -46,6 +47,8 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 	tlsSelf := fs.Bool("tls-self-signed", os.Getenv("ATALAIA_TLS_SELF_SIGNED") == "1", "serve HTTPS with a self-signed certificate Atalaia makes and renews (browsers will warn once)")
 	secure := fs.Bool("secure-cookies", os.Getenv("ATALAIA_SECURE_COOKIES") == "1", "mark the session cookie Secure even over plain HTTP (use behind a TLS reverse proxy)")
 	noActive := fs.Bool("no-active-tools", os.Getenv("ATALAIA_NO_ACTIVE_TOOLS") == "1", "observe only: disable ping, Wake-on-LAN, port scan and the exposure check")
+	heartbeat := fs.String("heartbeat-scan", os.Getenv("ATALAIA_HEARTBEAT_SCAN"), "ping this URL after every scan, URL/fail when it fails (Healthchecks.io style; keep it secret)")
+	metricsFile := fs.String("metrics-token-file", os.Getenv("ATALAIA_METRICS_TOKEN_FILE"), "enable /metrics for Prometheus with the bearer token in this file (32+ characters; or env ATALAIA_METRICS_TOKEN)")
 	var cidrs stringList
 	fs.Var(&cidrs, "allow-cidr", "extra client network to treat as local, e.g. 100.64.0.0/10 for Tailscale (repeatable; env ATALAIA_ALLOW_CIDR, comma separated)")
 	var hosts stringList
@@ -63,6 +66,14 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 		cidrs = append(cidrs, strings.Split(env, ",")...)
 	}
 	nets, err := api.ParseAllowedNets(cidrs)
+	if err != nil {
+		return a.fail(err)
+	}
+	hb, err := health.ParseHeartbeat(*heartbeat)
+	if err != nil {
+		return a.fail(err)
+	}
+	metricsToken, err := readMetricsToken(*metricsFile)
 	if err != nil {
 		return a.fail(err)
 	}
@@ -94,7 +105,16 @@ func (a *app) cmdServe(ctx context.Context, args []string) int {
 			go learner.Flush(context.WithoutCancel(c))
 			go srv.RunScheduledPortScans(context.WithoutCancel(c))
 		}}
-	srv = &api.Server{AllowedNets: nets, NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, DHCP: watcher, Sniff: sniffer, Learner: learner, Sender: sender, Version: version.Version, AllowedHosts: hosts, Static: web.Handler(), Now: a.now}
+	if hb != nil {
+		mon.OnDone = func(c context.Context, scanErr error) {
+			go func() {
+				if err := hb.Ping(context.WithoutCancel(c), scanErr == nil); err != nil {
+					fmt.Fprintln(a.err, "atalaia:", err)
+				}
+			}()
+		}
+	}
+	srv = &api.Server{AllowedNets: nets, NoActiveTools: *noActive, SecureCookies: *secure, Store: st, Monitor: mon, Alerts: svc, DHCP: watcher, Sniff: sniffer, Learner: learner, Sender: sender, Version: version.Version, AllowedHosts: hosts, MetricsToken: metricsToken, Static: web.Handler(), Now: a.now}
 
 	var tlsConf *tls.Config
 	if *tlsSelf || *tlsCert != "" {
@@ -214,4 +234,33 @@ func dhcpProbe(ctx context.Context) ([]dhcpprobe.Offer, error) {
 	defer conn.Close()
 	dest := &net.UDPAddr{IP: net.IPv4bcast, Port: dhcpprobe.ServerPort}
 	return dhcpprobe.Probe(ctx, conn, dest, 4*time.Second)
+}
+
+// readMetricsToken returns the /metrics token from a file (preferred: it does
+// not show in the process list), a systemd credential named metrics-token, or
+// ATALAIA_METRICS_TOKEN. Empty = /metrics off.
+func readMetricsToken(file string) (string, error) {
+	tok := os.Getenv("ATALAIA_METRICS_TOKEN")
+	if dir := os.Getenv("CREDENTIALS_DIRECTORY"); file == "" && dir != "" {
+		if p := filepath.Join(dir, "metrics-token"); fileExists(p) {
+			file = p
+		}
+	}
+	if file != "" {
+		b, err := os.ReadFile(file) // #nosec G703 -- the path is the operator's own --metrics-token-file flag
+		if err != nil {
+			return "", fmt.Errorf("metrics token file: %w", err)
+		}
+		tok = string(b)
+	}
+	tok = strings.TrimSpace(tok)
+	if tok != "" && len(tok) < 32 {
+		return "", errors.New("the metrics token must have at least 32 characters (for example: openssl rand -hex 32)")
+	}
+	return tok, nil
+}
+
+func fileExists(p string) bool {
+	_, err := os.Stat(p) // #nosec G703 -- a path under systemd's CREDENTIALS_DIRECTORY
+	return err == nil
 }

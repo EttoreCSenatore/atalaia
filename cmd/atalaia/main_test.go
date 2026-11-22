@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"net/netip"
 	"os"
 	"path/filepath"
@@ -297,5 +298,101 @@ func TestExportAndBackupCommands(t *testing.T) {
 	}
 	if code := a.run(context.Background(), []string{"backup", "--db", db}); code != 2 {
 		t.Fatal("missing file name accepted")
+	}
+	// the backup time is recorded for /metrics and the heartbeat is pinged
+	st, err := store.Open(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if last, err := st.LastBackup(context.Background()); err != nil || last.IsZero() {
+		t.Fatalf("last backup not recorded: %v %v", last, err)
+	}
+	st.Close()
+	var pings []string
+	var mu sync.Mutex
+	hc := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		pings = append(pings, r.URL.Path)
+		mu.Unlock()
+	}))
+	defer hc.Close()
+	if code := a.run(context.Background(), []string{"backup", "--db", db, "--heartbeat", hc.URL + "/hc", filepath.Join(dir, "copy2.db")}); code != 0 {
+		t.Fatalf("backup with heartbeat: %q", errOut.String())
+	}
+	if code := a.run(context.Background(), []string{"backup", "--db", db, "--heartbeat", hc.URL + "/hc", bk}); code == 0 {
+		t.Fatal("overwrote an existing backup")
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if strings.Join(pings, " ") != "/hc /hc/fail" {
+		t.Fatalf("pings = %v", pings)
+	}
+	if code := a.run(context.Background(), []string{"backup", "--db", db, "--heartbeat", "ftp://x", filepath.Join(dir, "copy3.db")}); code == 0 {
+		t.Fatal("bad heartbeat URL accepted")
+	}
+}
+
+func TestMetricsToken(t *testing.T) {
+	t.Setenv("ATALAIA_METRICS_TOKEN", "")
+	if tok, err := readMetricsToken(""); tok != "" || err != nil {
+		t.Fatalf("off: %q %v", tok, err)
+	}
+	t.Setenv("ATALAIA_METRICS_TOKEN", "short")
+	if _, err := readMetricsToken(""); err == nil {
+		t.Fatal("short token accepted")
+	}
+	f := filepath.Join(t.TempDir(), "tok")
+	if err := os.WriteFile(f, []byte(strings.Repeat("a", 40)+"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if tok, err := readMetricsToken(f); err != nil || tok != strings.Repeat("a", 40) {
+		t.Fatalf("file: %q %v", tok, err)
+	}
+	// a systemd credential (LoadCredential=metrics-token:...)
+	creds := t.TempDir()
+	if err := os.WriteFile(filepath.Join(creds, "metrics-token"), []byte(strings.Repeat("c", 32)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("CREDENTIALS_DIRECTORY", creds)
+	if tok, err := readMetricsToken(""); err != nil || tok != strings.Repeat("c", 32) {
+		t.Fatalf("credential: %q %v", tok, err)
+	}
+}
+
+func TestHealthCommand(t *testing.T) {
+	var out, errOut syncBuf
+	a := &app{out: &out, err: &errOut, now: time.Now}
+	code := 200
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/health" {
+			http.NotFound(w, r)
+			return
+		}
+		w.WriteHeader(code)
+		if code == 200 {
+			_, _ = w.Write([]byte(`{"status":"ok"}`))
+		} else {
+			_, _ = w.Write([]byte(`{"status":"error","problems":["scans_stale"]}`))
+		}
+	}))
+	defer srv.Close()
+	if c := a.run(context.Background(), []string{"health", "--url", srv.URL}); c != 0 || strings.TrimSpace(out.String()) != "ok" {
+		t.Fatalf("healthy: %d %q %q", c, out.String(), errOut.String())
+	}
+	code = 503
+	out = syncBuf{}
+	if c := a.run(context.Background(), []string{"health", "--url", srv.URL}); c != 1 || !strings.Contains(out.String(), "scans_stale") {
+		t.Fatalf("unhealthy: %d %q", c, out.String())
+	}
+	if c := a.run(context.Background(), []string{"health", "--url", "http://127.0.0.1:1"}); c != 1 {
+		t.Fatalf("unreachable: %d", c)
+	}
+	if c := a.run(context.Background(), []string{"health", "--url", "ftp://x"}); c != 2 {
+		t.Fatalf("bad url: %d", c)
+	}
+	t.Setenv("ATALAIA_LISTEN", "0.0.0.0:8443")
+	t.Setenv("ATALAIA_TLS_SELF_SIGNED", "1")
+	if got := defaultHealthURL(); got != "https://127.0.0.1:8443" {
+		t.Fatalf("default url = %s", got)
 	}
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { codeParts, compareIp, compareVersion, deviceLabel, parseTags, relativeTime } from '../src/lib/format';
+import { codeParts, compareIp, compareVersion, formatBytes, deviceLabel, parseTags, relativeTime } from '../src/lib/format';
 import { riskGroup } from '../src/lib/risk';
 import { match } from '../src/lib/router.svelte';
 
@@ -79,5 +79,13 @@ describe('codeParts', () => {
 describe('whats-new route', () => {
   it('matches /whats-new', () => {
     expect(match('/whats-new')).toEqual({ name: 'news' });
+  });
+});
+
+describe('formatBytes', () => {
+  it('uses binary units and the locale', () => {
+    expect(formatBytes(512, 'en')).toBe('512 B');
+    expect(formatBytes(1536 * 1024 * 1024, 'en')).toBe('1.5 GB');
+    expect(formatBytes(1536 * 1024 * 1024, 'pt-BR')).toBe('1,5 GB');
   });
 });

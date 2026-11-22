@@ -18,6 +18,7 @@ import (
 	"net/netip"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -27,6 +28,7 @@ import (
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpsniff"
 	"github.com/EttoreCSenatore/atalaia/internal/dhcpwatch"
 	"github.com/EttoreCSenatore/atalaia/internal/export"
+	"github.com/EttoreCSenatore/atalaia/internal/health"
 	"github.com/EttoreCSenatore/atalaia/internal/monitor"
 	"github.com/EttoreCSenatore/atalaia/internal/notify"
 	"github.com/EttoreCSenatore/atalaia/internal/scope"
@@ -63,6 +65,9 @@ type Server struct {
 	Dial    tools.Dialer
 	Sender  *notify.Sender
 	Version string
+	// MetricsToken enables GET /metrics for Prometheus with this bearer token
+	// (empty = /metrics answers 404).
+	MetricsToken string
 	// AllowedNets are extra client networks treated as local (for example a VPN such as
 	// Tailscale, 100.64.0.0/10), besides loopback, private and link-local addresses.
 	AllowedNets []netip.Prefix
@@ -116,6 +121,8 @@ func (s *Server) Handler() http.Handler {
 	s.global.MaxFails, s.global.MaxWait = 30, time.Minute
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/status", s.status)
+	mux.HandleFunc("GET /api/health", s.health)
+	mux.HandleFunc("GET /metrics", s.metrics)
 	mux.HandleFunc("POST /api/setup", s.mutating(s.setup))
 	mux.HandleFunc("POST /api/login", s.mutating(s.login))
 	mux.HandleFunc("POST /api/logout", s.mutating(s.protected(s.logout)))
@@ -389,6 +396,7 @@ type statusDTO struct {
 	SetupRequired bool            `json:"setup_required"`
 	Authenticated bool            `json:"authenticated"`
 	Scan          *monitor.Status `json:"scan,omitempty"`
+	Disk          *health.Disk    `json:"disk,omitempty"`
 }
 
 func (s *Server) status(w http.ResponseWriter, r *http.Request) {
@@ -401,6 +409,9 @@ func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 	if out.Authenticated {
 		st := s.Monitor.Status()
 		out.Scan = &st
+		if d, err := health.DiskFor(filepath.Dir(s.Store.Path())); err == nil {
+			out.Disk = &d
+		}
 	}
 	writeJSON(w, http.StatusOK, out)
 }

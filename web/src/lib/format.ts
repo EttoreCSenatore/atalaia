@@ -67,3 +67,14 @@ export function compareVersion(a: string, b: string): number {
 export function codeParts(text: string): string[] {
   return text.split('`');
 }
+
+/** Human-readable size in binary units (1.5 GB = 1.5 GiB), with the locale's decimal separator. */
+export function formatBytes(n: number, lang: string): string {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let i = 0;
+  while (n >= 1024 && i < units.length - 1) {
+    n /= 1024;
+    i++;
+  }
+  return `${n.toLocaleString(lang, { maximumFractionDigits: i === 0 ? 0 : 1 })} ${units[i]}`;
+}

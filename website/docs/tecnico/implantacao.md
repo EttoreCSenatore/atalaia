@@ -103,6 +103,8 @@ A cópia é criada com permissão `0600` e nunca sobrescreve um arquivo existent
 
 Para levar a lista para uma planilha: `atalaia export --format csv` (ou `json`), ou o link **Baixar a lista** no painel. O CSV neutraliza fórmulas: nomes vindos da rede nunca viram comandos na planilha.
 
+Para saber se o Atalaia está funcionando (endereço de saúde sem login, sinais para o Healthchecks.io depois de cada varredura e backup, métricas para o Prometheus e o `HEALTHCHECK` da imagem Docker), veja [Monitoramento](monitoramento.md).
+
 ## O que a CI verifica
 
 A CI constrói a imagem, valida o compose, varre vulnerabilidades com o Trivy (falha em críticas com correção) e faz um teste de fumaça: o servidor sobe, o app e a API respondem, a CSP está presente, `/api/devices` exige login e um cabeçalho `Host` falso é recusado.
