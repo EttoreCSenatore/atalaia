@@ -19,7 +19,7 @@ go run ./cmd/atalaia history   # what changed
 go run ./cmd/atalaia serve     # web app with login at http://127.0.0.1:8080
 ```
 
-With Docker: `cd deploy && docker compose up -d --build` (the setup code shows in `docker compose logs atalaia`).
+With Docker: `cd deploy && docker compose up -d --build` (the setup code shows in `docker compose logs atalaia`). Step by step in [Getting started](https://ettorecsenatore.github.io/atalaia/en/docs/manual/primeiros-passos); questions in the [FAQ](https://ettorecsenatore.github.io/atalaia/en/docs/manual/faq).
 
 ![Atalaia dashboard (fictitious data)](website/static/img/screenshots/app-painel-en.png)
 

@@ -37,5 +37,5 @@ Um navegador não consegue enviar ARP, ICMP nem ouvir mDNS: ele só fala HTTP. P
 
 ## Estado atual
 
-O Atalaia está na **v0.4** e já é usável: `atalaia serve` descobre os dispositivos, guarda o histórico, serve o **app web** com login seguro (HTTP ou HTTPS embutido) e avisa por ntfy, Telegram, webhook ou e-mail. Há pacotes `.deb` e `.rpm`, binários Linux (amd64, arm64, armv7) e uma imagem Docker. É um projeto novo, mantido por uma pessoa e **ainda sem teste de invasão independente**; veja os [limites conhecidos](funcionalidades/descoberta.md#limites-atuais) e o [roadmap](roadmap.md).
+O Atalaia está na **v0.6** e já é usável: `atalaia serve` descobre e identifica os dispositivos, guarda o histórico, serve o **app web** com login seguro (HTTP ou HTTPS embutido), faz verificações defensivas, backups diários e avisa por ntfy, Telegram, webhook ou e-mail. Para começar, veja [Primeiros passos](manual/primeiros-passos.md). Há pacotes `.deb` e `.rpm`, binários Linux (amd64, arm64, armv7) e uma imagem Docker. É um projeto novo, mantido por uma pessoa e **ainda sem teste de invasão independente**; veja os [limites conhecidos](funcionalidades/descoberta.md#limites-atuais) e o [roadmap](roadmap.md).
 

@@ -2,8 +2,16 @@
   "version.label": {
     "message": "Next"
   },
-  "sidebar.docsSidebar.category.Funcionalidades": {"message": "Features"},
+  "sidebar.docsSidebar.category.Funcionalidades": {
+    "message": "Features"
+  },
   "sidebar.docsSidebar.category.Técnico": {
     "message": "Technical"
+  },
+  "sidebar.docsSidebar.category.Manual": {
+    "message": "Manual"
+  },
+  "sidebar.docsSidebar.category.Operação": {
+    "message": "Operations"
   }
 }

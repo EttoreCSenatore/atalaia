@@ -38,6 +38,8 @@ Usage:
                     write a consistent copy of the database (works while serving)
   atalaia verify-backup FILE | --dir FOLDER
                     test-restore a backup into a scratch copy and check it
+  atalaia reset-password [--db FILE] --yes
+                    forgot the password: remove the account (devices stay); stop the server first
   atalaia health [--url URL]
                     check a running server (exit 0 when healthy; for Docker and scripts)
   atalaia scope     print the networks Atalaia is allowed to probe
@@ -83,6 +85,8 @@ func (a *app) run(ctx context.Context, args []string) int {
 		return a.cmdHealth(ctx, rest)
 	case "verify-backup":
 		return a.cmdVerifyBackup(ctx, rest)
+	case "reset-password":
+		return a.cmdResetPassword(ctx, rest)
 	case "version", "--version":
 		fmt.Fprintln(a.out, "atalaia", version.Version)
 		return 0
