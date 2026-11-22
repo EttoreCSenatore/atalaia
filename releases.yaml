@@ -10,6 +10,26 @@
 # - ao publicar, a tag precisa ser a primeira versão daqui.
 # O CHANGELOG.md continua com os detalhes técnicos; aqui vai o que importa para quem usa.
 releases:
+  - version: 0.7.0
+    date: 2026-11-22
+    en:
+      title: Operations and maturity
+      items:
+        - Automatic daily backups with a weekly restore test, a "Back up now" button and a notice when a backup is late.
+        - "Safe upgrades: the database is copied before its format changes, and every published version's database is tested."
+        - "Monitoring: `/api/health` without login, `atalaia health` and a Docker health check, heartbeats to Healthchecks.io and optional Prometheus metrics."
+        - A notice when the database's disk is almost full, and a "What's new" page with the running version in the footer.
+        - "`atalaia reset-password` for a forgotten password, a task-based manual, FAQ and one configuration reference."
+        - Packages tested on Debian and Fedora that never start the service or delete data by themselves, and a public demo with fictitious data.
+    pt-BR:
+      title: Operação e maturidade
+      items:
+        - Backups diários automáticos com teste de restauração semanal, botão "Fazer backup agora" e aviso quando o backup atrasa.
+        - "Atualização segura: o banco é copiado antes de mudar de formato, e o banco de cada versão publicada é testado."
+        - "Monitoramento: `/api/health` sem login, `atalaia health` e verificação de saúde no Docker, sinais para o Healthchecks.io e métricas opcionais para o Prometheus."
+        - Aviso quando o disco do banco está quase cheio, e página "Novidades" com a versão em uso no rodapé.
+        - "`atalaia reset-password` para senha esquecida, manual por tarefas, perguntas frequentes e uma referência única de configuração."
+        - Pacotes testados no Debian e no Fedora que nunca ligam o serviço nem apagam dados sozinhos, e uma demonstração pública com dados fictícios.
   - version: 0.6.0
     date: 2026-11-19
     en:

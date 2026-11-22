@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.7.0 — 2026-11-22
+
 **EN** — Docs: comparison with Kaladrius and the M7 "Operations and maturity" roadmap; roadmap brought up to date (v0.5, v0.6).
 
 **PT-BR** — Documentação: comparação com o Kaladrius e o roteiro M7 "Operação e maturidade"; roadmap atualizado (v0.5, v0.6).
