@@ -134,10 +134,41 @@ jobs:
           docker exec atalaia-smoke /atalaia health --url http://127.0.0.1:18080
           docker rm -f atalaia-smoke
 
+  pacotes:
+    name: Pacotes (.deb no Debian, .rpm no Fedora)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      - name: Monta duas versões dos pacotes (para testar a atualização)
+        run: |
+          mkdir -p pkg
+          for v in 0.0.1 0.0.2; do
+            CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X github.com/EttoreCSenatore/atalaia/internal/version.Version=v$v" -o "pkg/atalaia-$v" ./cmd/atalaia
+            for fmt in deb rpm; do
+              VERSION=$v ARCH=amd64 BINARY="pkg/atalaia-$v" \
+                go run github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.49.0 package -f deploy/nfpm.yaml -p "$fmt" -t pkg/
+            done
+          done
+      - name: Debian 13 (instala, systemd-analyze verify, atualiza, remove, purge)
+        run: |
+          docker run --rm -v "$PWD/pkg:/pkg:ro" -v "$PWD/scripts/testar-pacotes.sh:/t.sh:ro" \
+            debian:13-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 \
+            /t.sh /pkg/atalaia_0.0.1_amd64.deb /pkg/atalaia_0.0.2_amd64.deb
+      - name: Fedora 44 (instala, systemd-analyze verify, atualiza, remove)
+        run: |
+          docker run --rm -v "$PWD/pkg:/pkg:ro" -v "$PWD/scripts/testar-pacotes.sh:/t.sh:ro" \
+            fedora:44@sha256:15da97ed9aa94dd3d92c3925eb89520f6c80e07ea7ee24cba848d1f8b6912b3e \
+            /t.sh /pkg/atalaia-0.0.1-1.x86_64.rpm /pkg/atalaia-0.0.2-1.x86_64.rpm
+
   deploy:
     name: Deploy to GitHub Pages
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: [docs, go, web, imagem]
+    needs: [docs, go, web, imagem, pacotes]
     runs-on: ubuntu-latest
     permissions:
       pages: write

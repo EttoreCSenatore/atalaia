@@ -79,6 +79,16 @@ journalctl -u atalaia | grep -A1 "Setup code"    # first-run setup code
 
 The package installs the binary at `/usr/bin/atalaia`, the `atalaia.service` unit and the options file `/etc/default/atalaia` (which an upgrade never overwrites). **Nothing is turned on unless you ask.** The unit runs as a **throwaway unprivileged user** (`DynamicUser`), with no capabilities, a read-only file system (only `/var/lib/atalaia` is writable), no access to `/home`, a system-call filter and IP sockets only. Options (`ATALAIA_LISTEN`, HTTPS, observe-only mode…) go in `/etc/default/atalaia`.
 
+What the package scripts do:
+
+| When | What |
+|---|---|
+| Install | Reloads systemd and shows how to turn the service on; does **not** enable or start Atalaia |
+| Upgrade | Reloads systemd and restarts the service **only if it was already running**; keeps your `/etc/default/atalaia` |
+| Removal | Stops and disables the service; **keeps the data** (database, backups and certificate in `/var/lib/private/atalaia`), even with `apt purge`: delete it by hand if you no longer need it |
+
+CI installs the packages in clean Debian 13 and Fedora 44 containers on every change: it installs them, runs `systemd-analyze verify` on the unit, upgrades to a newer version (with a changed `/etc/default/atalaia`), removes them and, on Debian, purges them, checking files, modes and that the data stays.
+
 ## Observe-only mode
 
 With `--no-active-tools` (or `ATALAIA_NO_ACTIVE_TOOLS=1`) the server **only observes**: ping, Wake-on-LAN, port scan and exposure check are off (the server answers 403 and the app hides the buttons). Passive discovery, history, alerts and DNS lookup keep working. It is the right mode when Atalaia runs on a network where you do not want anyone, not even a compromised administrator, to be able to trigger active actions.

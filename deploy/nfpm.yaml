@@ -36,3 +36,8 @@ contents:
     dst: /usr/share/doc/atalaia/README.md
     file_info:
       mode: 0644
+# Never enable or start the service by themselves, never delete data (see deploy/scripts/).
+scripts:
+  postinstall: deploy/scripts/postinstall.sh
+  preremove: deploy/scripts/preremove.sh
+  postremove: deploy/scripts/postremove.sh
