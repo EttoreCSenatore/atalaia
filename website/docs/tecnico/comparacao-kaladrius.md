@@ -1,7 +1,7 @@
 ---
 id: comparacao-kaladrius
 title: Comparação com o Kaladrius
-sidebar_position: 8
+sidebar_position: 9
 ---
 
 # O que aprender com o Kaladrius
@@ -15,7 +15,7 @@ O [Kaladrius](https://github.com/facchini-miguel/kaladrius) (Apache 2.0) é um s
 | Dependências (Dependabot) | Semanal, **espera de 7 dias** antes de propor uma versão nova, PRs agrupados | Semanal, sem espera, sem grupos | **Feito** (M7.1) |
 | Ações do GitHub e imagens | Fixadas por **SHA** e por **digest** | Por etiqueta (`@v7`, `node:24-alpine`) | **Sim** (M7.1) |
 | Arquivos do repositório | SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, CODEOWNERS, NOTICE | Só SECURITY | **Feito** (M7.2) |
-| Versões e novidades | `releases.yaml` único alimenta a página "Novidades" no app, a versão no rodapé e a release do GitHub | CHANGELOG em texto; versão só na tela Sobre | **Sim** (M7.3) |
+| Versões e novidades | `releases.yaml` único alimenta a página "Novidades" no app, a versão no rodapé e a release do GitHub | CHANGELOG em texto; versão só na tela Sobre | **Feito** (M7.3) |
 | Saúde e monitoramento | Página de saúde sem login, sinais para Healthchecks.io (sistema, backup, restauração, atualização, disco), números para Prometheus | Nada sem login; nenhum aviso se o Atalaia parar | **Sim** (M7.4) |
 | Backup | Diário por timer do systemd, **teste de restauração semanal**, aviso quando atrasa | `atalaia backup` manual | **Sim** (M7.5) |
 | Migrações | CI testa subir e descer cada migração | Migrações só para frente; sem teste a partir de bancos de versões antigas | **Adaptar** (M7.6): testar a atualização a partir do banco de cada versão publicada e fazer backup automático antes de migrar |

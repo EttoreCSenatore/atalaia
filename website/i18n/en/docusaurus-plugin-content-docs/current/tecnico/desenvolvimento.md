@@ -70,7 +70,7 @@ CI runs the same checks, plus the dependency license check, Trivy on the image a
 
 ## Packages and releases
 
-The `.deb`/`.rpm` packages are built by [nfpm](https://nfpm.goreleaser.com/) from `deploy/nfpm.yaml`. A release goes out when a `vX.Y.Z` tag is pushed: the `release.yml` workflow builds the binaries (amd64, arm64, armv7), builds the packages, publishes the image to GHCR and creates the release with `SHA256SUMS`. Before that, move the "Unreleased" entries of `CHANGELOG.md` under the new version.
+The `.deb`/`.rpm` packages are built by [nfpm](https://nfpm.goreleaser.com/) from `deploy/nfpm.yaml`. A release goes out when a `vX.Y.Z` tag is pushed: the `release.yml` workflow builds the binaries (amd64, arm64, armv7), builds the packages, publishes the image to GHCR and creates the release with `SHA256SUMS`. Before that, move the "Unreleased" entries of `CHANGELOG.md` under the new version and add the version at the top of `releases.yaml`; the release checks that the tag is the first version there and uses its text. Step by step in [Versions and what's new](versionamento.md).
 
 ## Workflow
 

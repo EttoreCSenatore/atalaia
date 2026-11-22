@@ -1,0 +1,102 @@
+# Novidades de cada versão: fonte única (M7.3). / What's new in each version: single source (M7.3).
+#
+# Alimenta a página "Novidades" do app, a versão no rodapé e o texto da release no GitHub.
+# Feeds the app's "What's new" page, the footer version and the GitHub release text.
+#
+# Regras (conferidas na CI por `go run ./cmd/releasenotes check`):
+# - a versão mais nova primeiro; versões semver sem o "v"; datas AAAA-MM-DD;
+# - `en` e `pt-BR` com título e o mesmo número de itens;
+# - cada versão aqui tem um "## vX.Y.Z — data" no CHANGELOG.md, e vice-versa;
+# - ao publicar, a tag precisa ser a primeira versão daqui.
+# O CHANGELOG.md continua com os detalhes técnicos; aqui vai o que importa para quem usa.
+releases:
+  - version: 0.6.0
+    date: 2026-11-19
+    en:
+      title: Inventory housekeeping and security fixes
+      items:
+        - Forget a device, with its history, or let Atalaia forget untouched devices that have been offline for N days (opt-in).
+        - Filter the dashboard by device type.
+        - Export the inventory as CSV or JSON from the dashboard or with `atalaia export`; the CSV is safe to open in spreadsheets.
+        - "`atalaia backup` makes a consistent, private copy of the database while the server runs."
+        - "Security review fixes: stronger login lockout against parallel guesses, a global login limit and a cap on concurrent password checks."
+    pt-BR:
+      title: Organização do inventário e correções de segurança
+      items:
+        - Esqueça um dispositivo, com o histórico, ou deixe o Atalaia esquecer os não mexidos que estão offline há N dias (opcional).
+        - Filtre o painel por tipo de dispositivo.
+        - Exporte o inventário em CSV ou JSON pelo painel ou com `atalaia export`; o CSV é seguro para abrir em planilhas.
+        - "`atalaia backup` faz uma cópia consistente e privada do banco com o servidor rodando."
+        - "Correções da revisão de segurança: bloqueio de login mais forte contra tentativas em paralelo, limite global de logins e limite de verificações de senha simultâneas."
+  - version: 0.5.0
+    date: 2026-11-18
+    en:
+      title: Better device identification
+      items:
+        - Devices are identified by mDNS service types and model, SSDP/UPnP and NetBIOS names.
+        - A device-type guess (router, printer, TV, phone, camera…) with icons on the dashboard.
+        - Opt-in learning of device names from DHCP requests (listen-only).
+        - "`--allow-cidr` to reach the app through a VPN such as Tailscale, and a clear error when the port is already in use."
+        - Opt-in scheduled port scans of known devices, and a "This machine" marker.
+    pt-BR:
+      title: Identificação melhor dos dispositivos
+      items:
+        - Os dispositivos são identificados pelos tipos de serviço e modelo mDNS, por SSDP/UPnP e por nomes NetBIOS.
+        - Palpite do tipo de dispositivo (roteador, impressora, TV, celular, câmera…) com ícones no painel.
+        - Aprendizado opcional de nomes pelos pedidos DHCP (só escuta).
+        - "`--allow-cidr` para abrir o app por uma VPN como o Tailscale, e erro claro quando a porta já está em uso."
+        - Varreduras de portas agendadas opcionais dos dispositivos conhecidos, e a marca "Esta máquina".
+  - version: 0.4.0
+    date: 2026-11-18
+    en:
+      title: HTTPS, packages, rogue DHCP and more tools
+      items:
+        - Built-in HTTPS with a self-signed certificate made and renewed by Atalaia, or your own certificate.
+        - .deb and .rpm packages with a hardened systemd service, and an observe-only mode.
+        - Optional rogue-DHCP check and an alert when new ports open on a device.
+        - Traceroute and an opt-in download speed test.
+    pt-BR:
+      title: HTTPS, pacotes, DHCP falso e mais ferramentas
+      items:
+        - HTTPS embutido com certificado autoassinado criado e renovado pelo Atalaia, ou com o seu próprio certificado.
+        - Pacotes .deb e .rpm com serviço systemd endurecido, e modo somente observação.
+        - Verificação opcional de servidor DHCP falso e alerta quando abrem portas novas num dispositivo.
+        - Traceroute e teste de velocidade de download opcional.
+  - version: 0.3.0
+    date: 2026-11-18
+    en:
+      title: Exposure check
+      items:
+        - From a device's last port scan, flags risky open services, reads what its web pages answer and audits its TLS certificates.
+    pt-BR:
+      title: Verificação de exposição
+      items:
+        - A partir da última varredura de portas do dispositivo, aponta serviços arriscados abertos, lê o que as páginas web respondem e audita os certificados TLS.
+  - version: 0.2.0
+    date: 2026-11-18
+    en:
+      title: Network tools and ARP spoofing signs
+      items:
+        - Ping, DNS lookup, Wake-on-LAN and a port scan, limited to devices in your inventory and recorded in an audit log.
+        - Detection of ARP spoofing signs on every scan, with an alert.
+    pt-BR:
+      title: Ferramentas de rede e sinais de ARP spoofing
+      items:
+        - Ping, consulta DNS, Wake-on-LAN e varredura de portas, limitados aos dispositivos do inventário e registrados num log de auditoria.
+        - Detecção de sinais de ARP spoofing a cada varredura, com alerta.
+  - version: 0.1.0
+    date: 2026-11-18
+    en:
+      title: First release
+      items:
+        - Discovers the devices on your network, with vendor and name, and keeps their history.
+        - A web app with login, in Portuguese and English, light and dark.
+        - Alerts for new devices and known devices going offline, through ntfy, Telegram, webhook or e-mail.
+        - Linux binaries and a Docker image.
+    pt-BR:
+      title: Primeira versão
+      items:
+        - Descobre os dispositivos da sua rede, com fabricante e nome, e guarda o histórico.
+        - App web com login, em português e inglês, claro e escuro.
+        - Alertas de dispositivo novo e de dispositivo conhecido offline, por ntfy, Telegram, webhook ou e-mail.
+        - Binários Linux e imagem Docker.

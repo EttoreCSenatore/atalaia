@@ -70,7 +70,7 @@ A CI roda as mesmas verificações, mais a das licenças das dependências, o Tr
 
 ## Pacotes e versões
 
-Os pacotes `.deb`/`.rpm` são montados pelo [nfpm](https://nfpm.goreleaser.com/) a partir de `deploy/nfpm.yaml`. Uma versão sai ao enviar uma tag `vX.Y.Z`: o fluxo `release.yml` compila os binários (amd64, arm64, armv7), monta os pacotes, publica a imagem no GHCR e cria a release com `SHA256SUMS`. Antes, mova as entradas "Unreleased" do `CHANGELOG.md` para a nova versão.
+Os pacotes `.deb`/`.rpm` são montados pelo [nfpm](https://nfpm.goreleaser.com/) a partir de `deploy/nfpm.yaml`. Uma versão sai ao enviar uma tag `vX.Y.Z`: o fluxo `release.yml` compila os binários (amd64, arm64, armv7), monta os pacotes, publica a imagem no GHCR e cria a release com `SHA256SUMS`. Antes, mova as entradas "Unreleased" do `CHANGELOG.md` para a nova versão e acrescente a versão no topo do `releases.yaml`; a release confere que a tag é a primeira versão de lá e usa o texto dela. Passo a passo em [Versões e novidades](versionamento.md).
 
 ## Fluxo de trabalho
 

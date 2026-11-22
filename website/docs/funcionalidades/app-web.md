@@ -47,3 +47,9 @@ A linha do tempo de tudo o que mudou: dispositivos novos, que voltaram, que sumi
 Quanto tempo o histórico é guardado (padrão 90 dias; 0 guarda tudo), troca de senha (encerra as outras sessões), idioma e a versão.
 
 ![Tela de configurações](/img/screenshots/app-configuracoes.png)
+
+## Novidades
+
+A página **Novidades** (link no rodapé e em Configurações) mostra o que mudou em cada versão, com a marca "Em uso" na versão rodando. Depois de uma atualização, um aviso no topo diz para qual versão o Atalaia foi atualizado. Veja [Versões e novidades](../tecnico/versionamento.md).
+
+![Página Novidades (dados fictícios)](/img/screenshots/app-novidades.png)

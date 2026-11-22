@@ -36,7 +36,7 @@ Inspirado no Kaladrius (veja a [comparação](tecnico/comparacao-kaladrius.md)).
 |---|---|---|
 | **M7.1** | Cadeia de suprimentos: Dependabot com espera de 7 dias e PRs agrupados; ações do GitHub fixadas por SHA e imagens por digest, com verificação na CI | Concluído (ver [Cadeia de suprimentos](tecnico/cadeia-de-suprimentos.md)) |
 | **M7.2** | Arquivos do repositório: CONTRIBUTING, CODE_OF_CONDUCT, CODEOWNERS, NOTICE (nome, marca, sem ligação com a Fing) e modelos de issue e PR | Concluído |
-| **M7.3** | Versões e novidades: `releases.yaml` como fonte única da página **Novidades** no app, da versão no rodapé e do texto da release; a CI confere a versão | Planejado |
+| **M7.3** | Versões e novidades: `releases.yaml` como fonte única da página **Novidades** no app, da versão no rodapé e do texto da release; a CI confere a versão | Concluído (ver [Versões e novidades](tecnico/versionamento.md)) |
 | **M7.4** | Saúde e monitoramento: `GET /api/health` sem login (versão e banco), sinais opcionais para Healthchecks.io (varredura, backup), `/metrics` opcional para Prometheus e aviso de disco quase cheio | Planejado |
 | **M7.5** | Backup agendado: timer diário no pacote com rotação, teste de restauração semanal registrado e aviso quando o backup atrasa | Planejado |
 | **M7.6** | Atualização segura: backup automático antes de migrar e teste na CI que atualiza bancos criados por cada versão publicada | Planejado |

@@ -63,6 +63,7 @@ O servidor fala HTTP. Numa rede local confiável isso é aceitável, mas a senha
 | `POST /api/dhcp/check` | sim | `{confirm: true}`: uma descoberta DHCP agora (precisa da porta 68). |
 | `POST /api/dhcp/reset` | sim | `{confirm: true}`: esquece os servidores conhecidos. |
 | `GET /api/audit` | sim | Registro das ações ativas, do mais novo para o mais antigo. |
+| `GET /api/releases` | sim | Novidades de cada versão, do `releases.yaml` embutido: `current` (versão em uso) e `releases` (versão, data, `en` e `pt-BR` com título e itens), da mais nova para a mais antiga. |
 | `GET /api/events?limit=N` | sim | Histórico (1 a 1000), do mais novo para o mais antigo. Tipos: `joined`, `online`, `offline`, `ip_changed`, `gateway_changed`, `multi_ip`, `rogue_dhcp`. |
 | `POST /api/scan` | sim | Pede uma varredura agora (responde 202). |
 | `GET /api/stream` | sim | Eventos ao vivo (SSE): `hello`, `scan_started`, `scan_finished`, `scan_failed`. |

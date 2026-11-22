@@ -238,5 +238,15 @@ export const ptBR: Messages = {
     server: 'Servidor ou placa (ex.: Raspberry Pi)',
     unknown: 'Desconhecido',
   },
+  news: {
+    title: 'Novidades',
+    intro: 'O que mudou em cada versão do Atalaia, da mais nova para a mais antiga. Os detalhes técnicos estão no CHANGELOG.',
+    running: 'Em uso',
+    new: 'Nova',
+    updated: 'O Atalaia foi atualizado para a',
+    see: 'Ver novidades',
+    dismiss: 'Dispensar',
+    error: 'Não foi possível carregar as novidades.',
+  },
   time: { justNow: 'agora há pouco' },
 };

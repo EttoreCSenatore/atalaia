@@ -2,7 +2,7 @@
 // Usage: PLAYWRIGHT=/path/to/playwright/index.mjs node scripts/screenshots.mjs <output-folder>
 // Writes app-<page>.png (Portuguese) and app-<page>-en.png (English). Run `npm run build` first.
 import { spawn } from 'node:child_process';
-import { alerts, audit, dhcp, devices, exposure, ports, events, settings, status } from '../tests/fixtures.mjs';
+import { alerts, audit, dhcp, devices, exposure, ports, events, releases, settings, status } from '../tests/fixtures.mjs';
 
 const {chromium} = await import(process.env.PLAYWRIGHT ?? 'playwright');
 const out = process.argv[2];
@@ -18,9 +18,11 @@ const json = (body, code = 200) => ({ status: code, contentType: 'application/js
 const browser = await chromium.launch();
 try {
   for (const [lang, suffix] of [['pt-BR', ''], ['en', '-en']]) {
-    const shot = async (name, path, { auth = true, setup = false, width = 1100, height = 640 } = {}) => {
+    const shot = async (name, path, { auth = true, setup = false, width = 1100, height = 640, seen = '' } = {}) => {
       const ctx = await browser.newContext({ viewport: { width, height }, colorScheme: 'light', locale: lang });
       await ctx.addInitScript((l) => localStorage.setItem('atalaia.lang', l), lang);
+      // the newest release this browser has seen: an older one shows the "updated" notice
+      if (seen) await ctx.addInitScript((v) => localStorage.setItem('atalaia.seenRelease', v), seen);
       // a stand-in for the live stream, so the page shows "live updates on"
       await ctx.addInitScript(() => {
         window.EventSource = class { constructor() { setTimeout(() => this.onopen?.(), 0); } addEventListener() {} close() {} };
@@ -37,6 +39,7 @@ try {
         if (/^\/api\/devices\/[^/]+\/ports$/.test(p)) return route.fulfill(json(ports));
         if (p === '/api/alerts') return route.fulfill(json(alerts));
         if (p === '/api/settings') return route.fulfill(json(settings));
+        if (p === '/api/releases') return route.fulfill(json(releases));
         if (p === '/api/stream') return route.fulfill({ status: 200, contentType: 'text/event-stream', body: 'event: hello\ndata: {}\n\n' });
         return route.fulfill(json({ error: 'not mocked' }, 404));
       });
@@ -52,6 +55,8 @@ try {
     await shot('configuracoes', '/settings', { height: 700 });
     await shot('ferramentas', '/tools', { height: 760 });
     await shot('alertas', '/settings', { height: 1700 });
+    await shot('novidades', '/whats-new', { height: 760, seen: '0.5.0' });
+    await shot('aviso-novidades', '/', { height: 300, seen: '0.5.0' });
     await shot('login', '/', { auth: false, width: 640, height: 460 });
     await shot('configuracao-inicial', '/', { auth: false, setup: true, width: 640, height: 640 });
   }

@@ -15,7 +15,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Técnico',
       collapsed: false,
-      items: ['tecnico/arquitetura', 'tecnico/api', 'tecnico/implantacao', 'tecnico/modelo-de-ameacas', 'tecnico/seguranca-e-privacidade', 'tecnico/desenvolvimento', 'tecnico/cadeia-de-suprimentos', 'tecnico/comparacao-kaladrius'],
+      items: ['tecnico/arquitetura', 'tecnico/api', 'tecnico/implantacao', 'tecnico/modelo-de-ameacas', 'tecnico/seguranca-e-privacidade', 'tecnico/desenvolvimento', 'tecnico/versionamento', 'tecnico/cadeia-de-suprimentos', 'tecnico/comparacao-kaladrius'],
     },
   ],
 };

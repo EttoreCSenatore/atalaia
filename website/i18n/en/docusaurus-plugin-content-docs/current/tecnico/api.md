@@ -63,6 +63,7 @@ The server speaks HTTP. On a trusted local network that is acceptable, but the p
 | `POST /api/dhcp/check` | yes | `{confirm: true}`: one DHCP discovery now (needs port 68). |
 | `POST /api/dhcp/reset` | yes | `{confirm: true}`: forgets the known servers. |
 | `GET /api/audit` | yes | Log of active actions, newest first. |
+| `GET /api/releases` | yes | What's new in each version, from the embedded `releases.yaml`: `current` (running version) and `releases` (version, date, `en` and `pt-BR` with title and items), newest first. |
 | `GET /api/events?limit=N` | yes | History (1 to 1000), newest first. Kinds: `joined`, `online`, `offline`, `ip_changed`, `gateway_changed`, `multi_ip`, `rogue_dhcp`. |
 | `POST /api/scan` | yes | Asks for a scan now (answers 202). |
 | `GET /api/stream` | yes | Live events (SSE): `hello`, `scan_started`, `scan_finished`, `scan_failed`. |

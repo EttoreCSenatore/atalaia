@@ -46,3 +46,24 @@ export function parseTags(input: string): string[] {
   }
   return out;
 }
+
+/** Orders two semver versions ("v" prefix optional): negative, 0 or positive. A pre-release sorts before its release. */
+export function compareVersion(a: string, b: string): number {
+  const parse = (v: string) => {
+    const m = /^v?(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/.exec(v.trim());
+    return m ? { n: [Number(m[1]), Number(m[2]), Number(m[3])], pre: m[4] ?? '' } : null;
+  };
+  const x = parse(a);
+  const y = parse(b);
+  if (!x || !y) return a.localeCompare(b);
+  for (let i = 0; i < 3; i++) if (x.n[i] !== y.n[i]) return x.n[i] - y.n[i];
+  if (x.pre === y.pre) return 0;
+  if (!x.pre) return 1;
+  if (!y.pre) return -1;
+  return x.pre < y.pre ? -1 : 1;
+}
+
+/** Splits text on `backticks` so code spans can be rendered without HTML: odd parts are code. */
+export function codeParts(text: string): string[] {
+  return text.split('`');
+}
