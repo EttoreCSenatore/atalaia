@@ -276,8 +276,8 @@ func readMetricsToken(file string) (string, error) {
 		tok = string(b)
 	}
 	tok = strings.TrimSpace(tok)
-	if tok != "" && len(tok) < 32 {
-		return "", errors.New("the metrics token must have at least 32 characters (for example: openssl rand -hex 32)")
+	if tok != "" && (len(tok) < 32 || distinct(tok) < 10) {
+		return "", errors.New("the metrics token must have at least 32 characters and look random (for example: openssl rand -hex 32)")
 	}
 	return tok, nil
 }
@@ -293,4 +293,14 @@ func envInt(name string, def int) int {
 		return v
 	}
 	return def
+}
+
+// distinct counts the different characters in s: a long but repetitive token
+// ("aaaa…", "abcabc…") is easy to guess.
+func distinct(s string) int {
+	seen := map[rune]bool{}
+	for _, r := range s {
+		seen[r] = true
+	}
+	return len(seen)
 }

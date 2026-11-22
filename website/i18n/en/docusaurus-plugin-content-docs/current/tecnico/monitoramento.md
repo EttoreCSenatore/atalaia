@@ -43,7 +43,7 @@ The URL is a secret (whoever has it can send fake pings): it never shows in the 
 
 ## Prometheus: `/metrics`
 
-Off by default. Turn it on with a token of 32 characters or more, in one of these ways:
+Off by default. Turn it on with a random token of 32 characters or more (at least 10 different; `openssl rand -hex 32` works), in one of these ways:
 
 - `--metrics-token-file FILE` or `ATALAIA_METRICS_TOKEN_FILE` (best: the token does not show in the process list);
 - a systemd credential named `metrics-token` (`LoadCredential=metrics-token:/etc/atalaia/metrics-token`, see `/etc/default/atalaia`);

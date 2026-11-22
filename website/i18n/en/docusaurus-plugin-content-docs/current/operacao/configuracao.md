@@ -38,8 +38,8 @@ Everything you can configure in Atalaia, in one place. Every command-line option
 | `--secure-cookies` | `ATALAIA_SECURE_COOKIES=1` | off | `Secure` cookie even over HTTP (behind a TLS proxy) |
 | `--no-active-tools` | `ATALAIA_NO_ACTIVE_TOOLS=1` | off | Observe-only mode: no ping, traceroute, speed test, Wake-on-LAN, port scan, exposure or DHCP check |
 | `--heartbeat-scan` | `ATALAIA_HEARTBEAT_SCAN` | — | URL pinged after every scan ([Monitoring](../tecnico/monitoramento.md)) |
-| `--metrics-token-file` | `ATALAIA_METRICS_TOKEN_FILE`, `ATALAIA_METRICS_TOKEN` | off | Turns on `/metrics` with this token (32+ characters); also reads the systemd credential `metrics-token` |
-| `--backup-dir` | `ATALAIA_BACKUP_DIR` | `backups/` next to the database | Folder for automatic backups |
+| `--metrics-token-file` | `ATALAIA_METRICS_TOKEN_FILE`, `ATALAIA_METRICS_TOKEN` | off | Turns on `/metrics` with this token (32+ characters, at least 10 different, e.g. `openssl rand -hex 32`); also reads the systemd credential `metrics-token` |
+| `--backup-dir` | `ATALAIA_BACKUP_DIR` | `backups/` next to the database | Folder for automatic backups; must be private (not writable by other users) |
 | `--backup-keep` | `ATALAIA_BACKUP_KEEP` | `7` | Automatic backups to keep (0 turns them off) |
 | `--backup-interval` | — | `24h` | Time between automatic backups (at least 1h) |
 | `--heartbeat-backup` | `ATALAIA_HEARTBEAT_BACKUP` | — | URL pinged after every automatic backup |

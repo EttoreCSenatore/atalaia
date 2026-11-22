@@ -55,6 +55,18 @@ func TestBackupToRotatesAndVerify(t *testing.T) {
 	}
 	long := time.Now().Add(-2 * time.Hour)
 	_ = os.Chtimes(stale, long, long)
+	fresh := filepath.Join(bk, ".restore-test-running")
+	if err := os.MkdirAll(fresh, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	RemoveStaleScratch(bk)
+	if _, err := os.Stat(stale); err == nil {
+		t.Fatal("stale scratch copy kept")
+	}
+	if _, err := os.Stat(fresh); err != nil {
+		t.Fatal("a running restore test's scratch copy was removed")
+	}
+	_ = os.Remove(fresh)
 	rc, err := VerifyBackup(ctx, last, bk)
 	if err != nil {
 		t.Fatal(err)
@@ -102,5 +114,53 @@ func TestBackupToRotatesAndVerify(t *testing.T) {
 	}
 	if _, err := s.BackupTo(ctx, bk, 0, start); err == nil {
 		t.Fatal("keep 0 accepted")
+	}
+}
+
+func TestBackupRefusesSymlinksAndSharedFolders(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+	s, err := Open(filepath.Join(dir, "a.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	// a dangling symlink at the name must not be followed
+	outside := filepath.Join(t.TempDir(), "planted.db")
+	link := filepath.Join(dir, "copy.db")
+	if err := os.Symlink(outside, link); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Backup(ctx, link); err == nil {
+		t.Fatal("backup through a symlink accepted")
+	}
+	if _, err := os.Stat(outside); err == nil {
+		t.Fatal("the copy was written through the symlink")
+	}
+	// a folder other users can write to is refused
+	shared := filepath.Join(dir, "shared")
+	if err := os.Mkdir(shared, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(shared, 0o777); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.BackupTo(ctx, shared, 3, time.Now()); err == nil || !strings.Contains(err.Error(), "other users") {
+		t.Fatalf("shared folder accepted: %v", err)
+	}
+	if list, _ := Backups(shared); len(list) != 0 {
+		t.Fatalf("a backup was written: %v", list)
+	}
+}
+
+func TestUntrustedSchemaIsOff(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "a.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	var v int
+	if err := s.db.QueryRow(`PRAGMA trusted_schema`).Scan(&v); err != nil || v != 0 {
+		t.Fatalf("trusted_schema = %d, %v", v, err)
 	}
 }

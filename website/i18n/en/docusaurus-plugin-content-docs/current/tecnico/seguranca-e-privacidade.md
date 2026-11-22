@@ -48,6 +48,22 @@ The code went through a manual review of the critical parts (login, sessions, lo
 
 This review was done by the project itself and does **not** replace an independent penetration test.
 
+## v0.7 review (2026-11-22)
+
+A manual review of everything v0.7 added (the health endpoint without login, `/metrics`, automatic backups and "Back up now", the restore test, the copy before migrating, `reset-password`, the package scripts, the public demo), with govulncheck, gosec, staticcheck, `npm audit` and Trivy (vulnerabilities and secrets in the image) finding nothing.
+
+| Finding | Decision |
+|---|---|
+| A symlink planted under the next backup's name made the copy be written wherever it pointed (only possible in a backup folder other users can write to) | Fixed: the name is checked without following links, the result must be a regular file, and automatic backups **refuse a folder other users can write to** |
+| `verify-backup` opens a database file that may come from elsewhere | Hardened: the database opens with `trusted_schema` off (views and triggers of a foreign file cannot run functions with side effects) |
+| A long but repetitive `/metrics` token (`aaaa…`) was accepted | Fixed: besides 32+ characters, the token needs at least 10 different characters |
+| The cleanup of old scratch copies also ran in the folder of a file given to `verify-backup` | Fixed: only automatic backups clean up, and only in their own folder |
+| `/api/health` answers without login and shows the version | **Accepted**: local network only, with the `Host` check; nothing about devices and no error texts |
+| `POST /api/backup` can be called repeatedly | **Accepted**: administrator only, CSRF-protected, one backup at a time, and rotation caps how many copies stay |
+| `reset-password` asks for no password | **Accepted**: it needs access to the database file, which already gives full control of Atalaia |
+| The heartbeat URL is a secret | It never goes to the log or to error messages; it waits at most 10 s and follows no redirects |
+| The demo simulates the API with fictitious data | The real build does not carry that code (CI checks it) |
+
 ## How to report a vulnerability
 
 Use GitHub's [private vulnerability reporting](https://github.com/EttoreCSenatore/atalaia/security/advisories/new). Do not open a public issue with details and do not send real personal data. The repository's `SECURITY.md` has the same text.

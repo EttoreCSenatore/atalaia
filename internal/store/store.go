@@ -200,6 +200,9 @@ func Open(path string) (*Store, error) {
 	q := url.Values{}
 	q.Add("_pragma", "foreign_keys(1)")
 	q.Add("_pragma", "busy_timeout(5000)")
+	// a database file may come from elsewhere (a backup being checked): its views
+	// and triggers must not run functions with side effects
+	q.Add("_pragma", "trusted_schema(0)")
 	q.Add("_pragma", "journal_mode(WAL)")
 	u := url.URL{Scheme: "file", Path: abs, RawQuery: q.Encode()}
 	db, err := sql.Open("sqlite", u.String())
