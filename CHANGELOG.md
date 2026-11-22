@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Upgrade-test database for v0.7.1 added.
+
+**PT-BR** — Banco de teste de atualização da v0.7.1 incluído.
+
 ## v0.7.1 — 2026-11-22
 
 **EN** — Security review of v0.7: automatic backups refuse a folder other users can write to, and a backup is never written through a symlink planted under its name; databases open with SQLite's `trusted_schema` off (`verify-backup` may open a foreign file); `/metrics` tokens must also have at least 10 different characters; old scratch copies are cleaned only in the automatic backups' own folder. Scanners (govulncheck, gosec, staticcheck, npm audit, Trivy) found nothing. Findings and accepted risks are in the security page.
