@@ -8,7 +8,7 @@
 
 **Watch your network.** A free, open-source, self-hosted network watchtower: discover the devices on your network, track history, get alerts and run **defensive** security checks. A Go agent with the web app embedded.
 
-> **State: v0.6.** `atalaia serve` discovers and identifies the devices, keeps the history, serves a web app with login (Linux, Docker, .deb/.rpm packages), runs defensive checks and alerts you through ntfy, Telegram, webhook or e-mail when a new device appears. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
+> **State: v0.7.** `atalaia serve` discovers and identifies the devices, keeps the history, serves a web app with login (Linux, Docker, .deb/.rpm packages), runs defensive checks and alerts you through ntfy, Telegram, webhook or e-mail when a new device appears. See the [roadmap](https://ettorecsenatore.github.io/atalaia/en/docs/roadmap).
 
 ## Try it (Linux)
 

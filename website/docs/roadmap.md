@@ -25,8 +25,9 @@ Cada etapa vira um pull request, revisado e integrado antes da próxima. Documen
 | **M6.3** | Unidade systemd, pacotes .deb/.rpm e modo somente observação | Concluído (ver [Implantação](tecnico/implantacao.md)) |
 | **v0.5** | Identificação: serviços mDNS, SSDP/UPnP, NetBIOS, palpite de tipo com ícones, nomes por DHCP (opcional), VPN por `--allow-cidr`, varreduras agendadas | Concluído (ver [Descoberta](funcionalidades/descoberta.md)) |
 | **v0.6** | Revisão de segurança (bloqueio de login sob tentativas paralelas, limite global) e organização do inventário (esquecer, limpeza automática, filtro, exportação, backup) | Concluído (ver [Segurança e privacidade](tecnico/seguranca-e-privacidade.md)) |
+| **v0.7** | Operação e maturidade (M7.1–M7.9): cadeia de suprimentos fixada, novidades no app, saúde e métricas, backups automáticos com teste de restauração, atualização segura, pacotes testados, manual e demonstração | Concluído (ver [Primeiros passos](manual/primeiros-passos.md)) |
 
-A versão publicada mais recente é a **v0.6.0**. O próximo bloco é o **M7**.
+A versão publicada mais recente é a **v0.7.0**, com o bloco **M7** (menos o M7.10, adiado).
 
 ## M7: Operação e maturidade
 

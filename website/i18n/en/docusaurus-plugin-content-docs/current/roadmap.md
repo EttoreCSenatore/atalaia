@@ -25,8 +25,9 @@ Each step becomes a pull request, reviewed and merged before the next one. Docum
 | **M6.3** | systemd unit, .deb/.rpm packages and observe-only mode | Done (see [Deployment](tecnico/implantacao.md)) |
 | **v0.5** | Identification: mDNS services, SSDP/UPnP, NetBIOS, type guess with icons, names from DHCP (opt-in), VPN via `--allow-cidr`, scheduled scans | Done (see [Discovery](funcionalidades/descoberta.md)) |
 | **v0.6** | Security review (login lockout under parallel attempts, global limit) and inventory housekeeping (forget, auto-prune, filter, export, backup) | Done (see [Security and privacy](tecnico/seguranca-e-privacidade.md)) |
+| **v0.7** | Operations and maturity (M7.1–M7.9): pinned supply chain, what's new in the app, health and metrics, automatic backups with restore tests, safe upgrades, tested packages, manual and demo | Done (see [Getting started](manual/primeiros-passos.md)) |
 
-The latest published version is **v0.6.0**. The next block is **M7**.
+The latest published version is **v0.7.0**, with the **M7** block (except M7.10, postponed).
 
 ## M7: Operations and maturity
 
