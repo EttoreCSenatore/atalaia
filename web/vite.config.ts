@@ -4,6 +4,8 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 // The app is built straight into the Go package that embeds it.
 export default defineConfig({
   plugins: [svelte()],
+  // a constant, so the normal build drops the demo code (and its fictitious data) entirely
+  define: { 'import.meta.env.VITE_DEMO': JSON.stringify(process.env.VITE_DEMO === '1' ? '1' : '') },
   build: { outDir: '../internal/web/dist', emptyOutDir: false, sourcemap: false },
   server: {
     port: 5173,

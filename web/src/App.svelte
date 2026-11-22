@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { app, boot } from './lib/app.svelte';
   import { route, match } from './lib/router.svelte';
+  import { isDemo } from './lib/api';
   import { t, i18n } from './lib/i18n.svelte';
   import Auth from './components/Auth.svelte';
   import Shell from './components/Shell.svelte';
@@ -20,6 +21,13 @@
     document.title = t('app.name');
   });
 </script>
+
+{#if isDemo}
+  <div class="demo" role="note">
+    <strong>{t('demo.title')}</strong> {t('demo.body')}
+    <a href={t('demo.docsUrl')} target="_blank" rel="noopener noreferrer">{t('demo.install')}</a>
+  </div>
+{/if}
 
 {#if app.phase === 'loading'}
   <p class="center muted">{t('common.loading')}</p>
@@ -54,6 +62,14 @@
 {/if}
 
 <style>
+  .demo {
+    background: var(--warn-bg);
+    color: var(--text);
+    border-bottom: 2px solid var(--warn);
+    padding: 0.5rem 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+  }
   .center {
     max-width: 28rem;
     margin: 20vh auto;

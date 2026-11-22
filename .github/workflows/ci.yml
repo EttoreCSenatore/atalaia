@@ -38,6 +38,13 @@ jobs:
       - name: Licenças das dependências (AGPL-3.0)
         run: python3 ../scripts/auditar-licencas.py --npm website
       - run: npm run build
+      - name: Demonstração pública (app web com dados fictícios, em /atalaia/demo/)
+        working-directory: web
+        run: |
+          npm ci
+          npm run build:demo
+          cp -r dist-demo ../website/build/demo
+          grep -q '/atalaia/demo/assets/' ../website/build/demo/index.html
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: website/build
@@ -101,6 +108,11 @@ jobs:
           name: sbom-web
           path: sbom-web.cdx.json
       - run: npm run build
+      - name: O app real não leva o código nem os dados da demonstração
+        run: |
+          if grep -l "demoRequest\|Marias-iPhone" ../internal/web/dist/assets/*; then
+            echo "demo code or fictitious data in the real app build"; exit 1
+          fi
 
   imagem:
     name: Imagem (build, varredura, teste de fumaça)

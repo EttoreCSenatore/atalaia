@@ -268,6 +268,12 @@ export const en = {
     body: "The disk that holds Atalaia's database is running out of space; when it is full, scans and history stop being saved. Free some space or move the database.",
     free: 'free',
   },
+  demo: {
+    title: 'Demo with fictitious data.',
+    body: 'Nothing here touches a real network or sends anything; changes only last until you reload.',
+    install: 'Install Atalaia',
+    docsUrl: 'https://ettorecsenatore.github.io/atalaia/en/docs/manual/primeiros-passos',
+  },
   time: { justNow: 'just now' },
 };
 

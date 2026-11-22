@@ -35,3 +35,4 @@ The design choices that shape Atalaia, with the reason for each. A new (or revis
 | 23 | **Migrations forward only and append-only**, with a backup first | Down migrations need code that almost never runs; a copy first is more reliable | M7.6 |
 | 24 | **Bilingual documentation**, Portuguese first | The project was born in Brazil; English reaches everyone else | M0 |
 | 25 | **No real network data in the repository**: screenshots and tests use fictitious data | Privacy of whoever tests and of whoever is on the network | M2.2 |
+| 26 | **Static demo** on GitHub Pages: API simulated in the browser, no server | Nobody has to install to look; nothing runs or is stored on the publishing side, and the real app does not carry this code | M7.9 |

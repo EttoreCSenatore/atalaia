@@ -45,7 +45,7 @@
 <div class="wrap">
   <div class="card">
     <div class="brand">
-      <img src="/favicon.svg" alt="" width="40" height="40" />
+      <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="40" height="40" />
       <div>
         <strong>{t('app.name')}</strong>
         <div class="muted">{t('app.tagline')}</div>

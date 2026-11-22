@@ -42,6 +42,10 @@
 
 **PT-BR** — Documentação (M7.8): **Manual** por tarefas (primeiros passos, como fazer, perguntas frequentes, glossário), seção de **Operação** (referência única de configuração com todo comando, opção, variável, arquivo e porta; backup e restauração com o passo a passo da restauração; atualização e como voltar atrás) e **registro de decisões** com 25 escolhas de projeto. A CI confere que a referência de configuração (pt-BR e inglês) cita todo comando, opção e variável `ATALAIA_` do código. Novo `atalaia reset-password --yes` para senha esquecida: remove a conta (dispositivos, histórico e configurações ficam), e o próximo início mostra um código de configuração novo. O "estado atual" da página inicial agora diz v0.6.
 
+**EN** — Public demo (M7.9): the web app runs at https://ettorecsenatore.github.io/atalaia/demo/ with fictitious data (the screenshot fixtures), with a "demo" banner; the API is answered in the browser, routes use the hash, and actions that would touch a network or send something are refused. Nothing is sent anywhere. CI builds it into the Pages site and checks that the real app's build carries none of the demo code or data. "Demo" link in the docs menu.
+
+**PT-BR** — Demonstração pública (M7.9): o app web roda em https://ettorecsenatore.github.io/atalaia/demo/ com dados fictícios (os das capturas de tela) e uma faixa de "demonstração"; a API é respondida no navegador, as rotas usam o `#` e as ações que tocariam uma rede ou enviariam algo são recusadas. Nada é enviado a lugar nenhum. A CI monta a demonstração no site do Pages e confere que o build do app real não leva nada do código nem dos dados dela. Link "Demonstração" no menu da documentação.
+
 ## v0.6.0 — 2026-11-19
 
 **EN** — Inventory housekeeping: forget a device (with its history), opt-in forgetting of untouched devices offline for N days, a type filter on the dashboard, CSV/JSON export (spreadsheet-safe CSV) from the dashboard and `atalaia export`, and `atalaia backup` for a consistent 0600 copy while the server runs.

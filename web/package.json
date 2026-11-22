@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "node scripts/limpar-saida.mjs && vite build",
+    "build:demo": "VITE_DEMO=1 vite build --base /atalaia/demo/ --outDir dist-demo --emptyOutDir",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
     "screenshots": "node scripts/screenshots.mjs"
