@@ -112,7 +112,7 @@ Para uma cópia avulsa e consistente **sem parar o servidor** (ou num agendador 
 atalaia backup --db /var/lib/atalaia/atalaia.db ~/atalaia-$(date +%F).db
 ```
 
-A cópia é criada com permissão `0600` e nunca sobrescreve um arquivo existente: ela contém a lista de dispositivos **e os segredos dos canais de alerta**, então guarde-a como guardaria uma senha. Para restaurar, pare o servidor e coloque a cópia no lugar do banco. Para atualizar, instale a versão nova (ou `docker compose up -d --build`): o banco migra sozinho e uma versão mais antiga se recusa a abrir um banco mais novo.
+A cópia é criada com permissão `0600` e nunca sobrescreve um arquivo existente: ela contém a lista de dispositivos **e os segredos dos canais de alerta**, então guarde-a como guardaria uma senha. Para restaurar, pare o servidor e coloque a cópia no lugar do banco. Para atualizar, instale a versão nova (ou `docker compose up -d --build`): o banco migra sozinho e uma versão mais antiga se recusa a abrir um banco mais novo. **Antes de migrar, o Atalaia copia o banco** para `atalaia-pre-migration-schemaN-DATA.db` ao lado dele (permissão `0600`, as 3 mais novas ficam); se a cópia falhar (disco cheio, por exemplo), ele não migra e não muda nada. Para voltar atrás, pare o servidor, instale a versão anterior e coloque essa cópia no lugar do banco. A CI testa a atualização a partir dos bancos criados por **cada versão publicada** (veja [Versões e novidades](versionamento.md)).
 
 Para levar a lista para uma planilha: `atalaia export --format csv` (ou `json`), ou o link **Baixar a lista** no painel. O CSV neutraliza fórmulas: nomes vindos da rede nunca viram comandos na planilha.
 

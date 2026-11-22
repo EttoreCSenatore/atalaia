@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -180,4 +181,40 @@ func removeStaleScratch(dir string) {
 			_ = os.RemoveAll(p)
 		}
 	}
+}
+
+// preMigrationBackup is replaced in tests to simulate a failing copy.
+var preMigrationBackup = (*Store).backupBeforeMigration
+
+// PreMigrationKeep is how many pre-migration copies are kept next to the database.
+const PreMigrationKeep = 3
+
+// backupBeforeMigration copies the database next to itself before its schema
+// is upgraded from version v (<name>-pre-migration-schema<v>-<time>.db, 0600),
+// keeping the newest PreMigrationKeep such copies. A failed copy stops the
+// upgrade: Atalaia never migrates a database it could not back up.
+func (s *Store) backupBeforeMigration(v int, now time.Time) (string, error) {
+	dir, file := filepath.Split(s.path)
+	base := strings.TrimSuffix(file, filepath.Ext(file))
+	path := filepath.Join(dir, fmt.Sprintf("%s-pre-migration-schema%d-%s.db", base, v, now.UTC().Format("20060102-150405")))
+	if err := s.Backup(context.Background(), path); err != nil {
+		return "", err
+	}
+	re := regexp.MustCompile(`^` + regexp.QuoteMeta(base) + `-pre-migration-schema\d+-\d{8}-\d{6}\.db$`)
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return path, nil
+	}
+	var copies []string
+	for _, e := range entries {
+		if e.Type().IsRegular() && re.MatchString(e.Name()) {
+			copies = append(copies, e.Name())
+		}
+	}
+	sort.Slice(copies, func(i, j int) bool { return copies[i][len(copies[i])-18:] < copies[j][len(copies[j])-18:] }) // by time
+	for len(copies) > PreMigrationKeep {
+		_ = os.Remove(filepath.Join(dir, copies[0]))
+		copies = copies[1:]
+	}
+	return path, nil
 }

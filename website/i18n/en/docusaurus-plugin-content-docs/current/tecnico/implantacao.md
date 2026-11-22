@@ -112,7 +112,7 @@ For a one-off consistent copy **without stopping the server** (or from your own 
 atalaia backup --db /var/lib/atalaia/atalaia.db ~/atalaia-$(date +%F).db
 ```
 
-The copy is created with mode `0600` and never overwrites an existing file: it holds the device list **and the alert channels' secrets**, so keep it as you would a password. To restore, stop the server and put the copy in place of the database. To update, install the new version (or `docker compose up -d --build`): the database migrates by itself, and an older version refuses to open a newer database.
+The copy is created with mode `0600` and never overwrites an existing file: it holds the device list **and the alert channels' secrets**, so keep it as you would a password. To restore, stop the server and put the copy in place of the database. To update, install the new version (or `docker compose up -d --build`): the database migrates by itself, and an older version refuses to open a newer database. **Before migrating, Atalaia copies the database** to `atalaia-pre-migration-schemaN-DATE.db` next to it (mode `0600`, the newest 3 are kept); if the copy fails (a full disk, for example), it does not migrate and changes nothing. To go back, stop the server, install the previous version and put that copy in place of the database. CI tests the upgrade from databases made by **every published version** (see [Versions and what's new](versionamento.md)).
 
 To take the list to a spreadsheet: `atalaia export --format csv` (or `json`), or the **Download the list** link on the dashboard. The CSV neutralizes formulas: names coming from the network never become spreadsheet commands.
 

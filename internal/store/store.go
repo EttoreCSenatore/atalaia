@@ -247,6 +247,11 @@ func (s *Store) migrate() error {
 	if v > len(migrations) {
 		return fmt.Errorf("database is from a newer Atalaia (schema %d, this build knows %d)", v, len(migrations))
 	}
+	if v > 0 && v < len(migrations) {
+		if _, err := preMigrationBackup(s, v, time.Now()); err != nil {
+			return fmt.Errorf("could not back up the database before upgrading it (nothing was changed; free some disk space and try again): %w", err)
+		}
+	}
 	for i := v; i < len(migrations); i++ {
 		tx, err := s.db.Begin()
 		if err != nil {

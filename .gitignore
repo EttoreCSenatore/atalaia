@@ -14,6 +14,8 @@ __pycache__/
 /atalaia
 /bin/
 *.db
+# ...except the upgrade-test databases, made by each released binary on a throwaway Docker network (no real data)
+!/internal/store/testdata/released/*.db
 
 # web app build output (internal/web/dist/placeholder.txt stays)
 /internal/web/dist/*
