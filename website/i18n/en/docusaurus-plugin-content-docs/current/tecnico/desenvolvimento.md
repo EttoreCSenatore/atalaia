@@ -74,4 +74,4 @@ The `.deb`/`.rpm` packages are built by [nfpm](https://nfpm.goreleaser.com/) fro
 
 ## Workflow
 
-One step per pull request: branch, commits, green CI, diff review and squash merge. Documentation (pt-BR and English) and project memory are updated in the same step.
+One step per pull request: branch, commits, green CI, diff review and squash merge. Documentation (pt-BR and English) and project memory are updated in the same step. For outside contributions, [CONTRIBUTING](https://github.com/EttoreCSenatore/atalaia/blob/main/CONTRIBUTING.md) sums up the rules, and the issue (bug, idea) and PR templates carry the checklist; `CODEOWNERS` requests the maintainer's review on every PR.

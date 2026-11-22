@@ -14,7 +14,7 @@ sidebar_position: 8
 |---|---|---|---|
 | Dependencies (Dependabot) | Weekly, a **7-day wait** before proposing a new version, grouped PRs | Weekly, no wait, no groups | **Done** (M7.1) |
 | GitHub actions and images | Pinned by **SHA** and by **digest** | By tag (`@v7`, `node:24-alpine`) | **Yes** (M7.1) |
-| Repository files | SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, CODEOWNERS, NOTICE | SECURITY only | **Yes** (M7.2) |
+| Repository files | SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, CODEOWNERS, NOTICE | SECURITY only | **Done** (M7.2) |
 | Versions and what's new | A single `releases.yaml` feeds the "What's new" page in the app, the version in the footer and the GitHub release | A text CHANGELOG; version only on the About card | **Yes** (M7.3) |
 | Health and monitoring | A health page without login, signals to Healthchecks.io (system, backup, restore, update, disk), numbers for Prometheus | Nothing without login; no warning if Atalaia stops | **Yes** (M7.4) |
 | Backup | Daily via a systemd timer, a **weekly restore test**, a warning when it is late | Manual `atalaia backup` | **Yes** (M7.5) |

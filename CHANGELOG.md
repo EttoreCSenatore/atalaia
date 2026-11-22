@@ -10,6 +10,10 @@
 
 **PT-BR** — Cadeia de suprimentos (M7.1): ações do GitHub fixadas por SHA de commit e imagens Docker por digest, conferidas na CI por `scripts/checar-fixacao.py`; o Dependabot espera 7 dias antes de propor uma versão, agrupa as atualizações menores e de correção e limita os PRs abertos. Nova página "Cadeia de suprimentos".
 
+**EN** — Repository files (M7.2): CONTRIBUTING and CODE_OF_CONDUCT (bilingual), NOTICE (name use, no affiliation with Fing), CODEOWNERS, issue forms (bug, idea) and a PR checklist; README status brought up to v0.6.
+
+**PT-BR** — Arquivos do repositório (M7.2): CONTRIBUTING e CODE_OF_CONDUCT (bilíngues), NOTICE (uso do nome, sem ligação com a Fing), CODEOWNERS, formulários de issue (bug, ideia) e lista de verificação no PR; estado do README atualizado para v0.6.
+
 ## v0.6.0 — 2026-11-19
 
 **EN** — Inventory housekeeping: forget a device (with its history), opt-in forgetting of untouched devices offline for N days, a type filter on the dashboard, CSV/JSON export (spreadsheet-safe CSV) from the dashboard and `atalaia export`, and `atalaia backup` for a consistent 0600 copy while the server runs.
