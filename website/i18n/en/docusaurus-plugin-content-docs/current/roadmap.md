@@ -43,7 +43,7 @@ Inspired by Kaladrius (see the [comparison](tecnico/comparacao-kaladrius.md)). O
 | **M7.7** | Package lifecycle: install and remove scripts, an install test of the `.deb` and the `.rpm` in CI | Done (see [Deployment](tecnico/implantacao.md)) |
 | **M7.8** | Documentation: task-based manual (first steps, FAQ, glossary), an operations section (backup, monitoring, upgrade), a decision log and a single configuration reference | Done (see [Getting started](manual/primeiros-passos.md)) |
 | **M7.9** | Public demo: the web app in demo mode, with fictitious data, on GitHub Pages | Done ([open the demo](https://ettorecsenatore.github.io/atalaia/demo/)) |
-| **M7.10** | (Optional) Spanish translation | To decide |
+| **M7.10** | (Optional) Spanish translation | Postponed (every change would have to be written in three languages; revisit if there is demand) |
 
 ## Later
 
