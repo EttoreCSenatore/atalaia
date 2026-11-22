@@ -10,6 +10,7 @@
   import History from './components/History.svelte';
   import Tools from './components/Tools.svelte';
   import Settings from './components/Settings.svelte';
+  import WhatsNew from './components/WhatsNew.svelte';
 
   onMount(boot);
 
@@ -43,6 +44,8 @@
       <Tools />
     {:else if current.name === 'settings'}
       <Settings />
+    {:else if current.name === 'news'}
+      <WhatsNew />
     {:else}
       <p class="muted">404</p>
       <a href="/" data-link>{t('detail.back')}</a>

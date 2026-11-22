@@ -17,6 +17,9 @@ export type Device = {
 };
 export type DeviceEvent = { at: string; kind: string; detail: string; mac: string; name: string; vendor: string };
 export type ScanStatus = { scanning: boolean; last_scan: string; last_error: string; interval: string };
+export type ReleaseNotes = { title: string; items: string[] };
+export type Release = { version: string; date: string; en: ReleaseNotes; 'pt-BR': ReleaseNotes };
+export type Releases = { current: string; releases: Release[] };
 export type Status = { active_tools?: boolean; version: string; setup_required: boolean; authenticated: boolean; scan?: ScanStatus };
 export type ChannelType = 'ntfy' | 'telegram' | 'webhook' | 'email';
 export type Channel = {
@@ -133,6 +136,7 @@ export const api = {
   speedtest: () => request<SpeedResult>('POST', '/api/tools/speedtest', { confirm: true }),
   dns: (name: string, type: string) => request<DnsResult>('POST', '/api/tools/dns', { name, type }),
   audit: () => request<AuditEntry[]>('GET', '/api/audit'),
+  releases: () => request<Releases>('GET', '/api/releases'),
   dhcp: () => request<Dhcp>('GET', '/api/dhcp'),
   setDhcpNames: (enabled: boolean) => request<Dhcp>('PUT', '/api/dhcp/names', { enabled }),
   setDhcp: (enabled: boolean) => request<Dhcp>('PUT', '/api/dhcp', { enabled }),

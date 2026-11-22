@@ -139,7 +139,7 @@
 
   <section class="card">
     <h2>{t('settings.about')}</h2>
-    <p>{t('settings.version')}: <span class="mono">{app.status.version}</span></p>
+    <p>{t('settings.version')}: <span class="mono">{app.status.version}</span> · <a href="/whats-new" data-link>{t('news.title')}</a></p>
     {#if settings}<p>{t('settings.scanInterval')}: <span class="mono">{settings.scan_interval}</span></p>{/if}
     <p class="muted">{t('settings.privacy')}</p>
     <p>{t('settings.license')} <a href="https://github.com/EttoreCSenatore/atalaia" target="_blank" rel="noopener noreferrer">{t('app.source')}</a></p>

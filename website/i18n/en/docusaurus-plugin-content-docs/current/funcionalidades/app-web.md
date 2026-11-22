@@ -47,3 +47,9 @@ The timeline of everything that changed: new devices, devices that came back, th
 How long the history is kept (default 90 days; 0 keeps everything), password change (ends the other sessions), language and the version.
 
 ![Settings screen](/img/screenshots/app-configuracoes-en.png)
+
+## What's new
+
+The **What's new** page (linked in the footer and in Settings) shows what changed in each version, with a "Running" mark on the running version. After an update, a notice at the top says which version Atalaia was updated to. See [Versions and what's new](../tecnico/versionamento.md).
+
+![What's new page (fictitious data)](/img/screenshots/app-novidades-en.png)

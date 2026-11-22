@@ -145,6 +145,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/events", s.protected(s.events))
 	mux.HandleFunc("POST /api/scan", s.mutating(s.protected(s.scan)))
 	mux.HandleFunc("GET /api/stream", s.protected(s.stream))
+	mux.HandleFunc("GET /api/releases", s.protected(s.releases))
 	mux.HandleFunc("GET /api/settings", s.protected(s.getSettings))
 	mux.HandleFunc("PUT /api/settings", s.mutating(s.protected(s.putSettings)))
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) { writeError(w, http.StatusNotFound, "not found") })

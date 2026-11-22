@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareIp, deviceLabel, parseTags, relativeTime } from '../src/lib/format';
+import { codeParts, compareIp, compareVersion, deviceLabel, parseTags, relativeTime } from '../src/lib/format';
 import { riskGroup } from '../src/lib/risk';
 import { match } from '../src/lib/router.svelte';
 
@@ -57,5 +57,27 @@ describe('riskGroup', () => {
     expect(riskGroup('redis')).toBe('database');
     expect(riskGroup('smb')).toBe('fileSharing');
     expect(riskGroup('something-new')).toBe('legacy');
+  });
+});
+
+describe('compareVersion', () => {
+  it('orders semver with or without v, pre-releases first', () => {
+    expect(compareVersion('0.10.0', '0.9.0')).toBeGreaterThan(0);
+    expect(compareVersion('v0.6.0', '0.6.0')).toBe(0);
+    expect(compareVersion('1.0.0-rc.1', '1.0.0')).toBeLessThan(0);
+    expect(compareVersion('0.5.0', 'v0.6.0')).toBeLessThan(0);
+  });
+});
+
+describe('codeParts', () => {
+  it('puts code spans at odd positions', () => {
+    expect(codeParts('run `atalaia backup` now')).toEqual(['run ', 'atalaia backup', ' now']);
+    expect(codeParts('plain')).toEqual(['plain']);
+  });
+});
+
+describe('whats-new route', () => {
+  it('matches /whats-new', () => {
+    expect(match('/whats-new')).toEqual({ name: 'news' });
   });
 });

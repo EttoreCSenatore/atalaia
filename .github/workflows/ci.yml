@@ -54,6 +54,8 @@ jobs:
           go-version-file: go.mod
       - name: Fixação da cadeia de suprimentos (ações por SHA, imagens por digest)
         run: python3 -I scripts/checar-fixacao.py
+      - name: releases.yaml (formato, ordem, CHANGELOG)
+        run: go run ./cmd/releasenotes check -changelog CHANGELOG.md
       - name: gofmt
         run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
       - run: go vet ./...
@@ -124,6 +126,8 @@ jobs:
           curl -fs http://127.0.0.1:18080/ | grep -qi '<title>Atalaia'
           curl -fsI http://127.0.0.1:18080/api/status | grep -qi 'content-security-policy'
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/api/devices)" = 401
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/api/releases)" = 401
+          curl -fs http://127.0.0.1:18080/whats-new | grep -qi '<title>Atalaia'
           test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example' http://127.0.0.1:18080/api/status)" = 403
           docker logs atalaia-smoke 2>&1 | grep -q 'Setup code'
           docker rm -f atalaia-smoke

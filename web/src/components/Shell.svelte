@@ -2,7 +2,13 @@
   import type { Snippet } from 'svelte';
   import { route } from '../lib/router.svelte';
   import { t } from '../lib/i18n.svelte';
+  import { onMount } from 'svelte';
   import { app, signOut } from '../lib/app.svelte';
+  import { news, loadNews, hasUnseen, latest, markSeen } from '../lib/news.svelte';
+
+  onMount(() => {
+    if (!news.loaded) loadNews();
+  });
 
   let { children }: { children: Snippet } = $props();
 
@@ -29,14 +35,46 @@
     <button class="logout" onclick={signOut}>{t('nav.logout')}</button>
   </div>
 </header>
-<main>{@render children()}</main>
+<main>
+  {#if hasUnseen() && route.path !== '/whats-new'}
+    <div class="notice card" role="status">
+      <span>{t('news.updated')} <strong class="mono">v{latest()}</strong>.</span>
+      <a href="/whats-new" data-link>{t('news.see')}</a>
+      <button class="link" onclick={markSeen}>{t('news.dismiss')}</button>
+    </div>
+  {/if}
+  {@render children()}
+</main>
 
 <footer class="source">
+  <span class="mono">{app.status.version}</span>
+  · <a href="/whats-new" data-link>{t('news.title')}</a>{#if hasUnseen()}<span class="dot" aria-label={t('news.new')}></span>{/if}
+  ·
   <a href={`https://github.com/EttoreCSenatore/atalaia/tree/${app.status.version.startsWith('v') ? app.status.version : 'main'}`} target="_blank" rel="noopener noreferrer">{t('app.source')}</a>
   · AGPL-3.0-or-later
 </footer>
 
 <style>
+  .notice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--accent);
+  }
+  .notice .link {
+    margin-left: auto;
+  }
+  .dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-left: 0.25rem;
+    border-radius: 50%;
+    background: var(--accent);
+    vertical-align: super;
+  }
   .source {
     max-width: 72rem;
     margin: 2rem auto 1rem;

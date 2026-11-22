@@ -18,6 +18,10 @@
 
 **PT-BR** — Build: Node 26 (LTS) na imagem, na CI e na release; ações Docker da release nas novas versões maiores (login v4, setup-qemu v4, setup-buildx v4, build-push v7), testadas com um build multiarquitetura sem publicação.
 
+**EN** — What's new (M7.3): `releases.yaml` is the single source for a **What's new** page in the web app (with a notice after an update and the running version in the footer and Settings), `GET /api/releases` and the GitHub release text. CI checks the file and that it matches CHANGELOG.md; a release only publishes when its tag is the newest entry. New dependency: go.yaml.in/yaml/v3 (MIT). New docs page "Versions and what's new".
+
+**PT-BR** — Novidades (M7.3): `releases.yaml` é a fonte única da página **Novidades** no app web (com aviso depois de uma atualização e a versão em uso no rodapé e em Configurações), do `GET /api/releases` e do texto da release no GitHub. A CI confere o arquivo e que ele bate com o CHANGELOG.md; uma release só é publicada se a tag for a versão mais nova de lá. Nova dependência: go.yaml.in/yaml/v3 (MIT). Nova página "Versões e novidades".
+
 ## v0.6.0 — 2026-11-19
 
 **EN** — Inventory housekeeping: forget a device (with its history), opt-in forgetting of untouched devices offline for N days, a type filter on the dashboard, CSV/JSON export (spreadsheet-safe CSV) from the dashboard and `atalaia export`, and `atalaia backup` for a consistent 0600 copy while the server runs.

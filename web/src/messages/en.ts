@@ -236,6 +236,16 @@ export const en = {
     server: 'Server or single-board computer',
     unknown: 'Unknown',
   },
+  news: {
+    title: "What's new",
+    intro: 'What changed in each version of Atalaia, newest first. Technical details are in the CHANGELOG.',
+    running: 'Running',
+    new: 'New',
+    updated: 'Atalaia was updated to',
+    see: "See what's new",
+    dismiss: 'Dismiss',
+    error: 'Could not load the release notes.',
+  },
   time: { justNow: 'just now' },
 };
 

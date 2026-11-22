@@ -56,12 +56,29 @@ export const audit = [
   { at: new Date(Date.now() - 26 * 3600_000).toISOString(), action: 'wake', target: 'a8:55:66:00:00:41', detail: 'magic packet to 192.168.1.255' },
 ];
 export const settings = { retention_days: 90, scan_interval: '5m0s', port_scan_hours: 24, prune_days: 30, active_tools: true };
-export const status = (extra = {}) => ({ version: '0.2.0', setup_required: false, authenticated: true, scan: { scanning: false, last_scan: ago(1), last_error: '', interval: '5m0s' }, ...extra });
+export const status = (extra = {}) => ({ version: 'v0.6.0', setup_required: false, authenticated: true, scan: { scanning: false, last_scan: ago(1), last_error: '', interval: '5m0s' }, ...extra });
 
 export const alerts = {
   rules: { new_device: true, known_offline: false, arp_anomaly: true, rogue_dhcp: true, new_ports: true },
   channels: [
     { id: 'c1a2b3', type: 'ntfy', name: 'Celular (ntfy)', enabled: true, url: 'https://ntfy.sh/atalaia-exemplo', has_token: false, has_password: false },
     { id: 'd4e5f6', type: 'telegram', name: 'Telegram', enabled: true, chat_id: '123456789', has_token: true, has_password: false },
+  ],
+};
+
+// Release notes as served by /api/releases (a short excerpt of releases.yaml).
+export const releases = {
+  current: 'v0.6.0',
+  releases: [
+    {
+      version: '0.6.0', date: '2026-11-19',
+      en: { title: 'Inventory housekeeping and security fixes', items: ['Forget a device, with its history, or let Atalaia forget untouched devices that have been offline for N days (opt-in).', 'Filter the dashboard by device type.', 'Export the inventory as CSV or JSON from the dashboard or with `atalaia export`; the CSV is safe to open in spreadsheets.', '`atalaia backup` makes a consistent, private copy of the database while the server runs.'] },
+      'pt-BR': { title: 'Organização do inventário e correções de segurança', items: ['Esqueça um dispositivo, com o histórico, ou deixe o Atalaia esquecer os não mexidos que estão offline há N dias (opcional).', 'Filtre o painel por tipo de dispositivo.', 'Exporte o inventário em CSV ou JSON pelo painel ou com `atalaia export`; o CSV é seguro para abrir em planilhas.', '`atalaia backup` faz uma cópia consistente e privada do banco com o servidor rodando.'] },
+    },
+    {
+      version: '0.5.0', date: '2026-11-18',
+      en: { title: 'Better device identification', items: ['Devices are identified by mDNS service types and model, SSDP/UPnP and NetBIOS names.', 'A device-type guess (router, printer, TV, phone, camera…) with icons on the dashboard.'] },
+      'pt-BR': { title: 'Identificação melhor dos dispositivos', items: ['Os dispositivos são identificados pelos tipos de serviço e modelo mDNS, por SSDP/UPnP e por nomes NetBIOS.', 'Palpite do tipo de dispositivo (roteador, impressora, TV, celular, câmera…) com ícones no painel.'] },
+    },
   ],
 };
