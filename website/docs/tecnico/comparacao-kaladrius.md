@@ -1,7 +1,7 @@
 ---
 id: comparacao-kaladrius
 title: Comparação com o Kaladrius
-sidebar_position: 7
+sidebar_position: 8
 ---
 
 # O que aprender com o Kaladrius
@@ -12,7 +12,7 @@ O [Kaladrius](https://github.com/facchini-miguel/kaladrius) (Apache 2.0) é um s
 
 | Tema | Kaladrius | Atalaia hoje | Trazer? |
 |---|---|---|---|
-| Dependências (Dependabot) | Semanal, **espera de 7 dias** antes de propor uma versão nova, PRs agrupados | Semanal, sem espera, sem grupos | **Sim** (M7.1) |
+| Dependências (Dependabot) | Semanal, **espera de 7 dias** antes de propor uma versão nova, PRs agrupados | Semanal, sem espera, sem grupos | **Feito** (M7.1) |
 | Ações do GitHub e imagens | Fixadas por **SHA** e por **digest** | Por etiqueta (`@v7`, `node:24-alpine`) | **Sim** (M7.1) |
 | Arquivos do repositório | SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, CODEOWNERS, NOTICE | Só SECURITY | **Sim** (M7.2) |
 | Versões e novidades | `releases.yaml` único alimenta a página "Novidades" no app, a versão no rodapé e a release do GitHub | CHANGELOG em texto; versão só na tela Sobre | **Sim** (M7.3) |

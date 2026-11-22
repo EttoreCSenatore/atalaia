@@ -1,11 +1,28 @@
+# Dependabot (M7.1, cadeia de suprimentos).
+# - cooldown: só propõe uma versão publicada há pelo menos 7 dias. Pacotes comprometidos costumam ser
+#   descobertos e retirados em poucos dias; esperar evita puxá-los logo no lançamento.
+#   Correções de segurança (alertas do Dependabot) não esperam o cooldown.
+# - groups: atualizações menores e de correção vêm num PR só por ecossistema; maiores vêm separadas.
+# - Ações e imagens estão fixadas por SHA/digest; o Dependabot atualiza o SHA/digest e o comentário de versão.
+#   scripts/checar-fixacao.py falha no CI se algo ficar sem fixação.
 version: 2
 updates:
   - package-ecosystem: gomod
     directory: /
     schedule: {interval: weekly}
+    cooldown: {default-days: 7}
+    open-pull-requests-limit: 5
+    groups:
+      go-menores:
+        update-types: [minor, patch]
   - package-ecosystem: npm
     directory: /website
     schedule: {interval: weekly}
+    cooldown: {default-days: 7}
+    open-pull-requests-limit: 5
+    groups:
+      docs-menores:
+        update-types: [minor, patch]
     ignore:
       # TypeScript 7 remove `baseUrl`, que o @docusaurus/tsconfig ainda usa: esperar o Docusaurus.
       - dependency-name: "typescript"
@@ -13,6 +30,11 @@ updates:
   - package-ecosystem: npm
     directory: /web
     schedule: {interval: weekly}
+    cooldown: {default-days: 7}
+    open-pull-requests-limit: 5
+    groups:
+      web-menores:
+        update-types: [minor, patch]
     ignore:
       # svelte-check ainda exige o TypeScript 6 (o 7 pede um alias extra): esperar o suporte.
       - dependency-name: "typescript"
@@ -20,6 +42,13 @@ updates:
   - package-ecosystem: docker
     directory: /deploy
     schedule: {interval: weekly}
+    cooldown: {default-days: 7}
+    open-pull-requests-limit: 3
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: weekly}
+    cooldown: {default-days: 7}
+    open-pull-requests-limit: 5
+    groups:
+      acoes-menores:
+        update-types: [minor, patch]

@@ -21,10 +21,10 @@ jobs:
       run:
         working-directory: website
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
@@ -38,7 +38,7 @@ jobs:
       - name: Licenças das dependências (AGPL-3.0)
         run: python3 ../scripts/auditar-licencas.py --npm website
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v5
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: website/build
 
@@ -46,12 +46,14 @@ jobs:
     name: Agente Go (formato, vet, testes, vulnerabilidades)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-go@v7
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
           go-version-file: go.mod
+      - name: Fixação da cadeia de suprimentos (ações por SHA, imagens por digest)
+        run: python3 -I scripts/checar-fixacao.py
       - name: gofmt
         run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
       - run: go vet ./...
@@ -75,10 +77,10 @@ jobs:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
@@ -92,7 +94,7 @@ jobs:
         run: python3 ../scripts/auditar-licencas.py --npm web
       - name: SBOM do app web (CycloneDX)
         run: npm sbom --omit=dev --sbom-format cyclonedx > ../sbom-web.cdx.json
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: sbom-web
           path: sbom-web.cdx.json
@@ -102,7 +104,7 @@ jobs:
     name: Imagem (build, varredura, teste de fumaça)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - run: docker build -f deploy/Dockerfile -t atalaia:ci .
@@ -112,7 +114,7 @@ jobs:
       - name: Varredura de vulnerabilidades (Trivy; falha em CRÍTICA com correção disponível)
         run: |
           docker save atalaia:ci -o atalaia.tar
-          docker run --rm -v "$PWD/atalaia.tar:/image.tar:ro" aquasec/trivy:0.76.2 image --input /image.tar \
+          docker run --rm -v "$PWD/atalaia.tar:/image.tar:ro" aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb image --input /image.tar \
             --scanners vuln --ignore-unfixed --severity CRITICAL --exit-code 1
       - name: Teste de fumaça (servidor sobe, app e API respondem, código de configuração no log)
         run: |
@@ -139,4 +141,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

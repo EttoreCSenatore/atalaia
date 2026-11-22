@@ -54,4 +54,4 @@ Use GitHub's [private vulnerability reporting](https://github.com/EttoreCSenator
 
 ## Supply chain
 
-CI audits dependency vulnerabilities and licenses, and Dependabot keeps dependencies and GitHub Actions up to date.
+CI audits dependency vulnerabilities and licenses, and Dependabot keeps dependencies and GitHub Actions up to date, with a 7-day wait; actions and images are pinned by SHA and digest (see [Supply chain](cadeia-de-suprimentos.md)).
