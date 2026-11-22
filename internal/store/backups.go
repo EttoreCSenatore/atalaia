@@ -32,6 +32,9 @@ func (s *Store) BackupTo(ctx context.Context, dir string, keep int, now time.Tim
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", err
 	}
+	if err := privateDir(dir); err != nil {
+		return "", err
+	}
 	path := filepath.Join(dir, "atalaia-"+now.UTC().Format("20060102-150405")+".db")
 	if err := s.Backup(ctx, path); err != nil {
 		return "", err
@@ -86,7 +89,6 @@ func VerifyBackup(ctx context.Context, path, workDir string) (RestoreCheck, erro
 	if err := os.MkdirAll(workDir, 0o700); err != nil {
 		return rc, err
 	}
-	removeStaleScratch(workDir)
 	tmp, err := os.MkdirTemp(workDir, ".restore-test-")
 	if err != nil {
 		return rc, err
@@ -172,9 +174,10 @@ func copyFile(src, dst string) error {
 	return out.Close()
 }
 
-// removeStaleScratch deletes scratch copies left by a restore test that was
-// killed half-way (older than an hour, so a test running now is left alone).
-func removeStaleScratch(dir string) {
+// RemoveStaleScratch deletes scratch copies left in dir by a restore test that
+// was killed half-way (older than an hour, so a test running now is left
+// alone). Only the backup scheduler calls it, on its own folder.
+func RemoveStaleScratch(dir string) {
 	old, _ := filepath.Glob(filepath.Join(dir, ".restore-test-*"))
 	for _, p := range old {
 		if fi, err := os.Stat(p); err == nil && fi.IsDir() && time.Since(fi.ModTime()) > time.Hour {
@@ -217,4 +220,21 @@ func (s *Store) backupBeforeMigration(v int, now time.Time) (string, error) {
 		copies = copies[1:]
 	}
 	return path, nil
+}
+
+// privateDir refuses a backup folder that other users can write to: there
+// they could plant a file or symlink under the next backup's name. The
+// copies hold the alert secrets, so the folder should be private anyway.
+func privateDir(dir string) error {
+	fi, err := os.Stat(dir)
+	if err != nil {
+		return err
+	}
+	if !fi.IsDir() {
+		return fmt.Errorf("%s is not a folder", dir)
+	}
+	if fi.Mode().Perm()&0o022 != 0 {
+		return fmt.Errorf("the backup folder %s can be written by other users (mode %04o); use a private folder (chmod 700)", dir, fi.Mode().Perm())
+	}
+	return nil
 }

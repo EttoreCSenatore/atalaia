@@ -43,7 +43,7 @@ A URL é um segredo (quem a tiver pode mandar sinais falsos): ela nunca aparece 
 
 ## Prometheus: `/metrics`
 
-Desligado por padrão. Liga com um token de 32 caracteres ou mais, de um destes jeitos:
+Desligado por padrão. Liga com um token aleatório de 32 caracteres ou mais (ao menos 10 diferentes; `openssl rand -hex 32` serve), de um destes jeitos:
 
 - `--metrics-token-file ARQUIVO` ou `ATALAIA_METRICS_TOKEN_FILE` (melhor: o token não aparece na lista de processos);
 - uma credencial do systemd chamada `metrics-token` (`LoadCredential=metrics-token:/etc/atalaia/metrics-token`, veja `/etc/default/atalaia`);

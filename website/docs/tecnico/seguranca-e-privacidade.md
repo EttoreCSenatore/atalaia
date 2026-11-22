@@ -48,6 +48,22 @@ O código passou por uma revisão manual das partes críticas (login, sessões, 
 
 Esta revisão foi feita pelo próprio projeto, **não** substitui um teste de invasão independente.
 
+## Revisão da v0.7 (2026-11-22)
+
+Revisão manual de tudo o que a v0.7 acrescentou (endereço de saúde sem login, `/metrics`, backups automáticos e "Fazer backup agora", teste de restauração, cópia antes de migrar, `reset-password`, scripts dos pacotes, demonstração pública), com govulncheck, gosec, staticcheck, `npm audit` e Trivy (vulnerabilidades e segredos na imagem) sem achados.
+
+| Achado | Decisão |
+|---|---|
+| Um link simbólico plantado com o nome do próximo backup fazia a cópia ser gravada onde ele apontasse (só possível numa pasta de backups gravável por outros usuários) | Corrigido: o nome é conferido sem seguir links, o resultado precisa ser um arquivo comum, e o backup automático **recusa uma pasta gravável por outros usuários** |
+| `verify-backup` abre um arquivo de banco que pode vir de fora | Endurecido: o banco abre com `trusted_schema` desligado (views e triggers de um arquivo estranho não rodam funções com efeitos) |
+| Um token de `/metrics` longo mas repetitivo (`aaaa…`) era aceito | Corrigido: além de 32+ caracteres, o token precisa ter pelo menos 10 caracteres diferentes |
+| A limpeza de cópias de rascunho velhas rodava também na pasta de um arquivo passado ao `verify-backup` | Corrigido: só o backup automático limpa, e só na própria pasta |
+| `/api/health` responde sem login e mostra a versão | **Aceito**: só para a rede local e com a checagem de `Host`; nada sobre dispositivos nem textos de erro |
+| `POST /api/backup` pode ser chamado várias vezes | **Aceito**: só o administrador, com proteção CSRF, um backup por vez, e a rotação limita quantas cópias ficam |
+| `reset-password` não pede senha | **Aceito**: exige acesso ao arquivo do banco, que já dá controle total do Atalaia |
+| A URL dos sinais de vida é um segredo | Nunca vai para o log nem para mensagens de erro; espera no máximo 10 s e não segue redirecionamentos |
+| A demonstração simula a API com dados fictícios | O build real não leva esse código (a CI confere) |
+
 ## Como relatar uma vulnerabilidade
 
 Use o [relato privado de vulnerabilidades do GitHub](https://github.com/EttoreCSenatore/atalaia/security/advisories/new). Não abra uma issue pública com detalhes e não envie dados pessoais reais. O arquivo `SECURITY.md` do repositório tem o mesmo texto.

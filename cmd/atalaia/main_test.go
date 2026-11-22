@@ -337,24 +337,28 @@ func TestMetricsToken(t *testing.T) {
 	if tok, err := readMetricsToken(""); tok != "" || err != nil {
 		t.Fatalf("off: %q %v", tok, err)
 	}
-	t.Setenv("ATALAIA_METRICS_TOKEN", "short")
-	if _, err := readMetricsToken(""); err == nil {
-		t.Fatal("short token accepted")
+	for _, weak := range []string{"short", strings.Repeat("a", 40), strings.Repeat("abc", 15)} {
+		t.Setenv("ATALAIA_METRICS_TOKEN", weak)
+		if _, err := readMetricsToken(""); err == nil {
+			t.Fatalf("weak token %q accepted", weak)
+		}
 	}
+	t.Setenv("ATALAIA_METRICS_TOKEN", "")
 	f := filepath.Join(t.TempDir(), "tok")
-	if err := os.WriteFile(f, []byte(strings.Repeat("a", 40)+"\n"), 0o600); err != nil {
+	good := "3f9c1a7e5b2d8046c1e9a3b7d5f20864ce1a"
+	if err := os.WriteFile(f, []byte(good+"\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if tok, err := readMetricsToken(f); err != nil || tok != strings.Repeat("a", 40) {
+	if tok, err := readMetricsToken(f); err != nil || tok != good {
 		t.Fatalf("file: %q %v", tok, err)
 	}
 	// a systemd credential (LoadCredential=metrics-token:...)
 	creds := t.TempDir()
-	if err := os.WriteFile(filepath.Join(creds, "metrics-token"), []byte(strings.Repeat("c", 32)), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(creds, "metrics-token"), []byte("c"+good), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	t.Setenv("CREDENTIALS_DIRECTORY", creds)
-	if tok, err := readMetricsToken(""); err != nil || tok != strings.Repeat("c", 32) {
+	if tok, err := readMetricsToken(""); err != nil || tok != "c"+good {
 		t.Fatalf("credential: %q %v", tok, err)
 	}
 }

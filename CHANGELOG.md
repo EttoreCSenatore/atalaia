@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Security review of v0.7: automatic backups refuse a folder other users can write to, and a backup is never written through a symlink planted under its name; databases open with SQLite's `trusted_schema` off (`verify-backup` may open a foreign file); `/metrics` tokens must also have at least 10 different characters; old scratch copies are cleaned only in the automatic backups' own folder. Scanners (govulncheck, gosec, staticcheck, npm audit, Trivy) found nothing. Findings and accepted risks are in the security page.
+
+**PT-BR** — Revisão de segurança da v0.7: os backups automáticos recusam uma pasta gravável por outros usuários, e um backup nunca é gravado através de um link simbólico plantado com o nome dele; os bancos abrem com o `trusted_schema` do SQLite desligado (o `verify-backup` pode abrir um arquivo de fora); o token de `/metrics` também precisa de ao menos 10 caracteres diferentes; cópias de rascunho velhas só são limpas na própria pasta dos backups automáticos. As ferramentas (govulncheck, gosec, staticcheck, npm audit, Trivy) não acharam nada. Achados e riscos aceitos estão na página de segurança.
+
 **EN** — Decision: no Spanish translation (M7.10 dropped); the project stays in Portuguese and English (decision log row 27).
 
 **PT-BR** — Decisão: sem tradução para o espanhol (M7.10 descartado); o projeto fica em português e inglês (registro de decisões, linha 27).

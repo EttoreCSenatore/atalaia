@@ -143,7 +143,9 @@ func (s *Store) Backup(ctx context.Context, path string) error {
 	if err != nil {
 		return err
 	}
-	if _, err := os.Stat(abs); err == nil {
+	// Lstat, not Stat: a dangling symlink planted at the name would otherwise
+	// look free, and the copy would be written wherever it points
+	if _, err := os.Lstat(abs); err == nil {
 		return fmt.Errorf("%s already exists; choose a new file name", abs)
 	}
 	old := syscallUmask(0o077) // the copy is never readable by others, not even for an instant
@@ -151,6 +153,11 @@ func (s *Store) Backup(ctx context.Context, path string) error {
 	if _, err := s.db.ExecContext(ctx, `VACUUM INTO ?`, abs); err != nil {
 		_ = os.Remove(abs) // never leave a half-written copy that looks like a backup
 		return err
+	}
+	// something swapped in during the copy (a symlink race in a shared folder) is refused
+	if fi, err := os.Lstat(abs); err != nil || !fi.Mode().IsRegular() {
+		_ = os.Remove(abs)
+		return fmt.Errorf("%s is not a regular file after the backup; refusing it", abs)
 	}
 	return os.Chmod(abs, 0o600)
 }

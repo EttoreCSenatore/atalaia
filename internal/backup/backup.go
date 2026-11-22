@@ -125,6 +125,7 @@ func (s *Scheduler) run(ctx context.Context) error {
 	if ok && now.Sub(at) < RestoreEvery {
 		return nil
 	}
+	store.RemoveStaleScratch(s.Dir)
 	_, verr := store.VerifyBackup(ctx, path, s.Dir)
 	if err := s.Store.RecordRestoreTest(ctx, now, verr == nil); err != nil {
 		return err
