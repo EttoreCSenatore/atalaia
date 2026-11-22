@@ -58,3 +58,7 @@ See [Upgrading](../operacao/atualizacao.md). The database is copied before its f
 ## Does it work on Windows or macOS?
 
 Discovery uses Linux features (the kernel's ARP table, unprivileged sockets). Use Linux: a Raspberry Pi is enough.
+
+## Can I install it on my phone?
+
+Yes: see [Install as an app](../funcionalidades/app-web.md#install-as-an-app). The install option only appears over HTTPS with a certificate the device trusts; otherwise, use the browser as usual.

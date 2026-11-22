@@ -54,6 +54,17 @@ Quanto tempo o histórico é guardado (padrão 90 dias; 0 guarda tudo), troca de
 
 ![Tela de configurações](/img/screenshots/app-configuracoes.png)
 
+## Instalar como app
+
+O Atalaia pode ser instalado como app (PWA) no celular ou no computador: ganha ícone próprio, abre em janela própria e, se o servidor estiver fora do ar ou você estiver longe de casa, abre mesmo assim e diz "Não foi possível falar com o servidor", em vez de uma página de erro do navegador.
+
+- **Chrome, Edge (Android, Windows, Linux, macOS):** menu do navegador › **Instalar app** (ou o ícone de instalar na barra de endereço).
+- **Safari (iPhone, iPad):** Compartilhar › **Adicionar à Tela de Início**.
+
+Os navegadores só permitem instalar com **HTTPS com um certificado em que o aparelho confia** (ou em `localhost`). Com o certificado autoassinado do [HTTPS embutido](../tecnico/implantacao.md#https-embutido) ou em HTTP puro, o app funciona igual, só não aparece a opção de instalar. Para ter a opção, use um certificado próprio (`--tls-cert`/`--tls-key`, por exemplo o do `tailscale cert`) ou um proxy reverso com TLS.
+
+O que fica guardado no aparelho é só o "casco" do app (HTML, JavaScript, CSS e ícones). **Nenhuma resposta da API é guardada** pelo app instalado: a lista de dispositivos, o histórico e as configurações continuam vindo do servidor a cada vez. Cada versão nova do Atalaia troca o casco guardado na próxima vez que o app abre com o servidor no ar.
+
 ## Novidades
 
 A página **Novidades** (link no rodapé e em Configurações) mostra o que mudou em cada versão, com a marca "Em uso" na versão rodando. Depois de uma atualização, um aviso no topo diz para qual versão o Atalaia foi atualizado. Veja [Versões e novidades](../tecnico/versionamento.md).

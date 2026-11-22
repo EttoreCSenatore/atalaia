@@ -54,6 +54,17 @@ How long the history is kept (default 90 days; 0 keeps everything), password cha
 
 ![Settings screen](/img/screenshots/app-configuracoes-en.png)
 
+## Install as an app
+
+Atalaia can be installed as an app (PWA) on a phone or computer: it gets its own icon, opens in its own window and, when the server is down or you are away from home, it still opens and says "Could not reach the server" instead of a browser error page.
+
+- **Chrome, Edge (Android, Windows, Linux, macOS):** browser menu › **Install app** (or the install icon in the address bar).
+- **Safari (iPhone, iPad):** Share › **Add to Home Screen**.
+
+Browsers only allow installing over **HTTPS with a certificate the device trusts** (or on `localhost`). With the self-signed certificate of the [built-in HTTPS](../tecnico/implantacao.md#built-in-https) or over plain HTTP, the app works the same, the install option just does not appear. To get it, use your own certificate (`--tls-cert`/`--tls-key`, for example one from `tailscale cert`) or a reverse proxy with TLS.
+
+Only the app "shell" is kept on the device (HTML, JavaScript, CSS and icons). **No API response is kept** by the installed app: the device list, history and settings still come from the server every time. Each new Atalaia version replaces the kept shell the next time the app opens with the server up.
+
 ## What's new
 
 The **What's new** page (linked in the footer and in Settings) shows what changed in each version, with a "Running" mark on the running version. After an update, a notice at the top says which version Atalaia was updated to. See [Versions and what's new](../tecnico/versionamento.md).

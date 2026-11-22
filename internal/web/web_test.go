@@ -42,6 +42,21 @@ func TestServesAppAndFallsBackToIndex(t *testing.T) {
 	}
 }
 
+func TestInstallableAppFiles(t *testing.T) {
+	h := handler(fstest.MapFS{
+		"index.html":           {Data: []byte("<html>app</html>")},
+		"sw.js":                {Data: []byte("self.addEventListener('fetch', () => {})")},
+		"manifest.webmanifest": {Data: []byte(`{"name":"Atalaia"}`)},
+	})
+	if w := get(h, "/manifest.webmanifest"); w.Code != 200 || w.Header().Get("Content-Type") != "application/manifest+json" {
+		t.Fatalf("manifest: %d %q", w.Code, w.Header().Get("Content-Type"))
+	}
+	w := get(h, "/sw.js")
+	if w.Code != 200 || w.Header().Get("Cache-Control") != "no-cache" || !strings.Contains(w.Header().Get("Content-Type"), "javascript") {
+		t.Fatalf("sw.js: %d %q %q", w.Code, w.Header().Get("Cache-Control"), w.Header().Get("Content-Type"))
+	}
+}
+
 func TestPlaceholderWhenNotBuilt(t *testing.T) {
 	h := handler(fstest.MapFS{"placeholder.txt": {Data: []byte("x")}})
 	if w := get(h, "/"); w.Code != 200 || !strings.Contains(w.Body.String(), "not built") {

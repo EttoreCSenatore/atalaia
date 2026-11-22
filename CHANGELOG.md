@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**EN** — Installable app (PWA): web app manifest, icons (with a maskable one) and a hand-written service worker that keeps only the app shell, so the installed app opens without the server and says it cannot reach it; it never answers or caches `/api/` or `/metrics`. Registered only in a secure context and never in the demo. Docs: "Install as an app", FAQ, decision log row 28.
+
+**PT-BR** — App instalável (PWA): manifesto do app web, ícones (com um "maskable") e um service worker escrito à mão que guarda só o casco do app, para o app instalado abrir sem o servidor e dizer que não o alcança; ele nunca responde nem guarda `/api/` ou `/metrics`. Só é registrado em contexto seguro e nunca na demonstração. Documentação: "Instalar como app", perguntas frequentes, linha 28 do registro de decisões.
+
 **EN** — Upgrade-test database for v0.7.1 added.
 
 **PT-BR** — Banco de teste de atualização da v0.7.1 incluído.
